@@ -83,7 +83,7 @@ class Estimation():
     Sets the Following Attributes:
     ------------------------------
     - Lambda (float): Match probability.
-    - Pi (Tensor): This three-dimensional vector contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
+    - Pi (Tensor): This three-dimensional tensor contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
                    The first dimension represents the variable.
                    The second dimension represents the discrete level of similarity.
                    The third dimension represents the latent state.
