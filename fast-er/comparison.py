@@ -393,7 +393,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
 
-  chunks_A = math.ceil(len(unique_B) / max_chunk_size)
+  chunks_A = math.ceil(len(unique_A) * len(unique_B) / max_chunk_size)
 
   unique_A_partitions = np.array_split(unique_A, chunks_A)
 
