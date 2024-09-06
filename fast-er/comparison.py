@@ -403,6 +403,14 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   indices = [jaro_winkler_gpu(x, unique_B, unique_A_partitions_len[i] * len(unique_B), lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions)]
 
+  #chunk_size_A = max_chunk_size // len(unique_B)
+
+  #unique_A_partitions = da.from_array(unique_A, chunks = chunk_size_A)
+
+  # Compute Jaro-Winkler similarity by chunk
+
+  #indices = [jaro_winkler_gpu(x.compute(), unique_B, i * chunk_size_A * len(unique_B), lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions.partitions)]
+
   # Concatenate indices of all chunks
 
   indices1 = cp.concatenate((x[0] for x in indices))
@@ -549,7 +557,7 @@ def merge_indices_pair_split(indices1, indices2, max_elements = 2500000):
         if j != 0:
 
           chunks_temp1 = math.ceil(len(temp1) / max_elements)
-          temp1_split = cp.array_split(temp1, chunks_temp1)
+          temp1_split = cp.array_split(temp1, chunks_temp1) # Slicing
 
           output_in = functools.reduce(cp.setdiff1d, [indices2[j - 1]] + temp1_split)
 
@@ -574,7 +582,7 @@ def merge_indices_pair_split(indices1, indices2, max_elements = 2500000):
 
         else:
 
-          if len(indices2[j - 1]) > 0:
+          if len(indices1[i - 1]) > 0 and len(indices2[j - 1]) > 0:
             chunks_indices1 = math.ceil(len(indices1[i - 1]) / max_elements)
             indices1_split = cp.array_split(indices1[i - 1], chunks_indices1)
 
