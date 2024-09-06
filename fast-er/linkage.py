@@ -21,7 +21,7 @@ class Linkage():
     self.Indices = Indices
     self.Ksi = Ksi
 
-  def transform(self, Threshold = 0.5):
+  def transform(self, Threshold = 0.85):
     '''
     This method returns a dataframe in which all pairs of observations with conditional match probabilities above some threshold are linked.
 
@@ -42,13 +42,13 @@ class Linkage():
 
     df_B = self.df_B.add_suffix('_B')
 
-    df_A['_Index_A'] = range(len(df_A))
+    df_A['Index_A'] = range(len(df_A))
 
-    df_B['_Index_B'] = range(len(df_B))
+    df_B['Index_B'] = range(len(df_B))
 
     # Extracting the Indices for which Ksi is above the threshold
 
-    Indices_to_Link = cp.concatenate((self.Indices[i] for i in range(len(self.Indices)) if self.Ksi[i] >= Threshold))
+    Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.argwhere(self.Ksi >= Threshold).T[0]))
 
     Indices_to_Link_A = Indices_to_Link % len(df_B)
 
@@ -63,18 +63,18 @@ class Linkage():
 
     # Extracting the records in df_A with which records in df_B must be linked
 
-    df_A = df_A.iloc[Indices_to_Link_A_cpu,:]
+    df_A = df_A.iloc[Indices_to_Link_A_cpu,:].reset_index()
+
+    df_A['Index_B'] = Indices_to_Link_B_cpu
 
     # Adding the index of the record in df_B to which each record in df_A should be linked
 
-    df_A['_Index_B'] = Indices_to_Link_B_cpu
-
     # Adding the conditional match probability associated with each pair of records
 
-    df_A['_Ksi'] = np.repeat([self.Ksi[i] for i in range(len(self.Indices)) if self.Ksi[i] >= Threshold], [len(x) for x in [self.Indices[i] for i in range(len(self.Indices)) if self.Ksi[i] >= Threshold]])
+    # df_A['_Ksi'] = np.repeat([self.Ksi[i] for i in range(len(self.Indices)) if self.Ksi[i] >= Threshold], [len(x) for x in [self.Indices[i] for i in range(len(self.Indices)) if self.Ksi[i] >= Threshold]])
 
     # Linking the records in df_A and df_B
 
     # Move columns around: _Index_A and _Index_B and _Ksi first, A, and then B
 
-    return df_A.merge(df_B, on = '_Index_B').sort_values(by = ['_Index_A', '_Index_B'])
+    return df_A.merge(df_B, on = 'Index_B').reset_index()
