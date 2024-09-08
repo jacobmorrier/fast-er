@@ -19,7 +19,7 @@ Leveraging state-of-the-art GPU-accelerated computation tools, we have implement
 
 Suppose we want to join observations from two data sets, $\mathcal{A}$ and $\mathcal{B}$, with sizes $N_\mathcal{A}$ and $N_\mathcal{B}$, respectively. Both datasets have $K$ variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the $N_\mathcal{A} \times N_\mathcal{B}$ pairs of values, we define an agreement vector of length $K$, denoted $\mathbf{\gamma}_{ij}$. The $k^{\textrm{th}}$ element of this vector indicates the discrete level of similarity for the $k^{\textrm{th}}$ variable between the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$.
 
-We use the Jaro-Winkler similarity metric to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from $0$ to $1$. We calculate the similarity between two strings, $s_1$ and $s_2$, using the following formula:
+We use the Jaro-Winkler similarity metric to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. We calculate the similarity between two strings, $s_1$ and $s_2$, using the following formula:
 
 $$\mathcal{S}\left(s_1, s_2\right) = \mathcal{J}\left(s_1, s_2\right) + \ell \times w \times \left(1 - \mathcal{J}\left(s_1, s_2\right)\right),$$
 
@@ -27,7 +27,7 @@ where:
 
 $$\mathcal{J}\left(s_1, s_2\right) = \frac{1}{3} \left( \frac{m}{\left|s_1\right|} + \frac{m}{\left|s_2\right|} + \frac{m-\frac{t}{2}}{m}\right).$$
 
-In these equations, $\left|s\right|$ denotes the length of string $s$, $m$ is the number of matching characters between the strings, and $t$ is the number of transpositions between matching characters. Furthermore, $\ell$ (ranging from $0$ to $4$) represents the number of consecutive matching characters at the beginning of both strings, and $w$ (ranging from $0$ to $0.25$) is the weight assigned to $\ell$. We discretize the Jaro-Winkler similarity so that the values of the agreement vectors $\mathbf{\gamma}$ are integers between $0$ and $L-1$, with higher integer values reflecting a greater similarity. In practice, we categorize the Jaro-Winkler similarity into three levels, using two thresholds to define these partitions.
+In these equations, $\left|s\right|$ denotes the length of string $s$, $m$ is the number of matching characters between the strings, and $t$ is the number of transpositions between matching characters. Furthermore, $\ell$ (ranging from 0 to 4) represents the number of consecutive matching characters at the beginning of both strings, and $w$ (ranging from 0 to 0.25) is the weight assigned to $\ell$. We discretize the Jaro-Winkler similarity so that the values of the agreement vectors $\mathbf{\gamma}$ are integers between 0 and $L-1$, with higher integer values reflecting a greater similarity. In practice, we categorize the Jaro-Winkler similarity into three levels, using two thresholds to define these partitions.
 
 The agreement vectors $\mathbf{\gamma}$ are used to estimate a naive Bayes latent variable model, which assigns weights to each variable based on its ability to distinguish between matches and non-matches. These weights are subsequently used to estimate the probability that two records refer to the same unit. In turn, this probability determines which observations are linked together.
 
@@ -147,7 +147,7 @@ This class links the records in two data frames based on previously estimated co
 `transform(Threshold = 0.5)`
 
 **Parameters:**
-- `Threshold` (*float, default = 0.5*): This is the threshold above which pairs of observations in `df_A` and `df_B` must be linked. Its value must be between $0$ and $1$.
+- `Threshold` (*float, default = 0.5*): This is the threshold above which pairs of observations in `df_A` and `df_B` must be linked. Its value must be between 0 and 1.
 
 **Returns:**
 - `df_linked` (*Pandas DataFrame*): A data frame in which all pairs of records in `df_A` and `df_B` with a conditional match probability above the threshold are linked.
