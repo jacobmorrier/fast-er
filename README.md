@@ -81,7 +81,7 @@ This class contains our primary contribution, as it performs the GPU-accelerated
 ## Example
 
 Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
-```
+```python
 # Comparison Class
 vars = ['last_name', 'first_name', ‘house_number’, ‘street_address’]
 
