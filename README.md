@@ -83,8 +83,8 @@ This class contains our primary contribution, as it performs the GPU-accelerated
 This class evaluates the similarity between the values in two datasets using the Jaro-Winkler metric.
 
 **Parameters:**
-- `df_A` (*pd.DataFrame*): First dataframe to compare.
-- `df_B` (*pd.DataFrame*): Second dataframe to compare.
+- `df_A` (*Pandas DataFrame*): First dataframe to compare.
+- `df_B` (*Pandas DataFrame*): Second dataframe to compare.
 - `vars_A` (*array_like*): Names of variables to compare in `df_A`.
 - `vars_B` (*array_like*): Names of variables to compare in `df_B`. The variables must be listed in the same order as in `vars_A`.
 
@@ -139,8 +139,8 @@ This method estimates the parameters of the Fellegi-Sunter model using the Expec
 This class links the records in two data frames based on previously estimated conditional match probabilities.
 
 **Parameters:**
-- `df_A` (*pd.DataFrame*): First dataframe to link.
-- `df_B` (*pd.DataFrame*): Second dataframe to link.
+- `df_A` (*Pandas DataFrame*): First dataframe to link.
+- `df_B` (*Pandas DataFrame*): Second dataframe to link.
 - `Indices` (*list of CuPy arrays*): This list contains the indices of pairs of records in `df_A` and `df_B` corresponding to each pattern of discrete levels of similarity across variables.
 - `Ksi` (*NumPy array*): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
 
@@ -150,7 +150,7 @@ This class links the records in two data frames based on previously estimated co
 - `Threshold` (*float, default = 0.5*): This is the threshold above which pairs of observations in `df_A` and `df_B` must be linked. Its value must be between $0$ and $1$.
 
 **Returns:**
-- `df_linked` (*pd.DataFrame*): A data frame in which all pairs of records in `df_A` and `df_B` with a conditional match probability above the threshold are linked.
+- `df_linked` (*Pandas DataFrame*): A data frame in which all pairs of records in `df_A` and `df_B` with a conditional match probability above the threshold are linked.
 
 ## Example
 
