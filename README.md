@@ -1,5 +1,12 @@
 # Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 
+Authors:
+- Jacob Morrier
+- Sulekha Kishore
+- R. Michael Alvarez
+
+## Introduction
+
 Record linkage, also called “entity resolution,” encompasses techniques for joining observations from two datasets that refer to the same unit or entity, even when the datasets do not share consistently formatted common identifiers.
 
 Typically, record linkage involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of possible values across both datasets. While these calculations are simple, they become computationally expensive as the number of observations increases, causing the number of required comparisons to grow exponentially. For example, when linking observations from two datasets, each with 1,000,000 observations, adding just one more observation to either dataset results in an additional 1,000,000 comparisons. This makes record linkage prohibitively expensive to perform, even for datasets of moderate size.
@@ -10,7 +17,7 @@ Leveraging state-of-the-art GPU-accelerated computation tools, we have implement
 
 ## Description of the Fellegi-Sunter Model
 
-Suppose we want to join observations from two data sets, $\mathcal{A}$ and $\mathcal{B}$, with sizes $N_\mathcal{A}$ and $N_\mathcal{B}$, respectively. Both datasets have $K$ variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the $N_\mathcal{A} \times N_\mathcal{B}$ pairs of values, we define an agreement vector of length $K$, denoted $\mathbf{\gamma}_{ij}$. The $k$th element of this vector indicates the discrete level of similarity for the $k^{\textrm{th}}$ variable between the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$.
+Suppose we want to join observations from two data sets, $\mathcal{A}$ and $\mathcal{B}$, with sizes $N_\mathcal{A}$ and $N_\mathcal{B}$, respectively. Both datasets have $K$ variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the $N_\mathcal{A} \times N_\mathcal{B}$ pairs of values, we define an agreement vector of length $K$, denoted $\mathbf{\gamma}_{ij}$. The $k^{\textrm{th}}$ element of this vector indicates the discrete level of similarity for the $k^{\textrm{th}}$ variable between the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$.
 
 We use the Jaro-Winkler similarity metric to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from $0$ to $1$. We calculate the similarity between two strings, $s_1$ and $s_2$, using the following formula:
 
@@ -24,7 +31,7 @@ In these equations, $\left|s\right| denotes the length of string $s$, $m$ is the
 
 The agreement vectors $\mathbf{\gamma}$ are used to estimate a naive Bayes latent variable model, which assigns weights to each variable based on its ability to distinguish between matches and non-matches. These weights are subsequently used to estimate the probability that two records refer to the same unit. In turn, this probability determines which observations are linked together.
 
-Formally, the model presumes the existence of a latent variable $M_{ij}$, which indicates whether the pair of observations consisting of the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$ constitutes a match. The model follows a simple finite mixture structure:
+Formally, the model presumes the existence of a latent variable $M_{ij}$, which indicates whether the pair of observations consisting of the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$ constitutes a match.[^1] The model follows a simple finite mixture structure:
 
 $$\gamma_{ij}\left(k\right) \sim \textrm{Discrete}\left(\mathbf{\pi}_{km}\right)$$
 
@@ -33,6 +40,8 @@ $$M_{ij} \sim \textrm{Bernoulli}\left(\lambda\right).$$
 The vector $\mathbf{\pi}_{km}$, of length $L$, represents the probability of each discrete similarity level being observed for the $k^{\textrm{th}}$ variable conditional on whether the pair is a match ($m=1$) or not ($m=0$). The parameter $\lambda$ denotes the overall probability of a match across all pairwise comparisons. The model's estimands are the parameters $\lambda$ and $\mathbf{\pi}$. Once estimated, these parameters can be used to calculate the conditional match probability for all pairs of observations.
 
 Calculating the Jaro-Winkler similarity between all pairs of values is highly amenable to parallelization because each pair is processed independently using the same instructions. Our main contribution consists in implementing this parallelization on GPUs.
+
+[^1]: For a more detailed description and discussion fo the Fellegi-Sunter model, see this [paper](https://www.cambridge.org/core/journals/american-political-science-review/article/using-a-probabilistic-model-to-assist-merging-of-largescale-administrative-records/DB2955F64A1F4E262C5B9B26C6D7552E).
 
 ## Brief Overview of General-Purpose Computing on Graphical Processing Units 
 
@@ -50,11 +59,20 @@ The Arrow columnar format is indispensable for storing and manipulating strings 
 
 ## Experiments
 
+To illustrate the benefits of GPU-accelerated probabilistic record linkage, we compare the performance of our library with that of the previous leading implementation, fastLink. We undertake to join two excerpts of North Carolina voter registration rolls of varying sizes (from 1,000 to 100,000 observations) along four variables: first name, last name, house number, and street name. Each dataset contains 50% overlapping records. To create the need for probabilistic record linkage, we introduce noise into 5% of the records through various transformations: character addition, character deletion, random shuffling of values, replacing a character with another, and swapping two adjacent characters. These experiments confirm that our implementation of the Fellegi-Sunter probabilistic record linkage model is systematically faster than the previous leading implementation, achieving speed improvements of over 60 times.
+
+| Package | Description of the Benchmarking Environment |
+| :---: | --- |
+| Fast-ER | Google Colab T4 GPU instance |
+| fastLink | MacBook Pro 2021 with Apple M1 Pro Chip (10 CPU cores) and 32 GB unified memory |
+
 ## Documentation
 
 The Fast-ER library consists of three classes, each corresponding to a stage in the probabilistic record linkage process. They are intended to be executed in sequence.
 
 ### Comparison Class
+
+This class contains our primary contribution, as it performs the GPU-accelerated computation of the Jaro-Winkler similarity to compare each pair of values between two datasets.
 
 ### Estimation Class
 
