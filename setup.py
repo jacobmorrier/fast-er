@@ -3,15 +3,10 @@ import pathlib
 
 here = pathlib.Path(__file__).parent.resolve()
 
-# Get the long description from the README file
-long_description = (here / "README.md").read_text(encoding="utf-8")
-
 setup(
     name="fast-er",
     version="0.1.0",
     description="GPU-Accelerated Probabilistic Record Linkage in Python",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
     url="https://github.com/jacobmorrier/fast-er",
     author="Jacob Morrier, Sulekha Kishore, R. Michael Alvarez",
     author_email="jmorrier@caltech.edu, sulekha@caltech.edu, rma@hss.caltech.edu",
