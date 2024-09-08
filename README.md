@@ -61,10 +61,16 @@ The Arrow columnar format is indispensable for storing and manipulating strings 
 
 To illustrate the benefits of GPU-accelerated probabilistic record linkage, we compare the performance of our library with that of the previous leading implementation, fastLink. We undertake to join two excerpts of North Carolina voter registration rolls of varying sizes (from 1,000 to 100,000 observations) along four variables: first name, last name, house number, and street name. Each dataset contains 50% overlapping records. To create the need for probabilistic record linkage, we introduce noise into 5% of the records through various transformations: character addition, character deletion, random shuffling of values, replacing a character with another, and swapping two adjacent characters. These experiments confirm that our implementation of the Fellegi-Sunter probabilistic record linkage model is systematically faster than the previous leading implementation, achieving speed improvements of over 60 times.
 
+<p align='center'>
+![](assets/Comparison.png)
+
+![](assets/Improvement.png)
+
 | Package | Description of the Benchmarking Environment |
 | :---: | --- |
 | Fast-ER | Google Colab T4 GPU instance |
 | fastLink | MacBook Pro 2021 with Apple M1 Pro Chip (10 CPU cores) and 32 GB unified memory |
+</p>
 
 ## Documentation
 
@@ -99,6 +105,9 @@ link = Linkage(df_A, df_B, comp.Indices, est.Ksi)
 
 df_linked = link.transform()
 ```
+
+> [!TIP]
+> Ensure that the variables you intend to link are formatted as strings.
 
 ## Conclusion
 
