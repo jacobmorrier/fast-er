@@ -78,9 +78,79 @@ The Fast-ER library consists of three classes, each corresponding to a stage in 
 
 This class contains our primary contribution, as it performs the GPU-accelerated computation of the Jaro-Winkler similarity to compare each pair of values between two datasets.
 
+`class Comparison(df_A, df_B, vars_A, vars_B)`
+
+This class evaluates the similarity between the values in two datasets using the Jaro-Winkler metric.
+
+**Parameters:**
+- `df_A` (*pd.DataFrame*): First dataframe to compare.
+- `df_B` (*pd.DataFrame*): Second dataframe to compare.
+- `vars_A` (*array_like*): Names of variables to compare in `df_A`.
+- `vars_B` (*array_like*): Names of variables to compare in `df_B`. The variables must be listed in the same order as in `vars_A`.
+
+**Attributes:**
+- `Indices` (*list of CuPy arrays*): This list contains the indices of pairs of records in `df_A` and `df_B` corresponding to each pattern of discrete levels of similarity across variables. The indices represent `i * len(df_B) + j`, where `i` is the element's index in `df_A` and `j` is the element's index in `df_B`.
+- `Counts` (*NumPy array*): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+
+`fit(Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256)`
+
+This method calculates the Jaro-Winkler similarity for every pair of observations across all variables.
+
+**Parameters:**
+- `Lower_Thr` (*float, default = 0.88*): Lower threshold for discretizing the Jaro-Winkler similarity.
+- `Upper_Thr` (*float, default = 0.94*): Upper threshold for discretizing the Jaro-Winkler similarity.
+- `Num_Threads` (*int, default = 256*): Number of threads per block. The maximal possible value is 1,024.
+
 ### Estimation Class
 
+`class Estimation(K, Counts, L = 3)`
+
+This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
+
+**Parameters:**
+- `K` (*int*): Number of variables compared.
+- `Counts` (*NumPy array*): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+- `L` (*int, default = 3*): Number of discrete levels the similarity can take.
+
+**Attributes:**
+- `Gamma` (*Tensor*): This three-dimensional tensor encodes all the observed patterns of discrete levels of similarity across variables.
+  - The first dimension indexes the patterns.
+  - The second dimension represents the variable.
+  - The third dimension represents the discrete level of similarity taken by the variable.
+- `Lambda` (*float*): Match probability.
+- `Pi` (*Tensor*): This three-dimensional tensor contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
+  - The first dimension represents the variable.
+  - The second dimension represents the discrete level of similarity.
+  - The third dimension represents the latent state.
+- `Ksi` (*NumPy array*): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+
+`fit(Tolerance = 1e-4, Max_Iter = 500)`
+
+This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
+
+**Parameters:**
+- `Tolerance` (*float, default = 1e-4*): This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in `Pi` is smaller than the value of this parameter.
+- `Max_Iter` (*float, default = 500*): This parameter determines the maximal number of iterations of the EM algorithm.
+
 ### Linkage Class
+
+`class Linkage(df_A, df_B, Indices, Ksi)`
+
+This class links the records in two data frames based on previously estimated conditional match probabilities.
+
+**Parameters:**
+- `df_A` (*pd.DataFrame*): First dataframe to link.
+- `df_B` (*pd.DataFrame*): Second dataframe to link.
+- `Indices` (*list of CuPy arrays*): This list contains the indices of pairs of records in `df_A` and `df_B` corresponding to each pattern of discrete levels of similarity across variables.
+- `Ksi` (*NumPy array*): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+
+`transform(Threshold = 0.5)`
+
+**Parameters:**
+- `Threshold` (*float, default = 0.5*): This is the threshold above which pairs of observations in `df_A` and `df_B` must be linked. Its value must be between $0$ and $1$.
+
+**Returns:**
+- `df_linked` (*pd.DataFrame*): A data frame in which all pairs of records in `df_A` and `df_B` with a conditional match probability above the threshold are linked.
 
 ## Example
 
