@@ -43,7 +43,7 @@ Calculating the Jaro-Winkler similarity between all pairs of values is highly am
 
 [^1]: For a more detailed description and discussion fo the Fellegi-Sunter model, see this [paper](https://www.cambridge.org/core/journals/american-political-science-review/article/using-a-probabilistic-model-to-assist-merging-of-largescale-administrative-records/DB2955F64A1F4E262C5B9B26C6D7552E).
 
-## Brief Overview of General-Purpose Computing on Graphical Processing Units 
+## Brief Description of General-Purpose Computing on Graphical Processing Units 
 
 GPUs are specialized electronic circuits designed in the 1970s to enhance digital image processing. Unlike central processing units (CPUs), which are optimized for the rapid execution of sequential instructions, GPUs are designed to perform thousands of operations simultaneously. This parallelism makes them highly efficient for tasks that can be broken down into many smaller, simultaneous calculations, particularly those involving graphics. Early applications of GPUs focused on geometric transformations, such as rotating and translating vertices between coordinate systems, as well as texture mapping, where they could process large numbers of pixels concurrently.
 
