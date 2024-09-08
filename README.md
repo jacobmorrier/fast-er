@@ -19,7 +19,7 @@ Leveraging state-of-the-art GPU-accelerated computation tools, we have implement
 
 Suppose we want to join observations from two data sets, $\mathcal{A}$ and $\mathcal{B}$, with sizes $N_\mathcal{A}$ and $N_\mathcal{B}$, respectively. Both datasets have $K$ variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the $N_\mathcal{A} \times N_\mathcal{B}$ pairs of values, we define an agreement vector of length $K$, denoted $\mathbf{\gamma}_{ij}$. The $k^{\textrm{th}}$ element of this vector indicates the discrete level of similarity for the $k^{\textrm{th}}$ variable between the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$.
 
-We use the Jaro-Winkler similarity metric to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. We calculate the similarity between two strings, $s_1$ and $s_2$, using the following formula:
+We use the [Jaro-Winkler similarity metric](https://en.wikipedia.org/wiki/Jaro–Winkler_distance) to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. We calculate the similarity between two strings, $s_1$ and $s_2$, using the following formula:
 
 $$\mathcal{S}\left(s_1, s_2\right) = \mathcal{J}\left(s_1, s_2\right) + \ell \times w \times \left(1 - \mathcal{J}\left(s_1, s_2\right)\right),$$
 
