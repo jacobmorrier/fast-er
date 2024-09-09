@@ -1,4 +1,4 @@
-cupy
+cupy-cuda12x
 numpy
 pandas
 scikit-learn
