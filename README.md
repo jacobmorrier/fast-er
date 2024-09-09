@@ -154,6 +154,14 @@ This class links the records in two data frames based on previously estimated co
 
 ## Example
 
+To install the library from this repository, execute the following command:
+```python
+!pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
+
+import importlib
+faster = importlib.import_module("fast-er")
+```
+
 Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
 ```python
 # Comparison Class
