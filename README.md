@@ -72,6 +72,8 @@ To illustrate the benefits of GPU-accelerated probabilistic record linkage, we c
 
 ## Documentation
 
+<!--Placeholder for link to Read the Docs-->
+
 The Fast-ER library consists of three classes, each corresponding to a stage in the probabilistic record linkage process. They are intended to be executed in sequence.
 
 ### Comparison Class
