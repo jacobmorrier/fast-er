@@ -167,17 +167,17 @@ Here is an example of a standard probabilistic record linkage pipeline, using th
 # Comparison Class
 vars = ['last_name', 'first_name', 'house_number', 'street_address']
 
-comp = Comparison(df_A, df_B, vars, vars)
+comp = faster.Comparison(df_A, df_B, vars, vars)
 
 comp.fit()
 
 # Estimation Class
-est = Estimation(len(vars), comp.Counts)
+est = faster.Estimation(len(vars), comp.Counts)
 
 est.fit()
 
 #Linkage Class
-link = Linkage(df_A, df_B, comp.Indices, est.Ksi)
+link = faster.Linkage(df_A, df_B, comp.Indices, est.Ksi)
 
 df_linked = link.transform()
 ```
