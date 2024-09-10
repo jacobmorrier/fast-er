@@ -2,7 +2,7 @@
 
 **Authors:**
 - [Jacob Morrier](https://www.jacobmorrier.com)
-- Sulekha Kishore
+- [Sulekha Kishore](https://www.linkedin.com/in/sulekha-kishore/)
 - [R. Michael Alvarez](https://www.rmichaelalvarez.com)
 
 ## Introduction
