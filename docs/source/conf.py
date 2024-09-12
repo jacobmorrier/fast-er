@@ -1,5 +1,14 @@
 # Configuration file for the Sphinx documentation builder.
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+
+import fast_er.comparison
+import fast_er.estimation
+import fast_er.linkage
+
+
 # -- Project information
 
 project = 'Fast-ER'
@@ -17,6 +26,10 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.extlinks',
 ]
 
 intersphinx_mapping = {
