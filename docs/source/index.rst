@@ -3,6 +3,7 @@ Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 .. image:: https://readthedocs.org/projects/fast-er/badge/?version=latest
     :target: https://fast-er.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+
 **Authors:**
 
 - `Jacob Morrier <https://www.jacobmorrier.com>`_
@@ -13,7 +14,10 @@ Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
     :depth: 3
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Contents:
    usage
+   comparison
 
 Introduction
 ------------
@@ -62,7 +66,6 @@ The vector :math:`\mathbf{\pi}_{km}`, of length :math:`L`, represents the probab
 
 Calculating the Jaro-Winkler similarity between all pairs of values is highly amenable to parallelization because each pair is processed independently using the same instructions. Our main contribution consists in implementing this parallelization on GPUs.
 
-.. [#] For a more detailed description and discussion of the Fellegi-Sunter model, see this `paper <https://www.cambridge.org/core/journals/american-political-science-review/article/using-a-probabilistic-model-to-assist-merging-of-largescale-administrative-records/DB2955F64A1F4E262C5B9B26C6D7552E>`_.
 
 Brief Description of General-Purpose Computing on Graphical Processing Units
 ----------------------------------------------------------------------------
@@ -102,6 +105,6 @@ This work was supported by funding from the National Science Foundation (NSF) an
 
 References
 ----------
-
+.. [#] For a more detailed description and discussion of the Fellegi-Sunter model, see this `paper <https://www.cambridge.org/core/journals/american-political-science-review/article/using-a-probabilistic-model-to-assist-merging-of-largescale-administrative-records/DB2955F64A1F4E262C5B9B26C6D7552E>`_.
 .. [#] Fellegi, I.P., and A.B. Sunter. 1969. "A Theory for Record Linkage." *Journal of the American Statistical Association* 64 (328): 1183-1210.
 .. [#] Winkler, W.E. 1990. "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage." *Proceedings of the Section on Survey Research Methods*: 354-359.
