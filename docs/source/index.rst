@@ -2,9 +2,13 @@ Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 ===============================================================
 
 **Authors:**
+
 - `Jacob Morrier <https://www.jacobmorrier.com>`_
 - `Sulekha Kishore <https://www.linkedin.com/in/sulekha-kishore/>`_
 - `R. Michael Alvarez <https://www.rmichaelalvarez.com>`_
+
+.. contents:: Table of Contents
+    :depth: 3
 
 Introduction
 ------------
@@ -16,6 +20,7 @@ Typically, record linkage involves computing string similarity metrics, such as 
 To address this challenge, we propose to use graphical processing units (GPUs) to accelerate these computations. Originally designed for computer graphics and digital image processing, GPUs are also adept at performing parallel non-graphic calculations. This capability has been instrumental in advancing the field of artificial intelligence (AI). A growing number of software tools now support and facilitate the use of GPUs to accelerate data processing and other data science tasks. For instance, `RAPIDS <https://rapids.ai/>`_ is an open-source suite of libraries developed by NVIDIA, a leading GPU manufacturer, leveraging CUDA-enabled GPUs to accelerate workflows in data processing, machine learning, and graph analytics. Similarly, `CuPy <https://cupy.dev/>`_ is an open-source Python library designed to enable fast array-based numerical computations on GPUs.
 
 Leveraging state-of-the-art GPU-accelerated computation tools, we have implemented the Fellegi-Sunter model, a widely used probabilistic record linkage model, along with the associated data processing tasks on CUDA-enabled GPUs. Our experiments demonstrate that this approach can accelerate the process by more than 60 times compared to the previous leading implementation (`fastLink <https://github.com/kosukeimai/fastLink/tree/master>`_). Importantly, this makes probabilistic record linkage methods more germane to large-size datasets. An open-source Python library accompanies this white paper.
+
 
 Description of the Fellegi-Sunter Model
 ---------------------------------------
@@ -95,15 +100,3 @@ References
 
 .. [#] Fellegi, I.P., and A.B. Sunter. 1969. "A Theory for Record Linkage." *Journal of the American Statistical Association* 64 (328): 1183-1210.
 .. [#] Winkler, W.E. 1990. "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage." *Proceedings of the Section on Survey Research Methods*: 354-359.
-
-
-.. note::
-
-   This project is under active development.
-
-Contents
---------
-
-.. toctree::
-
-   usage
