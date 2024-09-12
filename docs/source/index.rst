@@ -1,13 +1,15 @@
 Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 ===============================================================
-
+.. image:: https://readthedocs.org/projects/fast-er/badge/?version=latest
+    :target: https://fast-er.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 **Authors:**
 
 - `Jacob Morrier <https://www.jacobmorrier.com>`_
 - `Sulekha Kishore <https://www.linkedin.com/in/sulekha-kishore/>`_
 - `R. Michael Alvarez <https://www.rmichaelalvarez.com>`_
 
-.. contents:: Table of Contents
+.. contents:: **Table of Contents**
     :depth: 3
 
 Introduction
