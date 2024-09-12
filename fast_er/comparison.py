@@ -263,20 +263,20 @@ extern "C" {
 indices_inverse_kernel = cp.RawKernel(indices_inverse_code, 'indices_inverse')
 
 def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
-    '''
-    This function computes the Jaro-Winkler distance between all pairs of strings in str1 and str2.
+    """This function computes the Jaro-Winkler distance between all pairs of
+    strings in str1 and str2.
 
     Arguments:
     ----------
-    - str1 (NumPy array): First array of strings.
-    - str2 (NumPy array): Second array of strings.
-    - offset (int): Offset for indices: this value is added to all output indices.
+      str1 (NumPy array): First array of strings.
+      str2 (NumPy array): Second array of strings.
+      offset (int): Offset for indices: this value is added to all output indices.
 
     Optional Arguments:
     -------------------
-    - lower_thr (float): Lower threshold for Jaro-Winkler distance.
-    - upper_thr (float): Upper threshold for Jaro-Winkler distance.
-    - num_threads (int): Number of threads per block. The maximal possible value is 1,024.
+      lower_thr (float): Lower threshold for Jaro-Winkler distance.
+      upper_thr (float): Upper threshold for Jaro-Winkler distance.
+      num_threads (int): Number of threads per block. The maximal possible value is 1,024.
 
     Returns:
     --------
@@ -284,7 +284,7 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
     - output2_gpu (CuPy array): Indices with Jaro-Winkler distance above upper_thr.
 
     The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-    '''
+    """
 
     mempool = cp.get_default_memory_pool()
 
@@ -344,28 +344,28 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
     return output1, output2
 
 def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
-  '''
-  This function computes the Jaro-Winkler distance between all pairs of strings in str_A and str_B.
+  """This function computes the Jaro-Winkler distance between all pairs of
+  strings in str_A and str_B.
 
   Arguments:
   ----------
-  - str_A (NumPy array): First array of strings.
-  - str_B (NumPy array): Second array of strings.
+    str_A (NumPy array): First array of strings.
+    str_B (NumPy array): Second array of strings.
 
   Optional Arguments:
   -------------------
-  - lower_thr (float): Lower threshold for Jaro-Winkler distance.
-  - upper_thr (float): Upper threshold for Jaro-Winkler distance.
-  - num_threads (int): Number of threads per block. The maximal possible value is 1,024.
-  - max_chunk_size (int): Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks.
+    lower_thr (float): Lower threshold for Jaro-Winkler distance.
+    upper_thr (float): Upper threshold for Jaro-Winkler distance.
+    num_threads (int): Number of threads per block. The maximal possible value is 1,024.
+    max_chunk_size (int): Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks.
 
   Returns:
   --------
-  - output1_gpu (CuPy array): Indices with Jaro-Winkler distance between lower_thr and upper_thr.
-  - output2_gpu (CuPy array): Indices with Jaro-Winkler distance above upper_thr.
+    output1_gpu (CuPy array): Indices with Jaro-Winkler distance between lower_thr and upper_thr.
+    output2_gpu (CuPy array): Indices with Jaro-Winkler distance above upper_thr.
 
   The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  '''
+  """
 
   mempool = cp.get_default_memory_pool()
 
@@ -465,18 +465,19 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   return output1_gpu, output2_gpu
 
 def merge_indices_pair(indices1, indices2):
-  '''
-  This function combines two lists of lists of indices. Importantly, it accounts for the fact that one discrete value (or combination thereof) is implicitly ommitted from each list of indices.
+  """This function combines two lists of lists of indices. Importantly, it
+  accounts for the fact that one discrete value (or combination thereof) is
+  implicitly ommitted from each list of indices.
 
   Arguments:
   ----------
-  - indices1 (list of CuPy arrays): First list of arrays of indices.
-  - indices2 (list of CuPy arrays): First list of arrays of indices.
+    indices1 (list of CuPy arrays): First list of arrays of indices.
+    indices2 (list of CuPy arrays): First list of arrays of indices.
 
   Returns:
   --------
-  - List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. This new list omits the combination formed by the first discrete values of both input lists.
-  '''
+    List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. This new list omits the combination formed by the first discrete values of both input lists.
+  """
 
   mempool = cp.get_default_memory_pool()
 
@@ -604,8 +605,7 @@ def merge_indices_pair_split(indices1, indices2, max_elements = 2500000):
   return output
 
 def merge_indices(indices):
-  '''
-  Argument:
+  '''Argument:
   ---------
   - indices (List of lists of CuPy arrays): List of arrays of indices.
 
@@ -619,18 +619,16 @@ def merge_indices(indices):
   return output
 
 class Comparison():
-  '''
-  This class evaluates the similarity between the values in two datasets using the Jaro-Winkler metric.
-  '''
+  """This class evaluates the similarity between the values in two datasets
+  using the Jaro-Winkler metric."""
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, vars_A, vars_B):
-    '''
-    Arguments:
+    '''Arguments:
     ----------
-    - df_A (Pandas DataFrame): First dataframe to compare.
-    - df_B (Pandas DataFrame): Second dataframe to compare.
-    - vars_A (list of str): Names of variables to compare in df_A.
-    - vars_B (list of str): Names of variables to compare in df_B. The variables must be listed in the same order as in vars_A.
+      df_A (Pandas DataFrame): First dataframe to compare.
+      df_B (Pandas DataFrame): Second dataframe to compare.
+      vars_A (list of str): Names of variables to compare in df_A.
+      vars_B (list of str): Names of variables to compare in df_B. The variables must be listed in the same order as in vars_A.
     '''
 
     # Check Inputs
@@ -647,8 +645,8 @@ class Comparison():
     self._Fit_flag = False
 
   def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256):
-    '''
-    This method calculates the Jaro-Winkler similarity for every pair of observations across all variables.
+    """This method calculates the Jaro-Winkler similarity for every pair of
+    observations across all variables.
 
     Arguments:
     ----------
@@ -659,7 +657,7 @@ class Comparison():
     Sets the Following Attribute:
     -----------------------------
     - Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables. The indices represent i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
-    '''
+    """
 
     if self._Fit_flag:
       raise Exception('The model has already been fitted.')
@@ -680,10 +678,9 @@ class Comparison():
 
   @property
   def Counts(self):
-    '''
-    Returns:
+    '''Returns:
     --------
-    - Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+      Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
     '''
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')

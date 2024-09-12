@@ -4,17 +4,16 @@ from sklearn.preprocessing import LabelBinarizer
 import tensorly as tl
 
 class Estimation():
-  '''
-  This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
-  '''
+  """This class estimates the parameters of the Fellegi-Sunter model given the
+  observed patterns of discrete levels of similarity across variables.
+  """
 
   def __init__(self, K, Counts, L = 3):
-    '''
-    Arguments:
+    '''Arguments:
     ----------
-    - K (int): Number of variables compared.
-    - Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
-    - L (int): Number of discrete levels the similarity can take.
+      K (int): Number of variables compared.
+      Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+      L (int): Number of discrete levels the similarity can take.
     '''
 
     self.Counts = Counts
@@ -24,21 +23,22 @@ class Estimation():
     self._Fit_flag = False
 
   def _Gamma(self):
-    '''
-    This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
+    """This internal method generates the representations of all patterns of
+    discrete levels of similarity across variables in the format suitable for
+    Gamma.
 
     Arguments:
     ----------
-    - K (int): Number of variables.
-    - L (int): Number of discrete values that can be taken by the variables.
+      K (int): Number of variables.
+      L (int): Number of discrete values that can be taken by the variables.
 
     Sets Attributes:
     ----------------
-    - Gamma (Tensor): This three-dimensional tensor encodes all the observed patterns of discrete levels of similarity across variables.
+      Gamma (Tensor): This three-dimensional tensor encodes all the observed patterns of discrete levels of similarity across variables.
                       The first dimension indexes the patterns.
                       The second dimension represents the variable.
                       The third dimension represents the discrete level of similarity taken by the variable.
-    '''
+    """
 
     lb = LabelBinarizer()
 
@@ -49,13 +49,13 @@ class Estimation():
     return Gamma
 
   def _match_probability(self):
-    '''
-    This internal method computes the conditional match probability for each pattern in Gamma given the current value of the parameters.
+    """This internal method computes the conditional match probability for each
+    pattern in Gamma given the current value of the parameters.
 
     Returns:
     --------
-    - Ksi (vector): This vector contains the conditional match probability for each pattern in Gamma.
-    '''
+      Ksi (vector): This vector contains the conditional match probability for each pattern in Gamma.
+    """
 
     tensor_prob = np.zeros((2, self.Gamma.shape[0]), dtype = np.float32)
 
@@ -72,22 +72,22 @@ class Estimation():
     return np.reshape(tl.to_numpy(result), newshape = result.shape[0])
 
   def fit(self, Tolerance = 1e-4, Max_Iter = 500):
-    '''
-    This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
+    """This method estimates the parameters of the Fellegi-Sunter model using
+    the Expectation-Maximization (EM) algorithm.
 
     Arguments:
     ----------
-    - Tolerance (float): This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in Pi is smaller than the value of this parameter.
-    - Max_Iter (int): This parameter determines the maximal number of iterations of the EM algorithm.
+      Tolerance (float): This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in Pi is smaller than the value of this parameter.
+      Max_Iter (int): This parameter determines the maximal number of iterations of the EM algorithm.
 
     Sets the Following Attributes:
     ------------------------------
-    - Lambda (float): Match probability.
-    - Pi (Tensor): This three-dimensional tensor contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
+      Lambda (float): Match probability.
+      Pi (Tensor): This three-dimensional tensor contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
                    The first dimension represents the variable.
                    The second dimension represents the discrete level of similarity.
                    The third dimension represents the latent state.
-    '''
+    """
 
     if self._Fit_flag:
       raise Exception('The model has already been fitted.')
@@ -145,13 +145,14 @@ class Estimation():
 
   @property
   def Ksi(self):
-    '''
-    This property represents the conditional match probabilities for each pattern of discrete levels of similarity across variables given the estimated parameters of the Fellegi-Sunter model.
+    """This property represents the conditional match probabilities for each
+    pattern of discrete levels of similarity across variables given the
+    estimated parameters of the Fellegi-Sunter model.
 
     Returns:
     --------
-    - Ksi (NumPy array): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
-    '''
+      Ksi (NumPy array): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    """
 
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')

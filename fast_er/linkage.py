@@ -3,18 +3,17 @@ import numpy as np
 import pandas as pd
 
 class Linkage():
-  '''
-  This class links the records in two data frames based on previously estimated conditional match probabilities.
-  '''
+  """This class links the records in two data frames based on previously
+  estimated conditional match probabilities.
+  """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
-    '''
-    Arguments:
+    '''Arguments:
     ----------
-    - df_A (Pandas DataFrame): The first dataframe.
-    - df_B (Pandas DataFrame): The second dataframe.
-    - Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables.
-    - Ksi (NumPy array): This array contains the conditional match probability for each pattern of discrete levels of similarity across variables.
+      df_A (Pandas DataFrame): The first dataframe.
+      df_B (Pandas DataFrame): The second dataframe.
+      Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables.
+      Ksi (NumPy array): This array contains the conditional match probability for each pattern of discrete levels of similarity across variables.
     '''
     self.df_A = df_A
     self.df_B = df_B
@@ -22,17 +21,17 @@ class Linkage():
     self.Ksi = Ksi
 
   def transform(self, Threshold = 0.85):
-    '''
-    This method returns a dataframe in which all pairs of observations with conditional match probabilities above some threshold are linked.
+    """This method returns a dataframe in which all pairs of observations with
+    conditional match probabilities above some threshold are linked.
 
     Arguments:
     ----------
-    - Threshold (float): This is the threshold above which pairs of observations in df_A and df_B must be linked. Its value must be between 0 and 1.
+      Threshold (float): This is the threshold above which pairs of observations in df_A and df_B must be linked. Its value must be between 0 and 1.
 
     Returns:
     --------
-    - A dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked.
-    '''
+      Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked.
+    """
 
     mempool = cp.get_default_memory_pool()
 
