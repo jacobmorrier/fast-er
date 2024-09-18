@@ -667,7 +667,7 @@ class Comparison():
 
     # Loop over (pairs of) variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.vars_A)):
-      indices.append(jaro_winkler_gpu_unique(df_A[self.vars_A[i]].to_numpy(), df_B[self.vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
+      indices.append(jaro_winkler_gpu_unique(self.df_A[self.vars_A[i]].to_numpy(), self.df_B[self.vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
     self.Indices = merge_indices(indices) # Merge discrete levels of similarity over all variables
