@@ -160,8 +160,7 @@ To install the library from this repository, execute the following command:
 ```python
 !pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
 
-import importlib
-faster = importlib.import_module("fast-er")
+import faster
 ```
 
 Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
