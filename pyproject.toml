@@ -21,7 +21,6 @@ numpy = "*"
 pandas = "*"
 scikit-learn = "*"
 tensorly = "*"
-matplotlib = "*"
 
 [project.classifiers]
 DevelopmentStatus = "Development Status :: 3 - Alpha"
