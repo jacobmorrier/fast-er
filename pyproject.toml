@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "cupy-cuda12x", "numpy", "pandas", "scikit-learn", "tensorly"]
 build-backend = "setuptools.build_meta"
 
 [project]
