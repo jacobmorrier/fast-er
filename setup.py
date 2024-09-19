@@ -4,7 +4,7 @@ import pathlib
 here = pathlib.Path(__file__).parent.resolve()
 
 setup(
-    name="fast-er",
+    name="faster",
     version="0.1.0",
     description="GPU-Accelerated Probabilistic Record Linkage in Python",
     url="https://github.com/jacobmorrier/fast-er",
@@ -27,5 +27,5 @@ setup(
     keywords="entity resolution, GPU, probabilistic record linkage, record linkage",
     packages=find_packages(),
     python_requires=">=3.7, <4",
-    install_requires=["cupy-cuda12x", "numpy", "pandas", "scikit-learn", "tensorly"],
+    install_requires=["cupy-cuda12x", "numpy", "pandas", "scikit-learn", "tensorly", "matplotlib"],
 )
