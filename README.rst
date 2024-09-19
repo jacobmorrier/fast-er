@@ -111,12 +111,12 @@ The following example demonstrates how to compute the Jaro-Winkler similarity be
 Conclusion
 ----------
 
-We have implemented the Fellegi-Sunter model for probabilistic record linkage using state-of-the-art GPU-accelerated computation tools. Our experiments demonstrate that this approach can accelerate the record linkage process by over 60 times compared to existing implementations, making it feasible to perform record linkage on large datasets. This acceleration is achieved by leveraging the parallel processing capabilities of GPUs through libraries such as CuPy and RAPIDS cuDF. Our implementation is open-source, and we hope it will provide a valuable resource for researchers and practitioners working with large-scale datasets.
+We have implemented the Fellegi-Sunter model for probabilistic record linkage using state-of-the-art GPU-accelerated computation tools. Our experiments demonstrate that this approach can accelerate the record linkage process by over 60 times compared to existing implementations, making it feasible to perform record linkage on large datasets. This acceleration is achieved by leveraging the parallel processing capabilities of GPUs through libraries such as CuPy. Our implementation is open-source, and we hope it will provide a valuable resource for researchers and practitioners working with large-scale datasets.
 
 Acknowledgments
 ---------------
 
-This work was supported by funding from the National Science Foundation (NSF) and NVIDIA Corporation. We are also grateful to the contributors of the open-source libraries CuPy and RAPIDS cuDF, whose tools made this project possible.
+We are grateful to the contributors of the open-source library CuPy, whose tools made this project possible.
 
 References
 ----------
