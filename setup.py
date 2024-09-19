@@ -4,7 +4,7 @@ import pathlib
 here = pathlib.Path(__file__).parent.resolve()
 
 setup(
-    name="faster",
+    name="fast-er",
     version="0.1.0",
     description="GPU-Accelerated Probabilistic Record Linkage in Python",
     url="https://github.com/jacobmorrier/fast-er",
