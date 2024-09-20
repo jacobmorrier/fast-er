@@ -5,6 +5,9 @@
 - [Sulekha Kishore](https://www.linkedin.com/in/sulekha-kishore/)
 - [R. Michael Alvarez](https://www.rmichaelalvarez.com)
 
+> [!WARNING]
+> This package requires an NVIDIA CUDA GPU with a Compute Capability of 3.0 or higher, along with the CUDA Toolkit version 12.0 or above. For more details, please refer to the [CuPy technical requirements](https://docs.cupy.dev/en/stable/install.html).
+
 ## Introduction
 
 [Record linkage](https://en.wikipedia.org/wiki/Record_linkage), also called “entity resolution,” encompasses techniques for joining observations from two datasets that refer to the same unit or entity, even when the datasets do not share consistently formatted common identifiers.
