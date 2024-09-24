@@ -161,7 +161,7 @@ This class links the records in two data frames based on previously estimated co
 
 ## Example
 
-To install the library from this repository, execute the following command:
+To install the library from this repository, execute the following commands:
 ```python
 !pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
 
