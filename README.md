@@ -36,7 +36,7 @@ The agreement vectors $\mathbf{\gamma}$ are used to estimate a naive Bayes laten
 
 Formally, the model presumes the existence of a latent variable $M_{ij}$, which indicates whether the pair of observations consisting of the $i^{\textrm{th}}$ observation from dataset $\mathcal{A}$ and the $j^{\textrm{th}}$ observation from dataset $\mathcal{B}$ constitutes a match.[^1] The model follows a simple finite mixture structure:
 
-$$\gamma_{ij}\left(k\right) \sim \textrm{Discrete}\left(\mathbf{\pi}_{km}\right)$$
+$$\gamma_{ij}\left(k\right) \mid M_{ij} = m \sim \textrm{Discrete}\left(\mathbf{\pi}_{km}\right)$$
 
 $$M_{ij} \sim \textrm{Bernoulli}\left(\lambda\right).$$
 
