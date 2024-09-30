@@ -108,11 +108,9 @@ class Estimation():
     while not convergence and iter <= Max_Iter:
 
         # E-Step: Compute match probability for possible patterns given current parameters
-
         ksi = self._match_probability()
 
         # M-Step: Compute new parameter values consistent with E-step
-
         self.Lambda = np.dot(ksi, self.Counts) / sum(self.Counts)
 
         pi_1_denom = np.dot(ksi, self.Counts)
