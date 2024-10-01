@@ -31,12 +31,12 @@ To address this challenge, we propose to use graphical processing units (GPUs) t
 Leveraging state-of-the-art GPU-accelerated computation tools, we have implemented the Fellegi-Sunter model, a widely used probabilistic record linkage model, along with the associated data processing tasks on CUDA-enabled GPUs. Our experiments demonstrate that this approach can accelerate the process by more than 60 times compared to the previous leading implementation (`fastLink <https://github.com/kosukeimai/fastLink/tree/master>`_). Importantly, this makes probabilistic record linkage methods more germane to large-size datasets. An open-source Python library accompanies this white paper.
 
 
-Description of the Fellegi-Sunter Model
----------------------------------------
+Description of the Fellegi-Sunter Model [#]_
+--------------------------------------------
 
 Suppose we want to join observations from two data sets, :math:`\mathcal{A}` and :math:`\mathcal{B}`, with sizes :math:`N_\mathcal{A}` and :math:`N_\mathcal{B}`, respectively. Both datasets have :math:`K` variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the :math:`N_\mathcal{A} \times N_\mathcal{B}` pairs of values, we define an agreement vector of length :math:`K`, denoted :math:`\mathbf{\gamma}_{ij}`. The :math:`k^{\textrm{th}}` element of this vector indicates the discrete level of similarity for the :math:`k^{\textrm{th}}` variable between the :math:`i^{\textrm{th}}` observation from dataset :math:`\mathcal{A}` and the :math:`j^{\textrm{th}}` observation from dataset :math:`\mathcal{B}`.
 
-We use the `Jaro-Winkler similarity metric <https://en.wikipedia.org/wiki/Jaro–Winkler_distance>`_ to measure the similarity between two strings. The Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. We calculate the similarity between two strings, :math:`s_1` and :math:`s_2`, using the following formula:
+We use the `Jaro-Winkler similarity metric <https://en.wikipedia.org/wiki/Jaro–Winkler_distance>`_ to measure the similarity between two strings [#]_. The Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. We calculate the similarity between two strings, :math:`s_1` and :math:`s_2`, using the following formula:
 
 .. math::
 
@@ -105,6 +105,6 @@ This work was supported by funding from the National Science Foundation (NSF) an
 
 References
 ----------
+.. [#] Winkler, W.E. 1990. "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage." *Proceedings of the Section on Survey Research Methods*: 354-359.
 .. [#] For a more detailed description and discussion of the Fellegi-Sunter model, see this `paper <https://www.cambridge.org/core/journals/american-political-science-review/article/using-a-probabilistic-model-to-assist-merging-of-largescale-administrative-records/DB2955F64A1F4E262C5B9B26C6D7552E>`_.
 .. [#] Fellegi, I.P., and A.B. Sunter. 1969. "A Theory for Record Linkage." *Journal of the American Statistical Association* 64 (328): 1183-1210.
-.. [#] Winkler, W.E. 1990. "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage." *Proceedings of the Section on Survey Research Methods*: 354-359.

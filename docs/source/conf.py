@@ -4,9 +4,9 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-import fast_er.comparison
-import fast_er.estimation
-import fast_er.linkage
+import faster.comparison
+import faster.estimation
+import faster.linkage
 
 
 # -- Project information
@@ -30,6 +30,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.extlinks',
+    "sphinx_mdinclude"
 ]
 
 intersphinx_mapping = {

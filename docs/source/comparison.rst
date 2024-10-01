@@ -14,17 +14,17 @@ This class evaluates the similarity between the values in two datasets using the
 Functions
 =========
 
-.. currentmodule:: fast_er.comparison
+.. currentmodule:: faster.comparison
 .. autofunction:: jaro_winkler_gpu
 
-.. currentmodule:: fast_er.comparison
+.. currentmodule:: faster.comparison
 .. autofunction:: jaro_winkler_gpu_unique    
 
-.. currentmodule:: fast_er.comparison
+.. currentmodule:: faster.comparison
 .. autofunction:: merge_indices_pair      
 
-.. currentmodule:: fast_er.comparison
+.. currentmodule:: faster.comparison
 .. autofunction:: merge_indices   
 
-.. currentmodule:: fast_er.comparison
+.. currentmodule:: faster.comparison
 .. autofunction:: merge_indices   
