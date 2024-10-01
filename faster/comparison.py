@@ -267,9 +267,9 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   This function computes the Jaro-Winkler distance between all pairs of strings in str1 and str2.
 
   :param str1: First array of strings.
-  :type str1: NumPy array
+  :type str1: np.array
   :param str2: Second array of strings.
-  :type str2: NumPy array
+  :type str2: np.array
   :param offset: Offset for indices: this value is added to all output indices.
   :type offset: int
   :param lower_thr: Lower threshold for Jaro-Winkler distance, defaults to 0.88
@@ -342,27 +342,26 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   return output1, output2
 
 def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
-  """This function computes the Jaro-Winkler distance between all pairs of
+  """
+  This function computes the Jaro-Winkler distance between all pairs of
   strings in str_A and str_B.
 
-  Arguments:
-  ----------
-    str_A (NumPy array): First array of strings.
-    str_B (NumPy array): Second array of strings.
-
-  Optional Arguments:
-  -------------------
-    lower_thr (float): Lower threshold for Jaro-Winkler distance.
-    upper_thr (float): Upper threshold for Jaro-Winkler distance.
-    num_threads (int): Number of threads per block. The maximal possible value is 1,024.
-    max_chunk_size (int): Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks.
-
-  Returns:
-  --------
-    output1_gpu (CuPy array): Indices with Jaro-Winkler distance between lower_thr and upper_thr.
-    output2_gpu (CuPy array): Indices with Jaro-Winkler distance above upper_thr.
-
-  The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
+  :param str_A: First array of strings.
+  :type str_A: np.array
+  :param str_B: Second array of strings.
+  :type str_B: np.array
+  :param lower_thr: Lower threshold for Jaro-Winkler distance., defaults to 0.88
+  :type lower_thr: float, optional
+  :param upper_thr: Upper threshold for Jaro-Winkler distance., defaults to 0.94
+  :type upper_thr: float, optional
+  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :type num_threads: int, optional
+  :param max_chunk_size: Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks, defaults to 10000000
+  :type max_chunk_size: int, optional
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
+           Indices with Jaro-Winkler distance above upper_thr.
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
+  :rtype: (CuPy array, CuPy array)
   """
 
   mempool = cp.get_default_memory_pool()
@@ -463,18 +462,17 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   return output1_gpu, output2_gpu
 
 def merge_indices_pair(indices1, indices2):
-  """This function combines two lists of lists of indices. Importantly, it
+  """
+  This function combines two lists of lists of indices. Importantly, it
   accounts for the fact that one discrete value (or combination thereof) is
   implicitly ommitted from each list of indices.
 
-  Arguments:
-  ----------
-    indices1 (list of CuPy arrays): First list of arrays of indices.
-    indices2 (list of CuPy arrays): First list of arrays of indices.
-
-  Returns:
-  --------
-    List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. This new list omits the combination formed by the first discrete values of both input lists.
+  :param indices1: list of arrays of indices
+  :type indices1: list of CuPy arrays
+  :param indices2: list of arrays of indices
+  :type indices2: list of CuPy arrays
+  :return: List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. 
+           This new list omits the combination formed by the first discrete values of both input lists.
   """
 
   mempool = cp.get_default_memory_pool()
@@ -603,32 +601,39 @@ def merge_indices_pair_split(indices1, indices2, max_elements = 2500000):
   return output
 
 def merge_indices(indices):
-  '''Argument:
-  ---------
-  - indices (List of lists of CuPy arrays): List of arrays of indices.
+  """
+  This function merges a list of arrays of indices.
 
-  Returns:
-  --------
-  - List of NumPy arrays of indices.
-  '''
+  :param indices:  List of arrays of indices.
+  :type indices: List of lists of CuPy arrays
+  :return: List of np.arrays of indices.
+  """
 
   output = functools.reduce(merge_indices_pair_split, indices)
 
   return output
 
 class Comparison():
-  """This class evaluates the similarity between the values in two datasets
-  using the Jaro-Winkler metric."""
+  """
+  This class evaluates the similarity between the values in two datasets
+  using the Jaro-Winkler metric.
+  """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, vars_A, vars_B):
-    '''Arguments:
-    ----------
-      df_A (Pandas DataFrame): First dataframe to compare.
-      df_B (Pandas DataFrame): Second dataframe to compare.
-      vars_A (list of str): Names of variables to compare in df_A.
-      vars_B (list of str): Names of variables to compare in df_B. The variables must be listed in the same order as in vars_A.
-    '''
+    """
+    _summary_
 
+    :param df_A: First dataframe to compare.
+    :type df_A: pd.DataFrame
+    :param df_B: Second dataframe to compare.
+    :type df_B: pd.DataFrame
+    :param vars_A: Names of variables to compare in df_A.
+    :type vars_A: list
+    :param vars_B: Names of variables to compare in df_B. The variables must be listed in the same order as in vars_A.
+    :type vars_B: list
+    :raises Exception: length of vars_A and vars_B must be the same.
+    :raises Exception: names of vars_A and vars_B must match variables names in df_A and df_B.
+    """
     # Check Inputs
     if len(vars_A) != len(vars_B):
       raise Exception('The number of variables in vars_A and vars_B must be the same.')
@@ -643,18 +648,21 @@ class Comparison():
     self._Fit_flag = False
 
   def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256):
-    """This method calculates the Jaro-Winkler similarity for every pair of
+    """
+    This method calculates the Jaro-Winkler similarity for every pair of
     observations across all variables.
-
-    Arguments:
-    ----------
-    - Lower_Thr (float): Lower threshold for discretizing the Jaro-Winkler similarity.
-    - Upper_Thr (float): threshold for discretizing the Jaro-Winkler similarity.
-    - Num_Threads (int): Number of threads per block. The maximal possible value is 1,024.
 
     Sets the Following Attribute:
     -----------------------------
     - Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables. The indices represent i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
+
+    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity., defaults to 0.88
+    :type Lower_Thr: float, optional
+    :param Upper_Thr: threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
+    :type Upper_Thr: float, optional
+    :param Num_Threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+    :type Num_Threads: int, optional
+    :raises Exception: if model has already been fitted, it cannot be fitted again
     """
 
     if self._Fit_flag:
@@ -676,10 +684,13 @@ class Comparison():
 
   @property
   def Counts(self):
-    '''Returns:
-    --------
-      Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
-    '''
+    """
+    _summary_
+
+    :raises Exception: model must be fitted first.
+    :return: This array contains the count of observations for each pattern of discrete levels of similarity across variables
+    :rtype: np.array
+    """
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')
 
