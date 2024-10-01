@@ -1,8 +1,38 @@
 Usage
 =====
 
-Code Example
-------------
+Package Usage Example
+---------------------
+
+To install the library from this repository, execute the following commands:
+.. code-block:: python
+    !pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
+
+    import faster
+
+
+Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
+.. code-block:: python
+    # Comparison Class
+    vars = ['last_name', 'first_name', 'house_number', 'street_address']
+
+    comp = faster.Comparison(df_A, df_B, vars, vars)
+
+    comp.fit()
+
+    # Estimation Class
+    est = faster.Estimation(len(vars), comp.Counts)
+
+    est.fit()
+
+    #Linkage Class
+    link = faster.Linkage(df_A, df_B, comp.Indices, est.Ksi)
+
+    df_linked = link.transform()
+
+
+Jaro-Winkler Distance Calculation Example
+------------------------------------------
 
 The following example demonstrates how to compute the Jaro-Winkler similarity between two lists of strings using CuPy:
 
