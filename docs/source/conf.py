@@ -1,4 +1,12 @@
 # Configuration file for the Sphinx documentation builder.
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+
+import faster.comparison
+import faster.estimation
+import faster.linkage
+
 
 # -- Project information
 

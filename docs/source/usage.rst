@@ -5,14 +5,18 @@ Package Usage Example
 ---------------------
 
 To install the library from this repository, execute the following commands:
+
 .. code-block:: python
+
     !pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
 
     import faster
 
-
+    
 Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
+
 .. code-block:: python
+
     # Comparison Class
     vars = ['last_name', 'first_name', 'house_number', 'street_address']
 
