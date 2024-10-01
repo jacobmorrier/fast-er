@@ -263,85 +263,83 @@ extern "C" {
 indices_inverse_kernel = cp.RawKernel(indices_inverse_code, 'indices_inverse')
 
 def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
-    """This function computes the Jaro-Winkler distance between all pairs of
-    strings in str1 and str2.
+  """
+  This function computes the Jaro-Winkler distance between all pairs of strings in str1 and str2.
 
-    Arguments:
-    ----------
-      str1 (NumPy array): First array of strings.
-      str2 (NumPy array): Second array of strings.
-      offset (int): Offset for indices: this value is added to all output indices.
+  :param str1: First array of strings.
+  :type str1: NumPy array
+  :param str2: Second array of strings.
+  :type str2: NumPy array
+  :param offset: Offset for indices: this value is added to all output indices.
+  :type offset: int
+  :param lower_thr: Lower threshold for Jaro-Winkler distance, defaults to 0.88
+  :type lower_thr: float, optional
+  :param upper_thr: Upper threshold for Jaro-Winkler distance, defaults to 0.94
+  :type upper_thr: float, optional
+  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :type num_threads: int, optional
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
+           Indices with Jaro-Winkler distance above upper_thr.
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
 
-    Optional Arguments:
-    -------------------
-      lower_thr (float): Lower threshold for Jaro-Winkler distance.
-      upper_thr (float): Upper threshold for Jaro-Winkler distance.
-      num_threads (int): Number of threads per block. The maximal possible value is 1,024.
+  :rtype: (CuPy array, CuPy array)
+  """ 
+  mempool = cp.get_default_memory_pool()
 
-    Returns:
-    --------
-    - output1_gpu (CuPy array): Indices with Jaro-Winkler distance between lower_thr and upper_thr.
-    - output2_gpu (CuPy array): Indices with Jaro-Winkler distance above upper_thr.
+  n1 = len(str1) # Number of strings contained in str1
 
-    The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-    """
+  # Storing strings contained in str1 as an arrow, i.e., characters concatenated next to each other
+  str1_arrow = np.frombuffer(''.join(str1).encode(), dtype = np.int8)
 
-    mempool = cp.get_default_memory_pool()
+  str1_arrow_gpu = cp.array(str1_arrow)
 
-    n1 = len(str1) # Number of strings contained in str1
+  # Array storing where each string starts and ends: str1[i] begins at offsets[i]
+  # and ends at offsets[i + 1] - 1 (inclusively)
 
-    # Storing strings contained in str1 as an arrow, i.e., characters concatenated next to each other
-    str1_arrow = np.frombuffer(''.join(str1).encode(), dtype = np.int8)
+  offsets1 = np.append([0], np.cumsum([len(row) for row in str1])).astype(np.int32)
 
-    str1_arrow_gpu = cp.array(str1_arrow)
+  offsets1_gpu = cp.array(offsets1)
 
-    # Array storing where each string starts and ends: str1[i] begins at offsets[i]
-    # and ends at offsets[i + 1] - 1 (inclusively)
+  n2 = len(str2)
 
-    offsets1 = np.append([0], np.cumsum([len(row) for row in str1])).astype(np.int32)
+  str2_arrow = np.frombuffer(''.join(str2).encode(), dtype = np.int8)
 
-    offsets1_gpu = cp.array(offsets1)
+  str2_arrow_gpu = cp.array(str2_arrow)
 
-    n2 = len(str2)
+  offsets2 = np.append([0], np.cumsum([len(row) for row in str2])).astype(np.int32)
 
-    str2_arrow = np.frombuffer(''.join(str2).encode(), dtype = np.int8)
+  offsets2_gpu = cp.array(offsets2)
 
-    str2_arrow_gpu = cp.array(str2_arrow)
+  buffer1 = cp.zeros(offsets1[n1] * n2, dtype = bool)
 
-    offsets2 = np.append([0], np.cumsum([len(row) for row in str2])).astype(np.int32)
+  buffer2 = cp.zeros(offsets2[n2] * n1, dtype = bool)
 
-    offsets2_gpu = cp.array(offsets2)
+  output_gpu = cp.zeros(n1 * n2, dtype = cp.float32) # Create output vector
 
-    buffer1 = cp.zeros(offsets1[n1] * n2, dtype = bool)
+  num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per Grid
 
-    buffer2 = cp.zeros(offsets2[n2] * n1, dtype = bool)
+  # Call GPU Kernel
+  jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
 
-    output_gpu = cp.zeros(n1 * n2, dtype = cp.float32) # Create output vector
+  # Indices between lower_thr and upper_thr
+  indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
 
-    num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per Grid
+  # Indices above upper_thr
+  indices2_gpu = cp.argwhere(output_gpu >= upper_thr)
 
-    # Call GPU Kernel
-    jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
+  # Clean GPU memory
+  del str1_arrow, offsets1, buffer1, str2_arrow, offsets2, buffer2, str1_arrow_gpu, offsets1_gpu, str2_arrow_gpu, offsets2_gpu, output_gpu
+  mempool.free_all_blocks()
 
-    # Indices between lower_thr and upper_thr
-    indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
+  # Offset indices based on offset parameter
+  output1 = cp.ravel(indices1_gpu) + offset
 
-    # Indices above upper_thr
-    indices2_gpu = cp.argwhere(output_gpu >= upper_thr)
+  output2 = cp.ravel(indices2_gpu) + offset
 
-    # Clean GPU memory
-    del str1_arrow, offsets1, buffer1, str2_arrow, offsets2, buffer2, str1_arrow_gpu, offsets1_gpu, str2_arrow_gpu, offsets2_gpu, output_gpu
-    mempool.free_all_blocks()
+  del indices1_gpu, indices2_gpu
+  mempool.free_all_blocks()
 
-    # Offset indices based on offset parameter
-    output1 = cp.ravel(indices1_gpu) + offset
-
-    output2 = cp.ravel(indices2_gpu) + offset
-
-    del indices1_gpu, indices2_gpu
-    mempool.free_all_blocks()
-
-    return output1, output2
+  return output1, output2
 
 def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
   """This function computes the Jaro-Winkler distance between all pairs of
