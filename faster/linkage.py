@@ -8,29 +8,31 @@ class Linkage():
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
-    '''Arguments:
-    ----------
-      df_A (Pandas DataFrame): The first dataframe.
-      df_B (Pandas DataFrame): The second dataframe.
-      Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables.
-      Ksi (NumPy array): This array contains the conditional match probability for each pattern of discrete levels of similarity across variables.
-    '''
+    """
+
+    :param df_A: The first dataframe.
+    :type df_A: pd.DataFrame
+    :param df_B: The second dataframe.
+    :type df_B: pd.DataFrame
+    :param Indices: This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables.
+    :type Indices: list of cp.array
+    :param Ksi: This array contains the conditional match probability for each pattern of discrete levels of similarity across variables.
+    :type Ksi: np.array
+    """
+
     self.df_A = df_A
     self.df_B = df_B
     self.Indices = Indices
     self.Ksi = Ksi
 
   def transform(self, Threshold = 0.85):
-    """This method returns a dataframe in which all pairs of observations with
+    """
+    This method returns a dataframe in which all pairs of observations with
     conditional match probabilities above some threshold are linked.
 
-    Arguments:
-    ----------
-      Threshold (float): This is the threshold above which pairs of observations in df_A and df_B must be linked. Its value must be between 0 and 1.
-
-    Returns:
-    --------
-      Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked.
+    :param Threshold: This is the threshold above which pairs of observations in df_A and df_B must be linked. Its value must be between 0 and 1., defaults to 0.85
+    :type Threshold: float, optional
+    :return: Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked.
     """
 
     mempool = cp.get_default_memory_pool()

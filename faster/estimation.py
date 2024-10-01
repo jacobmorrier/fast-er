@@ -6,16 +6,17 @@ class Estimation():
   This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
   '''
 
-  def __init__(self, K, K_Exact, Counts):
-    '''
-    Arguments:
-    ----------
-    - K (int): Number of variables compared for fuzzy matching.
-    - K_Exact (int): Number of variables compared for exact matching.
-    - Counts (NumPy array): This array contains the count of observations for each pattern of discrete levels of similarity across variables.
-    - L (int): Number of discrete levels the similarity can take.
-    '''
+  def __init__(self, K: int, K_Exact, Counts):
+    """
+    
 
+    :param K: Number of variables compared for fuzzy matching.
+    :type K: int
+    :param K_Exact: Number of variables compared for exact matching.
+    :type K_Exact: np.array
+    :param Counts: This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+    :type Counts: np.array
+    """
     self.K = K
     self.K_Exact = K_Exact
     self.Counts = Counts
@@ -23,32 +24,26 @@ class Estimation():
     self._Fit_flag = False
 
   def _Gamma(self):
-    '''
+    """
     This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
 
-    Arguments:
-    ----------
-    - K (int): Number of variables compared for fuzzy matching.
-    - K_Exact (int): Number of variables compared for exact matching.
-
-    Sets Attributes:
-    ----------------
-    - Gamma (Tensor): This matrix encodes all the observed patterns of discrete levels of similarity across variables. 
+    :return: This matrix encodes all the observed patterns of discrete levels of similarity across variables. 
                       Each row represents a pattern of discrete levels of similarity. 
                       Each column represents a variable. 
                       The value of each element represents the discrete level of similarity for a specific variable in a particular pattern.
-    '''
+
+    :rtype: np.array
+    """
 
     return np.array(list(itertools.product(*(range(i) for i in np.repeat([3,2], [self.K, self.K_Exact])))))
 
   def _match_probability(self):
-    '''
+    """
     This internal method computes the conditional match probability for each pattern in Gamma given the current value of the parameters.
 
-    Returns:
-    --------
-    - Ksi (vector): This vector contains the conditional match probability for each pattern in Gamma.
-    '''
+    :return: Ksi, This vector contains the conditional match probability for each pattern in Gamma.
+    :rtype: _type_
+    """
 
     cond_prob = np.zeros((2, len(self.Gamma)), dtype = np.float32)
 
@@ -69,14 +64,9 @@ class Estimation():
     return result
 
   def fit(self, Tolerance = 1e-4, Max_Iter = 500):
-    '''
+    """
     This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
-
-    Arguments:
-    ----------
-    - Tolerance (float): This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in Pi is smaller than the value of this parameter.
-    - Max_Iter (int): This parameter determines the maximal number of iterations of the EM algorithm.
-
+    
     Sets the Following Attributes:
     ------------------------------
     - Lambda (float): Match probability.
@@ -84,7 +74,12 @@ class Estimation():
                    The first dimension represents the variable.
                    The second dimension represents the discrete level of similarity.
                    The third dimension represents the latent state.
-    '''
+    :param Tolerance: This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4
+    :type Tolerance: float, optional
+    :param Max_Iter: This parameter determines the maximal number of iterations of the EM algorithm., defaults to 500
+    :type Max_Iter: int, optional
+    :raises Exception: if converangence not reached
+    """
 
     if self._Fit_flag:
       raise Exception('The model has already been fitted.')
@@ -138,13 +133,13 @@ class Estimation():
 
   @property
   def Ksi(self):
-    '''
+    """
     This property represents the conditional match probabilities for each pattern of discrete levels of similarity across variables given the estimated parameters of the Fellegi-Sunter model.
 
-    Returns:
-    --------
-    - Ksi (NumPy array): This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
-    '''
+    :raises Exception: model must first be fitted
+    :return: Ksi, This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables
+    :rtype: np.array
+    """
 
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')
