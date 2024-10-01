@@ -30,7 +30,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.extlinks',
-    "sphinx_mdinclude"
 ]
 
 intersphinx_mapping = {
