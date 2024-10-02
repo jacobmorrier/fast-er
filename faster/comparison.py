@@ -675,11 +675,10 @@ def merge_indices(indices):
 
 class Comparison():
   """
-  This class evaluates the similarity between the values in two datasets
-  using the Jaro-Winkler metric.
+  This class compares the values of selected variables in two datasets.
   """
 
-  def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, vars_A, vars_B):
+  def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_A, Vars_B, Vars_Exact_A = [], Vars_Exact_B = []):
     """
     _summary_
 
@@ -687,56 +686,73 @@ class Comparison():
     :type df_A: pd.DataFrame
     :param df_B: Second dataframe to compare.
     :type df_B: pd.DataFrame
-    :param vars_A: Names of variables to compare in df_A.
-    :type vars_A: list
-    :param vars_B: Names of variables to compare in df_B. The variables must be listed in the same order as in vars_A.
-    :type vars_B: list
-    :raises Exception: length of vars_A and vars_B must be the same.
-    :raises Exception: names of vars_A and vars_B must match variables names in df_A and df_B.
+    :param Vars_A: Names of variables to compare for fuzzy matching in df_A.
+    :type Vars_A: list of str
+    :param Vars_B: Names of variables to compare for fuzzy matching in df_B. The variables must be listed in the same order as in Vars_A.
+    :type Vars_B: list of str
+    :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to [].
+    :type Vars_Exact_A: list of str, optional
+    :param Vars_Exact_B: Names of variables to compare for exact matching in df_B, defaults to [].
+    :type Vars_Exact_B: list of str, optional
+    :raises Exception: The lengths of Vars_A and Vars_B must be the same.
+    :raises Exception: The lengths of Vars_Exact_A and Vars_Exact_B must be the same.
+    :raises Exception: The names in Vars_A and Vars_B must match variables names in df_A and df_B.
+    :raises Exception: The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.
     """
     # Check Inputs
-    if len(vars_A) != len(vars_B):
-      raise Exception('The number of variables in vars_A and vars_B must be the same.')
+    if len(Vars_A) != len(Vars_B):
+      raise Exception('The lengths of Vars_A and Vars_B must be the same.')
 
-    if any(var not in df_A.columns for var in vars_A) or any(var not in df_B.columns for var in vars_B):
-      raise Exception('The names in vars_A and vars_B must match variables names in df_A and df_B.')
+    if len(Vars_Exact_A) != len(Vars_Exact_B):
+      raise Exception('The lengths of Vars_Exact_A and Vars_Exact_B must be the same.')
+
+    if any(var not in df_A.columns for var in Vars_A) or any(var not in df_B.columns for var in Vars_B):
+      raise Exception('The names in Vars_A and Vars_B must match variables names in df_A and df_B.')
+
+    if any(var not in df_A.columns for var in Vars_Exact_A) or any(var not in df_B.columns for var in Vars_Exact_B):
+      raise Exception('The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.')
 
     self.df_A = df_A
     self.df_B = df_B
-    self.vars_A = vars_A
-    self.vars_B = vars_B
+    self.vars_A = Vars_A
+    self.vars_B = Vars_B
+    self.vars_exact_A = Vars_Exact_A
+    self.vars_exact_B = Vars_Exact_B
     self._Fit_flag = False
 
   def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256):
     """
-    This method calculates the Jaro-Winkler similarity for every pair of
-    observations across all variables.
+    This method compares all pairs of observations across the selected variables in both datasets. 
+    It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables. 
+    The indices are calculated as i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
 
-    Sets the Following Attribute:
-    -----------------------------
-    - Indices (list of CuPy arrays): This list contains the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables. The indices represent i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
-
-    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity., defaults to 0.88
+    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88.
     :type Lower_Thr: float, optional
-    :param Upper_Thr: threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
+    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94.
     :type Upper_Thr: float, optional
-    :param Num_Threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+    :param Num_Threads: Number of threads per block, defaults to 256.
     :type Num_Threads: int, optional
-    :raises Exception: if model has already been fitted, it cannot be fitted again
+    :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
     if self._Fit_flag:
-      raise Exception('The model has already been fitted.')
+      raise Exception('If the model has already been fitted, it cannot be fitted again.')
 
     mempool = cp.get_default_memory_pool()
     indices = []
 
-    # Loop over (pairs of) variables and compute the Jaro-Winkler similarity between all pairs of values
+    # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.vars_A)):
       indices.append(jaro_winkler_gpu_unique(self.df_A[self.vars_A[i]].to_numpy(), self.df_B[self.vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
-    self.Indices = merge_indices(indices) # Merge discrete levels of similarity over all variables
+    # Loop over variables and compare all pairs of values for exact matching
+    for i in range(len(self.vars_exact_A)):
+      indices.append(exact_gpu(self.df_A[self.vars_exact_A[i]].to_numpy(), self.df_B[self.vars_exact_B[i]].to_numpy(), Num_Threads))
+      mempool.free_all_blocks()
+
+    # Merge discrete levels of similarity over all variables
+    self.Indices = merge_indices(indices) 
     self._Fit_flag = True
 
     del indices
@@ -747,9 +763,9 @@ class Comparison():
     """
     _summary_
 
-    :raises Exception: model must be fitted first.
-    :return: This array contains the count of observations for each pattern of discrete levels of similarity across variables
+    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables.
     :rtype: np.array
+    :raises Exception: The model must be fitted first.
     """
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')
