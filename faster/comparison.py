@@ -451,6 +451,76 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   return output1_gpu, output2_gpu
 
+def exact_gpu(str_A, str_B, num_threads = 256):
+  '''
+  This function compares all pairs of values in str_A and str_B and returns the indices corresponding to the pairs with the same value (i.e., exact match).
+  
+  :param str_A: First array of strings.
+  :type str_A: np.array
+  :param str_B: Second array of strings.
+  :type str_B: np.array
+  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :type num_threads: int, optional
+  :return: Indices with an exact match.
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
+  :rtype: (CuPy array)
+  '''
+
+  mempool = cp.get_default_memory_pool()
+
+  # Extracts unique values of str_A (with inverse and counts)
+  unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
+
+  # This array contains the indices corresponding to each unique value of str_A (as an arrow)
+  unique_A_inverse_argsort = np.argsort(unique_A_inverse)
+
+  unique_A_inverse_gpu = cp.array(unique_A_inverse_argsort, dtype = np.uint64)
+
+  # This array contains the number of observations in str_A associated with each unique value
+  unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
+
+  # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
+  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
+
+  unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
+
+  unique_B_inverse_argsort = np.argsort(unique_B_inverse)
+
+  unique_B_inverse_gpu = cp.array(unique_B_inverse_argsort, dtype = np.uint64)
+
+  unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
+
+  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
+
+  unique_all, unique_all_inverse, unique_all_counts = np.unique(np.concatenate((unique_A, unique_B)), return_inverse = True, return_counts = True)
+
+  unique_all_inverse_argsort = np.argsort(unique_all_inverse)
+
+  unique_all_offsets = np.cumsum(unique_all_counts)
+
+  unique_all_inverse_argsort_split = np.array_split(unique_all_inverse_argsort, unique_all_offsets)
+
+  equal_indices = np.vstack([np.sort(unique_all_inverse_argsort_split[i]) for i in np.ravel(np.argwhere(unique_all_counts == 2))])
+
+  indices_A = cp.array(equal_indices[:,0])
+
+  indices_B = cp.array(equal_indices[:,1] - len(unique_A))
+
+  output_count = unique_A_counts_gpu[indices_A] * unique_B_counts_gpu[indices_B]
+
+  output_offsets = cp.cumsum(output_count)
+
+  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.uint64)
+
+  num_blocks = math.ceil(len(indices_A) / num_threads)
+
+  indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, len(indices_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
+
+  del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
+  mempool.free_all_blocks()
+
+  return [output_gpu]
+
 def merge_indices_pair(indices1, indices2):
   """
   This function combines two lists of lists of indices. Importantly, it
