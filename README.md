@@ -10,7 +10,7 @@
 
 ## Introduction
 
-[Record linkage](https://en.wikipedia.org/wiki/Record_linkage), also called “entity resolution,” encompasses techniques for joining observations from two datasets that refer to the same unit or entity, even when the datasets do not share consistently formatted common identifiers.
+[Record linkage](https://en.wikipedia.org/wiki/Record_linkage), also called "entity resolution," encompasses techniques for joining observations from two datasets that refer to the same unit or entity, even when the datasets do not share consistently formatted common identifiers.
 
 Typically, record linkage involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of possible values across both datasets. While these calculations are simple, they become computationally expensive as the number of observations increases, causing the number of required comparisons to grow exponentially. For example, when linking observations from two datasets, each with 1,000,000 observations, adding just one more observation to either dataset results in an additional 1,000,000 comparisons. This makes record linkage prohibitively expensive to perform, even for datasets of moderate size.
 
