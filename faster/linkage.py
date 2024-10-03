@@ -4,7 +4,7 @@ import pandas as pd
 
 class Linkage():
   """
-  This class links the records in two data frames based on previously estimated conditional match probabilities.
+  This class links the records in two dataframes based on previously estimated conditional match probabilities.
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
