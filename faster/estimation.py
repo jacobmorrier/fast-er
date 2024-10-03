@@ -15,6 +15,7 @@ class Estimation():
     :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables.
     :type Counts: np.array
     """
+    
     self.K = K
     self.K_Exact = K_Exact
     self.Counts = Counts
@@ -25,7 +26,7 @@ class Estimation():
     """
     This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
 
-    :return: This matrix encodes all the observed patterns of discrete levels of similarity across variables. 
+    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables. 
              Each row represents a pattern of discrete levels of similarity. 
              Each column represents a variable. 
              The value of each element represents the discrete level of similarity for a specific variable in a particular pattern.
@@ -66,13 +67,13 @@ class Estimation():
     
     :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4.
     :type Tolerance: float, optional
-    :param Max_Iter: Maximal number of iterations of the EM algorithm., defaults to 500.
+    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 500.
     :type Max_Iter: int, optional
-    :raises Exception: if converangence not reached
+    :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
     if self._Fit_flag:
-      raise Exception('The model has already been fitted.')
+      raise Exception('If the model has already been fitted, it cannot be fitted again.')
 
     # Parameter Initialization
     self.Lambda = np.random.uniform(low = 0, high = 1/2)
