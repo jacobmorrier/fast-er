@@ -3,18 +3,16 @@ import matplotlib.pyplot as plt
 
 class Evaluation():
   """
-  This class allows us to evaluate the accuracy and uncertainty inherent in the estimates of the Fellegi-Sunter model.
+  This class evaluates the accuracy and uncertainty inherent in the estimates of the Fellegi-Sunter model.
   """
 
   def __init__(self, Lambda: float, Ksi: np.array, Counts: np.array):
     """
-    
-
     :param Lambda: Match probability.
     :type Lambda: float
-    :param Ksi: This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    :param Ksi: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
     :type Ksi: np.array
-    :param Counts: This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables.
     :type Counts: np.array
     """
 
@@ -24,11 +22,9 @@ class Evaluation():
 
   def FDR(self, S: float):
     """
-    The False Discovery Rate (FDR) represents the proportion of false matches among the pairs for which the conditional match probability is greater than or equal to the threshold S.
-
     :param S: Threshold at which the FDR is calculated.
     :type S: float
-    :return: False Discovery Rate
+    :return: False Discovery Rate: Proportion of false matches among the pairs for which the conditional match probability is greater than or equal to the threshold S.
     :rtype: float
     """
 
@@ -39,11 +35,9 @@ class Evaluation():
 
   def FNR(self, S: float):
     """
-    The false negative rate (FNR) represents the proportion of true matches among the pairs for which the conditional match probability is smaller than the threshold S.
-
     :param S: Threshold at which the FNR is calculated
     :type S: float
-    :return: False Negative Rate
+    :return: False Negative Rate: Proportion of true matches among the pairs for which the conditional match probability is smaller than the threshold S.
     :rtype: float
     """
 
@@ -66,9 +60,10 @@ class Evaluation():
     """
     This method computes the value of the threshold that minimizes a linear combination of the False Discovery Rate (FDR) and the False Negative Rate (FNR).
 
-    :param Alpha: Weight assigned to the False Negative Rate (FNR). The weight assigned to the False Discovery Rate (FDR) is normalized to one.
+    :param Alpha: Weight assigned to the False Negative Rate (FNR).
     :type Alpha: float
-    :return: Threshold that minimizes the linear combination of the FDR and the FNR (float).
+    :return: Threshold that minimizes the linear combination of the FDR and the FNR.
+    :rtype: float
     """
 
     return np.argmin(np.nan_to_num([self.FDR(s / 1000) + Alpha * self.FNR(s / 1000) for s in range(1001)], nan = 1 + Alpha)) / 1000
