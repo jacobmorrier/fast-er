@@ -281,8 +281,7 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
            Indices with Jaro-Winkler distance above upper_thr.
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-
-  :rtype: (CuPy array, CuPy array)
+  :rtype: (cp.array, cp.array)
   """ 
   mempool = cp.get_default_memory_pool()
 
@@ -361,7 +360,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
            Indices with Jaro-Winkler distance above upper_thr.
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  :rtype: (CuPy array, CuPy array)
+  :rtype: (cp.array, cp.array)
   """
 
   mempool = cp.get_default_memory_pool()
@@ -463,7 +462,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   :type num_threads: int, optional
   :return: Indices with an exact match.
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  :rtype: (CuPy array)
+  :rtype: (cp.array)
   '''
 
   mempool = cp.get_default_memory_pool()
@@ -539,6 +538,7 @@ def merge_indices_pair(indices1, indices2):
   :type indices2: list of CuPy arrays
   :return: List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. 
            This new list omits the combination formed by the first discrete values of both input lists.
+  :rtype: list of cp.array
   """
 
   mempool = cp.get_default_memory_pool()
@@ -671,7 +671,7 @@ def merge_indices(indices):
   This function merges a list of arrays of indices.
 
   :param indices:  List of arrays of indices.
-  :type indices: List of lists of CuPy arrays
+  :type indices: nested lists of CuPy arrays
   :return: List of np.arrays of indices.
   """
 
