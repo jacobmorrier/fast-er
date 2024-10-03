@@ -3,6 +3,7 @@ import functools
 import math
 import numpy as np
 import pandas as pd
+from .comparison import jaro_winkler_gpu
 
 jaro_winkler_dedup_code = r"""
 extern "C"{
