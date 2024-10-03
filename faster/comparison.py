@@ -472,9 +472,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_argsort = np.argsort(unique_A_inverse)
+  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.uint64)
 
-  unique_A_inverse_gpu = cp.array(unique_A_inverse_argsort, dtype = np.uint64)
+  unique_A_inverse_gpu = cp.argsort(unique_A_inverse_gpu)
 
   # This array contains the number of observations in str_A associated with each unique value
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
@@ -484,9 +484,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_argsort = np.argsort(unique_B_inverse)
+  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.uint64)
 
-  unique_B_inverse_gpu = cp.array(unique_B_inverse_argsort, dtype = np.uint64)
+  unique_B_inverse_gpu = cp.argsort(unique_B_inverse_gpu)
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
 
@@ -494,17 +494,23 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_all, unique_all_inverse, unique_all_counts = np.unique(np.concatenate((unique_A, unique_B)), return_inverse = True, return_counts = True)
 
-  unique_all_inverse_argsort = np.argsort(unique_all_inverse)
+  unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.uint64)
 
-  unique_all_offsets = np.cumsum(unique_all_counts)
+  unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu)
 
-  unique_all_inverse_argsort_split = np.array_split(unique_all_inverse_argsort, unique_all_offsets)
+  unique_all_counts_gpu = cp.array(unique_all_counts)
 
-  equal_indices = np.vstack([np.sort(unique_all_inverse_argsort_split[i]) for i in np.ravel(np.argwhere(unique_all_counts == 2))])
+  unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu)
 
-  indices_A = cp.array(equal_indices[:,0])
+  # The values in both unique_A and unique_B have a count of 2
+  equal_indices = cp.ravel(cp.argwhere(unique_all_counts_gpu == 2))
 
-  indices_B = cp.array(equal_indices[:,1] - len(unique_A))
+  indices_A = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices] - 2]
+
+  indices_B = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices] - 1] - len(unique_A)
+
+  del unique_all_inverse_gpu, unique_all_inverse_argsort, unique_all_counts_gpu, unique_all_offsets_gpu, equal_indices
+  mempool.free_all_blocks()
 
   output_count = unique_A_counts_gpu[indices_A] * unique_B_counts_gpu[indices_B]
 
