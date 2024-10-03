@@ -6,15 +6,13 @@ class Estimation():
   This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
   '''
 
-  def __init__(self, K: int, K_Exact, Counts):
+  def __init__(self, K: int, K_Exact: int, Counts: np.array):
     """
-    
-
     :param K: Number of variables compared for fuzzy matching.
     :type K: int
     :param K_Exact: Number of variables compared for exact matching.
-    :type K_Exact: np.array
-    :param Counts: This array contains the count of observations for each pattern of discrete levels of similarity across variables.
+    :type K_Exact: int
+    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables.
     :type Counts: np.array
     """
     self.K = K
@@ -28,10 +26,9 @@ class Estimation():
     This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
 
     :return: This matrix encodes all the observed patterns of discrete levels of similarity across variables. 
-                      Each row represents a pattern of discrete levels of similarity. 
-                      Each column represents a variable. 
-                      The value of each element represents the discrete level of similarity for a specific variable in a particular pattern.
-
+             Each row represents a pattern of discrete levels of similarity. 
+             Each column represents a variable. 
+             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern.
     :rtype: np.array
     """
 
@@ -41,8 +38,8 @@ class Estimation():
     """
     This internal method computes the conditional match probability for each pattern in Gamma given the current value of the parameters.
 
-    :return: Ksi, This vector contains the conditional match probability for each pattern in Gamma.
-    :rtype: _type_
+    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    :rtype: np.array
     """
 
     cond_prob = np.zeros((2, len(self.Gamma)), dtype = np.float32)
@@ -67,16 +64,9 @@ class Estimation():
     """
     This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
     
-    Sets the Following Attributes:
-    ------------------------------
-    - Lambda (float): Match probability.
-    - Pi (Tensor): This three-dimensional vector contains the probability of observing each discrete level of similarity for each variable conditional on the latent state (i.e., match or no match).
-                   The first dimension represents the variable.
-                   The second dimension represents the discrete level of similarity.
-                   The third dimension represents the latent state.
-    :param Tolerance: This parameter governs the convergence of the EM algorithm: convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4
+    :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4.
     :type Tolerance: float, optional
-    :param Max_Iter: This parameter determines the maximal number of iterations of the EM algorithm., defaults to 500
+    :param Max_Iter: Maximal number of iterations of the EM algorithm., defaults to 500.
     :type Max_Iter: int, optional
     :raises Exception: if converangence not reached
     """
@@ -136,9 +126,9 @@ class Estimation():
     """
     This property represents the conditional match probabilities for each pattern of discrete levels of similarity across variables given the estimated parameters of the Fellegi-Sunter model.
 
-    :raises Exception: model must first be fitted
-    :return: Ksi, This array contains the conditional match probabilities for each pattern of discrete levels of similarity across variables
+    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
     :rtype: np.array
+    :raises Exception: The model must be fitted first.
     """
 
     if not self._Fit_flag:
