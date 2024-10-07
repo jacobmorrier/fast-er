@@ -62,7 +62,7 @@ def intersect(arr1, arr2, num_threads = 256):
   :param arr2: Second array.
   :type arr2: cp.array
   :param num_threads: Number of threads per block, defaults to 256.
-  :type num_threads: int
+  :type num_threads: int, optional
   '''
 
   if arr1.size == 0 or arr2.size == 0:
@@ -92,7 +92,7 @@ def setdiff(arr1, arr2, num_threads = 256):
   :param arr2: Second array.
   :type arr2: cp.array
   :param num_threads: Number of threads per block, defaults to 256.
-  :type num_threads: int
+  :type num_threads: int, optional
   '''
 
   if arr1.size == 0 or arr2.size == 0:
