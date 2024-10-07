@@ -6,17 +6,17 @@ class Estimation():
   This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
   '''
 
-  def __init__(self, K: int, K_Exact: int, Counts: np.array):
+  def __init__(self, K_Fuzzy: int, K_Exact: int, Counts: np.array):
     """
-    :param K: Number of variables compared for fuzzy matching
-    :type K: int
+    :param K_Fuzzy: Number of variables compared for fuzzy matching
+    :type K_Fuzzy: int
     :param K_Exact: Number of variables compared for exact matching
     :type K_Exact: int
     :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
     :type Counts: np.array
     """
     
-    self.K = K
+    self.K_Fuzzy = K_Fuzzy
     self.K_Exact = K_Exact
     self.Counts = Counts
     self.Gamma = self._Gamma()
@@ -33,7 +33,7 @@ class Estimation():
     :rtype: np.array
     """
 
-    return np.array(list(itertools.product(*(range(i) for i in np.repeat([3,2], [self.K, self.K_Exact])))))
+    return np.array(list(itertools.product(*(range(i) for i in np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])))))
 
   def _match_probability(self):
     """
@@ -49,7 +49,7 @@ class Estimation():
     for m in range(2):
       
       # Loop over variables
-      for k in range(self.K):
+      for k in range(self.K_Fuzzy + self.K_Exact):
         
         # Using log-transformation to multiply probabilities of discrete levels of similarity for all variables (conditional on latent variable)
         cond_prob[m,:] += np.log(self.Pi[m][k][self.Gamma[:,k]])
@@ -78,7 +78,7 @@ class Estimation():
     # Parameter Initialization
     self.Lambda = np.random.uniform(low = 0, high = 1/2)
 
-    L_by_Variable = np.repeat([3,2], [self.K, self.K_Exact])
+    L_by_Variable = np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])
 
     pi_0 = [-np.sort(-np.random.dirichlet(np.ones(i))) for i in L_by_Variable]
 
