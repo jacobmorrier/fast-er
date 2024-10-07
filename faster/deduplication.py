@@ -6,7 +6,7 @@ import pandas as pd
 from .comparison import jaro_winkler_gpu
 from .search import intersect, setdiff
 
-output_count_dedup_code = """
+output_count_dedup_code = r"""
 extern "C" {
 
   __global__ void output_count(long long *input_A,
@@ -53,7 +53,7 @@ extern "C" {
 
 output_count_dedup_kernel = cp.RawKernel(output_count_dedup_code, 'output_count')
 
-indices_inverse_dedup_code = """
+indices_inverse_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input_A,
@@ -130,7 +130,7 @@ extern "C" {
 
 indices_inverse_dedup_kernel = cp.RawKernel(indices_inverse_dedup_code, 'indices_inverse')
 
-indices_inverse_exact_dedup_code = """
+indices_inverse_exact_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input,
@@ -183,7 +183,6 @@ indices_inverse_exact_dedup_kernel = cp.RawKernel(indices_inverse_exact_dedup_co
 def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1):
   """
   This function computes the Jaro-Winkler distance between all pairs of values in string.
-
 
   :param string: Array of strings
   :type string: np.array
@@ -351,7 +350,6 @@ class Deduplication():
 
   def __init__(self, df: pd.DataFrame, Vars, Vars_Exact = []):
     """
-
     :param df: Dataframe to deduplicate
     :type df: pd.DataFrame
     :param Vars: Names of variables to compare for fuzzy matching in df
@@ -443,8 +441,6 @@ class Deduplication():
   @property
   def Counts(self):
     """
-    _summary_
-
     :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
