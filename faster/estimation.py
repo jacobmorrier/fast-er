@@ -8,11 +8,11 @@ class Estimation():
 
   def __init__(self, K: int, K_Exact: int, Counts: np.array):
     """
-    :param K: Number of variables compared for fuzzy matching.
+    :param K: Number of variables compared for fuzzy matching
     :type K: int
-    :param K_Exact: Number of variables compared for exact matching.
+    :param K_Exact: Number of variables compared for exact matching
     :type K_Exact: int
-    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables.
+    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
     :type Counts: np.array
     """
     
@@ -26,10 +26,10 @@ class Estimation():
     """
     This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
 
-    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables. 
-             Each row represents a pattern of discrete levels of similarity. 
-             Each column represents a variable. 
-             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern.
+    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables
+             Each row represents a pattern of discrete levels of similarity
+             Each column represents a variable
+             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern
     :rtype: np.array
     """
 
@@ -39,7 +39,7 @@ class Estimation():
     """
     This internal method computes the conditional match probability for each pattern in Gamma given the current value of the parameters.
 
-    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     """
 
@@ -65,9 +65,9 @@ class Estimation():
     """
     This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
     
-    :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4.
+    :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4
     :type Tolerance: float, optional
-    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 500.
+    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 500
     :type Max_Iter: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
@@ -127,7 +127,7 @@ class Estimation():
     """
     This property represents the conditional match probabilities for each pattern of discrete levels of similarity across variables given the estimated parameters of the Fellegi-Sunter model.
 
-    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
     """
