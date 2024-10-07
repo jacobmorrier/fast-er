@@ -208,7 +208,7 @@ __global__ void jaro_winkler_kernel(char *str1,
 
 jaro_winkler_kernel = cp.RawKernel(jaro_winkler_code, 'jaro_winkler_kernel')
 
-indices_inverse_code = """
+indices_inverse_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input_A,
@@ -265,7 +265,7 @@ indices_inverse_kernel = cp.RawKernel(indices_inverse_code, 'indices_inverse')
 
 def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
-  This function computes the Jaro-Winkler distance between all pairs of strings in str1 and str2.
+  This function computes the Jaro-Winkler similarity between all pairs of strings in str1 and str2.
 
   :param str1: First array of strings
   :type str1: np.array
@@ -342,7 +342,7 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
 
 def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
   """
-  This function computes the Jaro-Winkler distance between all pairs of strings in str_A and str_B.
+  This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
 
   :param str_A: First array of strings
   :type str_A: np.array
@@ -354,7 +354,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   :type upper_thr: float, optional
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :param max_chunk_size: Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks, defaults to 10000000
+  :param max_chunk_size: Maximal number of pairs per chunk, defaults to 10000000
   :type max_chunk_size: int, optional
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
            Indices with Jaro-Winkler distance above upper_thr
@@ -394,7 +394,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_A_partitions_len = np.append([0], np.cumsum([len(x) for x in unique_A_partitions]))
 
-  # Compute Jaro-Winkler similarity by chunk
+  # Compute Jaro-Winkler similarity in chunks
   indices = [jaro_winkler_gpu(x, unique_B, unique_A_partitions_len[i] * len(unique_B), lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions)]
 
   # Concatenate indices of all chunks
