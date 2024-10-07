@@ -185,20 +185,20 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
   This function computes the Jaro-Winkler distance between all pairs of values in string.
 
 
-  :param string: Array of strings.
+  :param string: Array of strings
   :type string: np.array
-  :param lower_thr: Lower threshold for discretizing Jaro-Winkler distance, defaults to 0.88.
+  :param lower_thr: Lower threshold for discretizing Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
-  :param upper_thr: Upper threshold for discretizing Jaro-Winkler distance, defaults to 0.94.
+  :param upper_thr: Upper threshold for discretizing Jaro-Winkler distance, defaults to 0.94
   :type upper_thr: float, optional
-  :param num_threads: Number of threads per block, defaults to 256.
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.
+  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
   :type max_chunk_size: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr.
-           Indices with Jaro-Winkler distance above upper_thr. 
-           The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index.
-  :rtype: (cp.array, cp.array)
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
+           Indices with Jaro-Winkler distance above upper_thr
+           The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index
+  :rtype: [cp.array, cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
@@ -293,13 +293,13 @@ def exact_dedup_gpu(string, num_threads = 256):
   """
   This function compares all pairs of values in string and returns the indices corresponding to the pairs with the same value (i.e., exact match).
 
-  :param string: Array of strings.
+  :param string: Array of strings
   :type string: np.array
-  :param num_threads: Number of threads per block, defaults to 256.
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :return: Indices with an exact match.
-           The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index.
-  :rtype: (cp.array)
+  :return: Indices with an exact match
+           The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index
+  :rtype: [cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
@@ -352,12 +352,12 @@ class Deduplication():
   def __init__(self, df: pd.DataFrame, Vars, Vars_Exact = []):
     """
 
-    :param df: Dataframe to deduplicate.
+    :param df: Dataframe to deduplicate
     :type df: pd.DataFrame
-    :param Vars: Names of variables to compare for fuzzy matching in df.
-    :type Vars: list of strings
-    :param Vars_Exact: Names of variables to compare for exact matching in df, defaults to [].
-    :type Vars_Exact: list, optional
+    :param Vars: Names of variables to compare for fuzzy matching in df
+    :type Vars: list of str
+    :param Vars_Exact: Names of variables to compare for exact matching in df, defaults to []
+    :type Vars_Exact: list of str, optional
     :raises Exception: The variable names in Vars and Vars_Exact must match variable names in df.
     """
 
@@ -376,13 +376,13 @@ class Deduplication():
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
     The indices are calculated as i * len(df_B) + j, where i is the first element's index and j is the second element's index.
     
-    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88.
+    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88
     :type Lower_Thr: float, optional
-    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94.
+    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
     :type Upper_Thr: float, optional
-    :param Num_Threads: Number of threads per block, defaults to 256.
+    :param Num_Threads: Number of threads per block, defaults to 256
     :type Num_Threads: int, optional
-    :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.
+    :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
     :type Max_Chunk_Size: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
@@ -445,7 +445,7 @@ class Deduplication():
     """
     _summary_
 
-    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables.
+    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
     """
