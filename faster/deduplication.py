@@ -298,7 +298,7 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
 
 def exact_dedup_gpu(string, num_threads = 256):
   """
-  This function compares all pairs of values in string and returns the indices corresponding to the pairs with the same value (i.e., exact match).
+  This function compares all pairs of values in string and returns the indices of pairs with the same value (i.e., exact match).
 
   :param string: Array of strings
   :type string: np.array
@@ -360,23 +360,23 @@ class Deduplication():
   This class compares the values of selected variables in one dataset.
   """
 
-  def __init__(self, df: pd.DataFrame, Vars, Vars_Exact = []):
+  def __init__(self, df: pd.DataFrame, Vars_Fuzzy, Vars_Exact = []):
     """
     :param df: Dataframe to deduplicate
     :type df: pd.DataFrame
-    :param Vars: Names of variables to compare for fuzzy matching in df
-    :type Vars: list of str
+    :param Vars_Fuzzy: Names of variables to compare for fuzzy matching in df
+    :type Vars_Fuzzy: list of str
     :param Vars_Exact: Names of variables to compare for exact matching in df, defaults to []
     :type Vars_Exact: list of str, optional
-    :raises Exception: The variable names in Vars and Vars_Exact must match variable names in df.
+    :raises Exception: The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.
     """
 
     # Check that inputs are valid
-    if any(var not in df.columns for var in Vars) or any(var not in df.columns for var in Vars_Exact):
-      raise Exception('The variable names in Vars and Vars_Exact must match variable names in df.')
+    if any(var not in df.columns for var in Vars_Fuzzy) or any(var not in df.columns for var in Vars_Exact):
+      raise Exception('The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.')
 
     self.df = df
-    self.Vars = Vars
+    self.Vars_Fuzzy = Vars_Fuzzy
     self.Vars_Exact = Vars_Exact
     self._Fit_flag = False
 
@@ -404,8 +404,8 @@ class Deduplication():
     indices = []
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
-    for i in range(len(self.Vars)):
-      indices.append(jaro_winkler_dedup_gpu_unique(self.df[self.Vars[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
+    for i in range(len(self.Vars_Fuzzy)):
+      indices.append(jaro_winkler_dedup_gpu_unique(self.df[self.Vars_Fuzzy[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
@@ -453,7 +453,7 @@ class Deduplication():
   @property
   def Counts(self):
     """
-    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
+    :return: Array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
     """
