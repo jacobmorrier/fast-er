@@ -3,6 +3,7 @@ import functools
 import math
 import numpy as np
 import pandas as pd
+from .search import intersect, setdiff
 
 jaro_winkler_code = r"""
 extern "C"{
@@ -266,23 +267,24 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   """
   This function computes the Jaro-Winkler distance between all pairs of strings in str1 and str2.
 
-  :param str1: First array of strings.
+  :param str1: First array of strings
   :type str1: np.array
-  :param str2: Second array of strings.
+  :param str2: Second array of strings
   :type str2: np.array
-  :param offset: Offset for indices: this value is added to all output indices.
+  :param offset: Value added to all output indices
   :type offset: int
-  :param lower_thr: Lower threshold for Jaro-Winkler distance, defaults to 0.88
+  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
-  :param upper_thr: Upper threshold for Jaro-Winkler distance, defaults to 0.94
+  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
   :type upper_thr: float, optional
-  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
-           Indices with Jaro-Winkler distance above upper_thr.
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  :rtype: (cp.array, cp.array)
-  """ 
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
+           Indices with Jaro-Winkler distance above upper_thr
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
+  :rtype: [cp.array, cp.array]
+  """
+  
   mempool = cp.get_default_memory_pool()
 
   n1 = len(str1) # Number of strings contained in str1
@@ -292,9 +294,7 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
 
   str1_arrow_gpu = cp.array(str1_arrow)
 
-  # Array storing where each string starts and ends: str1[i] begins at offsets[i]
-  # and ends at offsets[i + 1] - 1 (inclusively)
-
+  # Array storing where each string starts and ends: str1[i] begins at offsets[i] and ends at offsets[i + 1] - 1 (inclusively)
   offsets1 = np.append([0], np.cumsum([len(row) for row in str1])).astype(np.int32)
 
   offsets1_gpu = cp.array(offsets1)
@@ -338,29 +338,28 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   del indices1_gpu, indices2_gpu
   mempool.free_all_blocks()
 
-  return output1, output2
+  return [output1, output2]
 
 def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
   """
-  This function computes the Jaro-Winkler distance between all pairs of
-  strings in str_A and str_B.
+  This function computes the Jaro-Winkler distance between all pairs of strings in str_A and str_B.
 
-  :param str_A: First array of strings.
+  :param str_A: First array of strings
   :type str_A: np.array
-  :param str_B: Second array of strings.
+  :param str_B: Second array of strings
   :type str_B: np.array
-  :param lower_thr: Lower threshold for Jaro-Winkler distance., defaults to 0.88
+  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
-  :param upper_thr: Upper threshold for Jaro-Winkler distance., defaults to 0.94
+  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
   :type upper_thr: float, optional
-  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
   :param max_chunk_size: Maximal number of pairs per chunk. This value is used to segment the full matrix into chunks, defaults to 10000000
   :type max_chunk_size: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr,
-           Indices with Jaro-Winkler distance above upper_thr.
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  :rtype: (cp.array, cp.array)
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
+           Indices with Jaro-Winkler distance above upper_thr
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
+  :rtype: [cp.array, cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
@@ -448,21 +447,29 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
 
-  return output1_gpu, output2_gpu
+  output1_sorted = cp.sort(output1_gpu)
+  del output1_gpu
+  mempool.free_all_blocks()
+
+  output2_sorted = cp.sort(output2_gpu)
+  del output2_gpu
+  mempool.free_all_blocks()
+
+  return [output1_sorted, output2_sorted]
 
 def exact_gpu(str_A, str_B, num_threads = 256):
   '''
-  This function compares all pairs of values in str_A and str_B and returns the indices corresponding to the pairs with the same value (i.e., exact match).
+  This function compares all pairs of values in str_A and str_B and returns the indices of pairs with the same value (i.e., exact match).
   
-  :param str_A: First array of strings.
+  :param str_A: First array of strings
   :type str_A: np.array
-  :param str_B: Second array of strings.
+  :param str_B: Second array of strings
   :type str_B: np.array
-  :param num_threads: Number of threads per block. The maximal possible value is 1,024, defaults to 256
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :return: Indices with an exact match.
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B.
-  :rtype: (cp.array)
+  :return: Indices with an exact match
+           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
+  :rtype: [cp.array]
   '''
 
   mempool = cp.get_default_memory_pool()
@@ -524,160 +531,11 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
 
-  return [output_gpu]
-
-def merge_indices_pair(indices1, indices2):
-  """
-  This function combines two lists of lists of indices. Importantly, it
-  accounts for the fact that one discrete value (or combination thereof) is
-  implicitly ommitted from each list of indices.
-
-  :param indices1: list of arrays of indices
-  :type indices1: list of CuPy arrays
-  :param indices2: list of arrays of indices
-  :type indices2: list of CuPy arrays
-  :return: List of CuPy arrays of indices for all combinations of discrete values of both input lists of arrays of indices. 
-           This new list omits the combination formed by the first discrete values of both input lists.
-  :rtype: list of cp.array
-  """
-
-  mempool = cp.get_default_memory_pool()
-
-  if len(indices1) > 1:
-    temp1 = cp.concatenate(indices1) # Indices that do NOT belong to the first discrete value of the first list
-  else:
-    temp1 = indices1[0]
-
-  if len(indices2) > 1:
-    temp2 = cp.concatenate(indices2) # Indices that do NOT belong to the first discrete value of the second list
-  else:
-    temp2 = indices2[0]
-
-  output = [] # Array used to store the results
-
-  # We iterate over the discrete values of both lists of lists of indices.
-
-  for i in range(len(indices1) + 1):
-
-    # The discrete values of the second list move faster.
-
-    for j in range(len(indices2) + 1):
-
-      if i == 0:
-
-        # We omit the combination formed by the first discrete values of both lists.
-
-        if j != 0:
-
-          output.append(cp.setdiff1d(indices2[j - 1], temp1))
-
-      else:
-
-        if j == 0:
-
-          output.append(cp.setdiff1d(indices1[i - 1], temp2))
-
-        else:
-
-          if len(indices2[j - 1]) > 0:
-            output.append(cp.intersect1d(indices1[i - 1], indices2[j - 1]))
-          else:
-            output.append(cp.empty(0, dtype = np.int64))
-
-  del temp1, temp2
+  output_sorted = cp.sort(output_gpu)
+  del output_gpu
   mempool.free_all_blocks()
 
-  return output
-
-def merge_indices_pair_split(indices1, indices2, max_elements = 2500000):
-
-  mempool = cp.get_default_memory_pool()
-
-  if len(indices1) > 1:
-    temp1 = cp.concatenate(indices1) # Indices that do NOT belong to the first discrete value of the first list
-  else:
-    temp1 = indices1[0]
-
-  if len(indices2) > 1:
-    temp2 = cp.concatenate(indices2) # Indices that do NOT belong to the first discrete value of the second list
-  else:
-    temp2 = indices2[0]
-
-  output = [] # Array used to store the results
-
-  # We iterate over the discrete values of both lists of lists of indices.
-
-  for i in range(len(indices1) + 1):
-
-    # The discrete values of the second list move faster.
-
-    for j in range(len(indices2) + 1):
-
-      if i == 0:
-
-        # We omit the combination formed by the first discrete values of both lists.
-
-        if j != 0:
-
-          chunks_temp1 = math.ceil(len(temp1) / max_elements)
-          temp1_split = cp.array_split(temp1, chunks_temp1) # Slicing
-
-          output_in = functools.reduce(cp.setdiff1d, [indices2[j - 1]] + temp1_split)
-
-          output.append(output_in)
-
-          del temp1_split, output_in
-          mempool.free_all_blocks()
-
-      else:
-
-        if j == 0:
-
-          chunks_temp2 = math.ceil(len(temp2) / max_elements)
-          temp2_split = cp.array_split(temp2, chunks_temp2)
-
-          output_in = functools.reduce(cp.setdiff1d, [indices1[i - 1]] + temp2_split)
-
-          output.append(output_in)
-
-          del temp2_split, output_in
-          mempool.free_all_blocks()
-
-        else:
-
-          if len(indices1[i - 1]) > 0 and len(indices2[j - 1]) > 0:
-            chunks_indices1 = math.ceil(len(indices1[i - 1]) / max_elements)
-            indices1_split = cp.array_split(indices1[i - 1], chunks_indices1)
-
-            chunks_indices2 = math.ceil(len(indices2[j - 1]) / max_elements)
-            indices2_split = cp.array_split(indices2[j - 1], chunks_indices2)
-
-            output_in = (cp.intersect1d(k, l) for k in indices1_split for l in indices2_split)
-
-            output.append(cp.concatenate(output_in))
-
-            del indices1_split, indices2_split, output_in
-            mempool.free_all_blocks()
-          else:
-            output.append(cp.empty(0, dtype = np.int64))
-
-  del temp1, temp2
-  mempool.free_all_blocks()
-
-  return output
-
-def merge_indices(indices):
-  """
-  This function merges a list of arrays of indices.
-
-  :param indices:  List of arrays of indices.
-  :type indices: nested lists of CuPy arrays
-  :return: List of np.arrays of indices.
-  """
-
-  output = functools.reduce(merge_indices_pair_split, indices)
-
-  return output
+  return [output_sorted]
 
 class Comparison():
   """
@@ -688,17 +546,17 @@ class Comparison():
     """
     _summary_
 
-    :param df_A: First dataframe to compare.
+    :param df_A: First dataframe to compare
     :type df_A: pd.DataFrame
-    :param df_B: Second dataframe to compare.
+    :param df_B: Second dataframe to compare
     :type df_B: pd.DataFrame
-    :param Vars_A: Names of variables to compare for fuzzy matching in df_A.
+    :param Vars_A: Names of variables to compare for fuzzy matching in df_A
     :type Vars_A: list of str
-    :param Vars_B: Names of variables to compare for fuzzy matching in df_B. The variables must be listed in the same order as in Vars_A.
+    :param Vars_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
     :type Vars_B: list of str
-    :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to [].
+    :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to []
     :type Vars_Exact_A: list of str, optional
-    :param Vars_Exact_B: Names of variables to compare for exact matching in df_B, defaults to [].
+    :param Vars_Exact_B: Names of variables to compare for exact matching in df_B listed in the same order as in Vars_Exact_A, defaults to []
     :type Vars_Exact_B: list of str, optional
     :raises Exception: The lengths of Vars_A and Vars_B must be the same.
     :raises Exception: The lengths of Vars_Exact_A and Vars_Exact_B must be the same.
@@ -720,10 +578,10 @@ class Comparison():
 
     self.df_A = df_A
     self.df_B = df_B
-    self.vars_A = Vars_A
-    self.vars_B = Vars_B
-    self.vars_exact_A = Vars_Exact_A
-    self.vars_exact_B = Vars_Exact_B
+    self.Vars_A = Vars_A
+    self.Vars_B = Vars_B
+    self.Vars_Exact_A = Vars_Exact_A
+    self.Vars_Exact_B = Vars_Exact_B
     self._Fit_flag = False
 
   def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256):
@@ -732,11 +590,11 @@ class Comparison():
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables. 
     The indices are calculated as i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
 
-    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88.
+    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88
     :type Lower_Thr: float, optional
-    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94.
+    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
     :type Upper_Thr: float, optional
-    :param Num_Threads: Number of threads per block, defaults to 256.
+    :param Num_Threads: Number of threads per block, defaults to 256
     :type Num_Threads: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
@@ -749,16 +607,46 @@ class Comparison():
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.vars_A)):
-      indices.append(jaro_winkler_gpu_unique(self.df_A[self.vars_A[i]].to_numpy(), self.df_B[self.vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
+      indices.append(jaro_winkler_gpu_unique(self.df_A[self.Vars_A[i]].to_numpy(), self.df_B[self.Vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
     for i in range(len(self.vars_exact_A)):
-      indices.append(exact_gpu(self.df_A[self.vars_exact_A[i]].to_numpy(), self.df_B[self.vars_exact_B[i]].to_numpy(), Num_Threads))
+      indices.append(exact_gpu(self.df_A[self.Vars_Exact_A[i]].to_numpy(), self.df_B[self.Vars_Exact_B[i]].to_numpy(), Num_Threads))
       mempool.free_all_blocks()
 
     # Merge discrete levels of similarity over all variables
-    self.Indices = merge_indices(indices) 
+    self.Indices = indices[0]
+    del indices[0]
+    mempool.free_all_blocks()
+
+    while len(indices) > 0:
+
+      output = []
+
+      for j in range(len(indices[0])):
+
+        output.append(functools.reduce(setdiff, self.Indices, indices[0][j]))
+        mempool.free_all_blocks()
+
+      while len(self.Indices) > 0:
+
+        output.append(functools.reduce(setdiff, indices[0], self.Indices[0]))
+        mempool.free_all_blocks()
+
+        for j in range(len(indices[0])):
+
+          output.append(intersect(self.Indices[0], indices[0][j]))
+          mempool.free_all_blocks()
+
+        del self.Indices[0]
+        mempool.free_all_blocks()
+
+      self.Indices = output
+
+      del indices[0], output
+      mempool.free_all_blocks()
+      
     self._Fit_flag = True
 
     del indices
@@ -769,7 +657,7 @@ class Comparison():
     """
     _summary_
 
-    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables.
+    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
     """
