@@ -542,7 +542,7 @@ class Comparison():
   This class compares the values of selected variables in two datasets.
   """
 
-  def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_A, Vars_B, Vars_Exact_A = [], Vars_Exact_B = []):
+  def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_Fuzzy_A, Vars_Fuzzy_B, Vars_Exact_A = [], Vars_Exact_B = []):
     """
     _summary_
 
@@ -550,36 +550,36 @@ class Comparison():
     :type df_A: pd.DataFrame
     :param df_B: Second dataframe to compare
     :type df_B: pd.DataFrame
-    :param Vars_A: Names of variables to compare for fuzzy matching in df_A
-    :type Vars_A: list of str
-    :param Vars_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
-    :type Vars_B: list of str
+    :param Vars_Fuzzy_A: Names of variables to compare for fuzzy matching in df_A
+    :type Vars_Fuzzy_A: list of str
+    :param Vars_Fuzzy_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
+    :type Vars_Fuzzy_B: list of str
     :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to []
     :type Vars_Exact_A: list of str, optional
     :param Vars_Exact_B: Names of variables to compare for exact matching in df_B listed in the same order as in Vars_Exact_A, defaults to []
     :type Vars_Exact_B: list of str, optional
-    :raises Exception: The lengths of Vars_A and Vars_B must be the same.
+    :raises Exception: The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.
     :raises Exception: The lengths of Vars_Exact_A and Vars_Exact_B must be the same.
-    :raises Exception: The names in Vars_A and Vars_B must match variables names in df_A and df_B.
+    :raises Exception: The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.
     :raises Exception: The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.
     """
     # Check Inputs
-    if len(Vars_A) != len(Vars_B):
-      raise Exception('The lengths of Vars_A and Vars_B must be the same.')
+    if len(Vars_Fuzzy_A) != len(Vars_Fuzzy_B):
+      raise Exception('The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.')
 
     if len(Vars_Exact_A) != len(Vars_Exact_B):
       raise Exception('The lengths of Vars_Exact_A and Vars_Exact_B must be the same.')
 
-    if any(var not in df_A.columns for var in Vars_A) or any(var not in df_B.columns for var in Vars_B):
-      raise Exception('The names in Vars_A and Vars_B must match variables names in df_A and df_B.')
+    if any(var not in df_A.columns for var in Vars_Fuzzy_A) or any(var not in df_B.columns for var in Vars_Fuzzy_B):
+      raise Exception('The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.')
 
     if any(var not in df_A.columns for var in Vars_Exact_A) or any(var not in df_B.columns for var in Vars_Exact_B):
       raise Exception('The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.')
 
     self.df_A = df_A
     self.df_B = df_B
-    self.Vars_A = Vars_A
-    self.Vars_B = Vars_B
+    self.Vars_Fuzzy_A = Vars_Fuzzy_A
+    self.Vars_Fuzzy_B = Vars_Fuzzy_B
     self.Vars_Exact_A = Vars_Exact_A
     self.Vars_Exact_B = Vars_Exact_B
     self._Fit_flag = False
@@ -606,8 +606,8 @@ class Comparison():
     indices = []
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
-    for i in range(len(self.Vars_A)):
-      indices.append(jaro_winkler_gpu_unique(self.df_A[self.Vars_A[i]].to_numpy(), self.df_B[self.Vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
+    for i in range(len(self.Vars_Fuzzy_A)):
+      indices.append(jaro_winkler_gpu_unique(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
