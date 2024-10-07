@@ -8,11 +8,11 @@ class Evaluation():
 
   def __init__(self, Lambda: float, Ksi: np.array, Counts: np.array):
     """
-    :param Lambda: Match probability.
+    :param Lambda: Match probability
     :type Lambda: float
-    :param Ksi: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables.
+    :param Ksi: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
     :type Ksi: np.array
-    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables.
+    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
     :type Counts: np.array
     """
 
@@ -22,9 +22,9 @@ class Evaluation():
 
   def FDR(self, S: float):
     """
-    :param S: Threshold at which the FDR is calculated.
+    :param S: Threshold at which the FDR is calculated
     :type S: float
-    :return: False Discovery Rate: Proportion of false matches among the pairs for which the conditional match probability is greater than or equal to the threshold S.
+    :return: False Discovery Rate: Proportion of false matches among the pairs for which the conditional match probability is greater than or equal to the threshold S
     :rtype: float
     """
 
@@ -37,7 +37,7 @@ class Evaluation():
     """
     :param S: Threshold at which the FNR is calculated
     :type S: float
-    :return: False Negative Rate: Proportion of true matches among the pairs for which the conditional match probability is smaller than the threshold S.
+    :return: False Negative Rate: Proportion of true matches among the pairs for which the conditional match probability is smaller than the threshold S
     :rtype: float
     """
 
@@ -60,9 +60,9 @@ class Evaluation():
     """
     This method computes the value of the threshold that minimizes a linear combination of the False Discovery Rate (FDR) and the False Negative Rate (FNR).
 
-    :param Alpha: Weight assigned to the False Negative Rate (FNR).
+    :param Alpha: Weight assigned to the False Negative Rate (FNR)
     :type Alpha: float
-    :return: Threshold that minimizes the linear combination of the FDR and the FNR.
+    :return: Threshold that minimizes the linear combination of the FDR and the FNR
     :rtype: float
     """
 
