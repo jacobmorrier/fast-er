@@ -57,11 +57,11 @@ def intersect(arr1, arr2, num_threads = 256):
   '''
   This function returns the elements that are common between arr1 and arr2, assuming both arrays are sorted in increasing order.
   
-  :param arr1: First array.
+  :param arr1: First array
   :type arr1: cp.array
-  :param arr2: Second array.
+  :param arr2: Second array
   :type arr2: cp.array
-  :param num_threads: Number of threads per block, defaults to 256.
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
   '''
 
@@ -87,11 +87,11 @@ def setdiff(arr1, arr2, num_threads = 256):
   '''
   This function returns the elements that are present in arr1 but not in arr2, assuming both arrays are sorted in increasing order.
   
-  :param arr1: First array.
+  :param arr1: First array
   :type arr1: cp.array
-  :param arr2: Second array.
+  :param arr2: Second array
   :type arr2: cp.array
-  :param num_threads: Number of threads per block, defaults to 256.
+  :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
   '''
 
