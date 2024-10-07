@@ -9,13 +9,13 @@ class Linkage():
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
     """
-    :param df_A: The first dataframe.
+    :param df_A: First dataframe
     :type df_A: pd.DataFrame
-    :param df_B: The second dataframe.
+    :param df_B: Second dataframe
     :type df_B: pd.DataFrame
-    :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables.
+    :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables
     :type Indices: list of cp.array
-    :param Ksi: Array containing the conditional match probabilities for all patterns of discrete levels of similarity across variables.
+    :param Ksi: Array containing the conditional match probabilities for all patterns of discrete levels of similarity across variables
     :type Ksi: np.array
     """
 
@@ -28,9 +28,9 @@ class Linkage():
     """
     This method returns a dataframe in which all pairs of observations with conditional match probabilities above some threshold are linked.
 
-    :param Threshold: Threshold above which pairs of observations in df_A and df_B must be linked, defaults to 0.85.
+    :param Threshold: Threshold above which pairs of observations in df_A and df_B must be linked, defaults to 0.85
     :type Threshold: float, optional
-    :return: Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked.
+    :return: Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
     """
 
     mempool = cp.get_default_memory_pool()
