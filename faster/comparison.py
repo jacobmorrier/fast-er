@@ -606,12 +606,12 @@ class Comparison():
     indices = []
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
-    for i in range(len(self.vars_A)):
+    for i in range(len(self.Vars_A)):
       indices.append(jaro_winkler_gpu_unique(self.df_A[self.Vars_A[i]].to_numpy(), self.df_B[self.Vars_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
-    for i in range(len(self.vars_exact_A)):
+    for i in range(len(self.Vars_Exact_A)):
       indices.append(exact_gpu(self.df_A[self.Vars_Exact_A[i]].to_numpy(), self.df_B[self.Vars_Exact_B[i]].to_numpy(), Num_Threads))
       mempool.free_all_blocks()
 
