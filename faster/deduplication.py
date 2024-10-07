@@ -4,217 +4,7 @@ import math
 import numpy as np
 import pandas as pd
 from .comparison import jaro_winkler_gpu
-
-jaro_winkler_dedup_code = r"""
-extern "C"{
-
-__device__ float jaro_winkler(const char *str1,
-                              const int len1,
-                              bool *hash_str1,
-                              const char *str2,
-                              const int len2,
-                              bool *hash_str2) {
-
-    // Description: Computes the Jaro-Winkler distance between two strings
-
-    // Inputs:
-    // - str1: First string
-    // - len1: Length of str1
-    // - hash_str1: Working memory to keep track of which characters in str1 are
-    //              matching to corresponding characters in str2
-    // - str2: Second string
-    // - len2: Length of str2
-    // - hash_str2: Working memory to keep track of which characters in str2 are
-    //              matching to corresponding characters in str1
-
-    // Output:
-    // - dist: Jaro-Winkler distance between str1 and str2
-
-    // If either string is null, the Jaro-Winkler distance between str1 and str2 is 0
-
-    if (len1 == 0 || len2 == 0) {
-
-        return 0.0;
-
-    } else {
-
-        // We compute the number of matching characters between str1 and str2
-        // We consider the characters max(len1, len2) / 2 - 1 away from each other
-
-        int max_dist = max(len1, len2) / 2 - 1;
-
-        int match = 0;
-
-        for (int i = 0; i < len1; i++) {
-
-            for (int j = max(0, i - max_dist); j < min(len2, i + max_dist + 1); j++) {
-
-                if (str1[i] == str2[j] && hash_str2[j] == false) {
-
-                    // Two characters are matching if they appear in both strings
-                    // at most max_dist characters away from each other
-
-                    hash_str1[i] = true;
-                    hash_str2[j] = true;
-                    match++;
-                    break;
-
-                }
-
-            }
-
-        }
-
-        // If there are no matching characters between both strings, the Jaro-Winkler distance between them is 0
-
-        if (match == 0) {
-
-            return 0.0;
-
-        } else {
-
-            // If a positive number of matching characters is found, we need to compute the number of transpositions, that is, the number of matching characters that are not in the right order divided by two
-
-            float t = 0;
-
-            int point = 0;
-
-            for (int i = 0; i < len1; i++) {
-
-                if (hash_str1[i] == true) {
-
-                    while (hash_str2[point] == false) {
-
-                        point++;
-
-                    }
-
-                    if (str1[i] != str2[point]) {
-
-                        t++;
-
-                    }
-
-                    point++;
-
-                }
-
-            }
-
-            t /= 2;
-
-            // The Jaro distance between str1 and str2 is defined as follows:
-
-            float dist;
-
-            dist = (((float)match / (float)len1) + ((float)match / (float)len2) + (((float)match - t) / (float)match)) / 3.0;
-
-            // To go from the Jaro distance to the Jaro-Winkler distance, we need to compute the length of the common prefix between both strings
-
-            int prefix = 0;
-
-            for (int i = 0; i < min(min(len1, len2), 4); i++) {
-
-                if (str1[i] == str2[i]) {
-
-                    prefix++;
-
-                } else {
-
-                    break;
-
-                }
-
-            }
-
-            // To obtain the Jaro-Winkler distance, we adjust the Jaro distance for the length of the common prefix between both strings
-
-            dist += 0.1 * prefix * (1 - dist);
-
-            return dist;
-
-        }
-
-    }
-
-}
-
-__global__ void jaro_winkler_kernel(char *str,
-                                    int *offsets,
-                                    bool *buffer1,
-                                    bool *buffer2,
-                                    int n_str,
-                                    int offset,
-                                    int n,
-                                    float *output) {
-
-    // Inputs:
-    // - str: First vector of strings stored as an arrow (i.e., concatenated
-    //         next to each other)
-    // - offsets: Vector storing the index where each string in str starts
-    // - buffer1: Working memory to keep track of which characters in the first string are
-    //            matching to corresponding characters in the second string
-    // - buffer2: Working memory to keep track of which characters in the second string are
-    //            matching to corresponding characters in the first string
-    // - n_str: Number of strings contained in str
-    // - offset: Where to begin in processing strings in str
-    // - n: Number of strings to process in str
-    // - output: Vector storing the computed Jaro-Winkler distances
-
-    const int id = threadIdx.x + blockDim.x * blockIdx.x;
-
-    const int idx = id / n_str; // Index of the first string considered
-
-    const int idy = id % n_str; // Index of the second string considered
-
-    if (idx < n && offset + idx < n_str && idy < n_str) {
-
-      if (offset + idx != idy) {
-
-        // Move the pointer to the first character of the first string we are considering
-
-        char *string1 = str + offsets[offset + idx];
-
-        // Computing the length of the first string we are considering
-
-        int len1 = offsets[offset + idx + 1] - offsets[offset + idx];
-
-        // Move the pointer to the first element of the working memory
-
-        bool *hash_str1 = buffer1 + idy * (offsets[offset + n] - offsets[offset]) + offsets[offset + idx] - offsets[offset];
-
-        // Move the pointer to the first character of the second string we are considering
-
-        char *string2 = str + offsets[idy];
-
-        // Computing the length of the second string we are considering
-
-        int len2 = offsets[idy + 1] - offsets[idy];
-
-        // Move the pointer to the first element of the working memory
-
-        bool *hash_str2 = buffer2 + idx * offsets[n_str] + offsets[idy];
-
-        // Compute the Jaro-Winkler similarity of str[offset + idx] and str[idy]
-
-        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2);
-
-      } else {
-
-        // An element is identical to itself (no need to compute JW similarity)
-
-        output[id] = 1;
-
-      }
-
-    }
-
-}
-
-}
-"""
-
-jaro_winkler_dedup_kernel = cp.RawKernel(jaro_winkler_dedup_code, 'jaro_winkler_kernel')
+from .search import intersect, setdiff
 
 output_count_dedup_code = """
 extern "C" {
@@ -497,7 +287,7 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu
   mempool.free_all_blocks()
 
-  return output1_gpu, output2_gpu
+  return [output1_gpu, output2_gpu]
 
 def exact_dedup_gpu(string, num_threads = 256):
   """
@@ -554,22 +344,6 @@ def exact_dedup_gpu(string, num_threads = 256):
 
   return [output_gpu]
 
-def merge_indices(indices, max_elements = 250000):
-  """
-  This function merges indices across variables to obtain indices corresponding to each pattern of discrete levels of similarity.
-
-  :param indices: List of arrays of indices.
-  :type indices: Nested lists of cp.array
-  :param max_elements: Maximum number of elements that can be merged or separated simultaneously, defaults to 250000.
-  :type max_elements: int, optional
-  :return: _description_
-  :rtype: list of cp.array
-  """
-
-  output = functools.reduce(lambda x, y: merge_indices_pair_split(x, y, max_elements = max_elements), indices)
-
-  return output
-
 class Deduplication():
   """
   This class compares the values of selected variables in one dataset.
@@ -592,11 +366,11 @@ class Deduplication():
       raise Exception('The variable names in Vars and Vars_Exact must match variable names in df.')
 
     self.df = df
-    self.vars = Vars
-    self.vars_exact = Vars_Exact
+    self.Vars = Vars
+    self.Vars_Exact = Vars_Exact
     self._Fit_flag = False
 
-  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1, Max_Elements = 250000):
+  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1):
     """
     This method compares all pairs of observations across the selected variables in the dataset.
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
@@ -610,28 +384,57 @@ class Deduplication():
     :type Num_Threads: int, optional
     :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.
     :type Max_Chunk_Size: int, optional
-    :param Max_Elements: Maximum number of elements that can be merged or separated simultaneously, defaults to 250000.
-    :type Max_Elements: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
     if self._Fit_flag:
-      raise Exception('The model has already been fitted.')
+      raise Exception('If the model has already been fitted, it cannot be fitted again.')
 
     mempool = cp.get_default_memory_pool()
     indices = []
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
-    for i in range(len(self.vars)):
-      indices.append(jaro_winkler_dedup_gpu_unique(self.df[self.vars[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
+    for i in range(len(self.Vars)):
+      indices.append(jaro_winkler_dedup_gpu_unique(self.df[self.Vars[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
-    for i in range(len(self.vars_exact)):
-      indices.append(exact_dedup_gpu(self.df[self.vars_exact[i]].to_numpy(), Num_Threads))
+    for i in range(len(self.Vars_Exact)):
+      indices.append(exact_dedup_gpu(self.df[self.Vars_Exact[i]].to_numpy(), Num_Threads))
       mempool.free_all_blocks()
 
-    self.Indices = merge_indices(indices, Max_Elements) # Merge discrete levels of similarity over all variables
+    # Merge discrete levels of similarity over all variables
+    self.Indices = indices[0]
+    del indices[0]
+    mempool.free_all_blocks()
+
+    while len(indices) > 0:
+
+      output = []
+
+      for j in range(len(indices[0])):
+
+        output.append(functools.reduce(setdiff, self.Indices, indices[0][j]))
+        mempool.free_all_blocks()
+
+      while len(self.Indices) > 0:
+
+        output.append(functools.reduce(setdiff, indices[0], self.Indices[0]))
+        mempool.free_all_blocks()
+
+        for j in range(len(indices[0])):
+
+          output.append(intersect(self.Indices[0], indices[0][j]))
+          mempool.free_all_blocks()
+
+        del self.Indices[0]
+        mempool.free_all_blocks()
+
+      self.Indices = output
+
+      del indices[0], output
+      mempool.free_all_blocks()
+      
     self._Fit_flag = True
 
     del indices
