@@ -286,7 +286,15 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu
   mempool.free_all_blocks()
 
-  return [output1_gpu, output2_gpu]
+  output1_sorted = cp.sort(output1_gpu)
+  del output1_gpu
+  mempool.free_all_blocks()
+
+  output2_sorted = cp.sort(output2_gpu)
+  del output2_gpu
+  mempool.free_all_blocks()
+
+  return [output1_sorted, output2_sorted]
 
 def exact_dedup_gpu(string, num_threads = 256):
   """
@@ -341,7 +349,11 @@ def exact_dedup_gpu(string, num_threads = 256):
   del unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
   mempool.free_all_blocks()
 
-  return [output_gpu]
+  output_sorted = cp.sort(output_gpu)
+  del output_gpu
+  mempool.free_all_blocks()
+
+  return [output_sorted]
 
 class Deduplication():
   """
