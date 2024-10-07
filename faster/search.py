@@ -53,7 +53,7 @@ extern "C" {
 
 binary_search_kernel = cp.RawKernel(binary_search_code, 'binary_search_kernel')
 
-def intersect(arr1, arr2, num_threads = 256):
+def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   '''
   This function returns the elements that are common between arr1 and arr2, assuming both arrays are sorted in increasing order.
   
@@ -83,7 +83,7 @@ def intersect(arr1, arr2, num_threads = 256):
 
   return arr_output
 
-def setdiff(arr1, arr2, num_threads = 256):
+def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   '''
   This function returns the elements that are present in arr1 but not in arr2, assuming both arrays are sorted in increasing order.
   
