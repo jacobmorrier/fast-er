@@ -1,4 +1,5 @@
 import cupy as cp
+import numpy as np
 import math
 
 binary_search_code = r"""
