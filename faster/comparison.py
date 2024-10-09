@@ -357,10 +357,13 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_argsort = np.argsort(unique_A_inverse) # Maybe move to GPU ?
+  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.uint64)
+  
+  unique_A_inverse_argsort = cp.argsort(unique_A_inverse_)
 
-  unique_A_inverse_gpu = cp.array(unique_A_inverse_argsort, dtype = np.uint64)
-
+  del unique_A_inverse_
+  mempool.free_all_blocks()
+  
   # This array contains the number of observations in str_A associated with each unique value
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
 
@@ -369,9 +372,12 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_argsort = np.argsort(unique_B_inverse)
+  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
+  
+  unique_B_inverse_argsort = cp.argsort(unique_B_inverse_)
 
-  unique_B_inverse_gpu = cp.array(unique_B_inverse_argsort, dtype = np.uint64)
+  del unique_B_inverse_
+  mempool.free_all_blocks()
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
 
@@ -467,9 +473,12 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.uint64)
+  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.uint64)
 
-  unique_A_inverse_gpu = cp.argsort(unique_A_inverse_gpu)
+  unique_A_inverse_gpu = cp.argsort(unique_A_inverse_)
+
+  del unique_A_inverse_
+  mempool.free_all_blocks()
 
   # This array contains the number of observations in str_A associated with each unique value
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
