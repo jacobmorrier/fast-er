@@ -15,8 +15,7 @@ __device__ float jaro_winkler(const char *str1,
                               const int len2,
                               bool *hash_str2) {
 
-    // Description: Computes the Jaro-Winkler distance between two strings
-
+    // This function computes the Jaro-Winkler similarity between two strings
     // Inputs:
     // - str1: First string
     // - len1: Length of str1
@@ -26,14 +25,13 @@ __device__ float jaro_winkler(const char *str1,
     // - len2: Length of str2
     // - hash_str2: Working memory to keep track of which characters in str2 are
     //              matching to corresponding characters in str1
-
     // Output:
-    // - dist: Jaro-Winkler distance between str1 and str2
+    // - dist: Jaro-Winkler similarity between str1 and str2
 
-    // If either string is null, the Jaro-Winkler distance between str1 and str2 is 0
 
     if (len1 == 0 || len2 == 0) {
 
+        // If either string is null, the Jaro-Winkler similarity between str1 and str2 is 0
         return 0.0;
 
     } else {
@@ -41,7 +39,6 @@ __device__ float jaro_winkler(const char *str1,
         // We compute the number of matching characters between str1 and str2
 
         // We consider the characters max(len1, len2) / 2 - 1 away from each other
-
         int max_dist = max(len1, len2) / 2 - 1;
 
         int match = 0;
@@ -54,7 +51,6 @@ __device__ float jaro_winkler(const char *str1,
 
                     // Two characters are matching if they appear in both strings
                     // at most max_dist characters away from each other
-
                     hash_str1[i] = true;
                     hash_str2[j] = true;
                     match++;
@@ -66,23 +62,20 @@ __device__ float jaro_winkler(const char *str1,
 
         }
 
-        // If there is no matching characters between both strings,
-        // the Jaro-Winkler distance between them is 0
-
         if (match == 0) {
-
+        
+            // If there is no matching characters between both strings, the Jaro-Winkler similarity between them is 0
             return 0.0;
 
         } else {
-
-            // If a positive number of matching characters is found, we need to
-            // compute the number of transpositions, that is, the number of matching
-            // characters that are not in the right order divided by two
 
             float t = 0;
 
             int point = 0;
 
+            // If a positive number of matching characters is found, we need to
+            // compute the number of transpositions, that is, the number of matching
+            // characters that are not in the right order divided by two
             for (int i = 0; i < len1; i++) {
 
                 if (hash_str1[i] == true) {
@@ -107,15 +100,13 @@ __device__ float jaro_winkler(const char *str1,
 
             t /= 2;
 
-            // The Jaro distance between str1 and str2 is defined as follows:
-
             float dist;
 
+            // The Jaro similarity between str1 and str2 is defined as follows:
             dist = (((float)match / (float)len1) + ((float)match / (float)len2) + (((float)match - t) / (float)match)) / 3.0;
 
-            // To go from the Jaro distance to the Jaro-Winkler distance, we need
+            // To go from the Jaro similarity to the Jaro-Winkler similarity, we need
             // to compute the length of the common prefix between both strings
-
             int prefix = 0;
 
             for (int i = 0; i < min(min(len1, len2), 4); i++) {
@@ -132,9 +123,8 @@ __device__ float jaro_winkler(const char *str1,
 
             }
 
-            // To obtain the Jaro-Winkler distance, we adjust the Jaro distance
+            // To obtain the Jaro-Winkler similarity, we adjust the Jaro similarity
             // for the length of the common prefix between both strings
-
             dist += 0.1 * prefix * (1 - dist);
 
             return dist;
@@ -156,37 +146,33 @@ __global__ void jaro_winkler_kernel(char *str1,
                                     float *output) {
 
     // Inputs:
-    // - str1: First vector of strings stored as an arrow (i.e., concatenated
-    //         next to each other)
-    // - offsets1: Vector storing the index where each string in str1 starts
+    // - str1: First array of strings (stored as an arrow)
+    // - offsets1: Array storing the index where each string in str1 starts
     // - buffer1: Working memory to keep track of which characters in str1 are
     //            matching to corresponding characters in str2
     // - n1: Number of strings contained in str1
-    // - str2: Second vector of strings stored as an arrow
-    // - offsets2: Vector storing the index where each string in str2 starts
+    // - str2: Second array of strings (stored as an arrow)
+    // - offsets2: Array storing the index where each string in str2 starts
     // - buffer2: Working memory to keep track of which characters in str2 are
     //            matching to corresponding characters in str1
     // - n2: Number of strings contained in str2
-    // - output: Vector storing the computed Jaro-Winkler distances
+    // - output: Array storing the computed Jaro-Winkler similarities
 
     const int id = threadIdx.x + blockDim.x * blockIdx.x;
 
-    const int idx = id / n2; // Index of the string considered in str1
+    const int idx = id / n2; // Index of the string processed in str1
 
-    const int idy = id % n2; // Index of the string considered in str2
+    const int idy = id % n2; // Index of the string processed in str2
 
     if (idx < n1 && idy < n2) {
 
-        // Move the pointer to the first character of the string we are considering
-
+        // Move the pointer to the first character of the string we are processing
         char *string1 = str1 + offsets1[idx];
 
-        // Computing the length of the string we are considering
-
+        // Computing the length of the string we are processing
         int len1 = offsets1[idx + 1] - offsets1[idx];
 
         // Move the pointer to the first element of the working memory
-
         bool *hash_str1 = buffer1 + idy * offsets1[n1] + offsets1[idx];
 
         char *string2 = str2 + offsets2[idy];
@@ -195,8 +181,7 @@ __global__ void jaro_winkler_kernel(char *str1,
 
         bool *hash_str2 = buffer2 + idx * offsets2[n2] + offsets2[idy];
 
-        // Compute the Jaro-Winkler Distance between str1[idx] and str2[idy]
-
+        // Compute the Jaro-Winkler similarity between str1[idx] and str2[idy]
         output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2);
 
     }
@@ -224,6 +209,8 @@ extern "C" {
                                   unsigned long long *output,
                                   unsigned long long *output_offsets) {
 
+      // Description: This function maps the indices of unique pairs back to their corresponding indices in the original dataframes
+
       const int id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
 
       if (id < n_input) {
@@ -236,20 +223,22 @@ extern "C" {
 
         unsigned int len_B = unique_B_count[id_B]; // Number of observations with id_B in df_B
 
-        unsigned long long unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); // Where observations with id_A in df_A start in unique_A_argwhere
-
-        unsigned long long unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]); // Where observations with id_B in df_B start in unique_B_argwhere
+        // Where observations with id_A in df_A start in unique_A_argwhere
+        unsigned long long unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
 
         unsigned long long *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
 
+        // Where observations with id_B in df_B start in unique_B_argwhere
+        unsigned long long unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
+
         unsigned long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
-        int output_off = (id == 0 ? 0 : output_offsets[id - 1]); // Where the output starts in output
+        // Where the output starts in output
+        int output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
 
         for (int i = 0; i < len_A * len_B; i++) {
 
           // Transpose indices of pairs in df_A and df_B in output
-
           output[output_off + i] = unique_A_argwhere_off[i / len_B] * n_B + unique_B_argwhere_off[i % len_B];
 
         }
@@ -315,7 +304,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
 
   output_gpu = cp.zeros(n1 * n2, dtype = cp.float32) # Create output vector
 
-  num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per Grid
+  num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per grid
 
   # Call GPU Kernel
   jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
