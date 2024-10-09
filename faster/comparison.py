@@ -263,7 +263,7 @@ extern "C" {
 
 indices_inverse_kernel = cp.RawKernel(indices_inverse_code, 'indices_inverse')
 
-def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
+def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
   This function computes the Jaro-Winkler similarity between all pairs of strings in str1 and str2.
 
@@ -271,8 +271,8 @@ def jaro_winkler_gpu(str1, str2, offset, lower_thr = 0.88, upper_thr = 0.94, num
   :type str1: np.array
   :param str2: Second array of strings
   :type str2: np.array
-  :param offset: Value added to all output indices
-  :type offset: int
+  :param offset: Value added to all output indices, defaults to 0
+  :type offset: int, optional
   :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
   :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
