@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from .search import intersect, setdiff
 
-jaro_winkler_code = r"""
+_jaro_winkler_code = r"""
 extern "C"{
 
 __device__ float jaro_winkler(const char *str1,
@@ -191,9 +191,9 @@ __global__ void jaro_winkler_kernel(char *str1,
 }
 """
 
-jaro_winkler_kernel = cp.RawKernel(jaro_winkler_code, 'jaro_winkler_kernel')
+_jaro_winkler_kernel = cp.RawKernel(_jaro_winkler_code, 'jaro_winkler_kernel')
 
-indices_inverse_code = r"""
+_indices_inverse_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input_A,
@@ -250,7 +250,7 @@ extern "C" {
 }
 """
 
-indices_inverse_kernel = cp.RawKernel(indices_inverse_code, 'indices_inverse')
+_indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, 'indices_inverse')
 
 def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
@@ -307,7 +307,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
   num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per grid
 
   # Call GPU Kernel
-  jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
+  _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
 
   # Indices between lower_thr and upper_thr
   indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
@@ -416,7 +416,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   num_blocks = math.ceil(len(indices1_A) / num_threads)
 
-  indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
 
   del indices1_A, indices1_B, output1_count, output1_offsets
   mempool.free_all_blocks()
@@ -437,7 +437,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   num_blocks = math.ceil(len(indices2_A) / num_threads)
 
-  indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
 
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
@@ -524,7 +524,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   num_blocks = math.ceil(len(indices_A) / num_threads)
 
-  indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, len(indices_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, len(indices_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
 
   del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
