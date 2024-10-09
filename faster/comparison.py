@@ -652,6 +652,6 @@ class Comparison():
     try:
       return self._Counts
     except:
-      counts = [len(x) for x in self.Indices] # Number of pairs for each pattern of discrete levels of similarity
+      counts = [len(x) for x in self.Indices] # Count of pairs for each pattern of discrete levels of similarity
       self._Counts = np.concatenate([[len(self.df_A) * len(self.df_B) - np.sum(counts)], counts]) # Add count of omitted pattern
       return self._Counts
