@@ -359,7 +359,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
   unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.uint64)
   
-  unique_A_inverse_argsort = cp.argsort(unique_A_inverse_)
+  unique_A_inverse_gpu = cp.argsort(unique_A_inverse_)
 
   del unique_A_inverse_
   mempool.free_all_blocks()
@@ -374,7 +374,7 @@ def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
   
-  unique_B_inverse_argsort = cp.argsort(unique_B_inverse_)
+  unique_B_inverse_gpu = cp.argsort(unique_B_inverse_)
 
   del unique_B_inverse_
   mempool.free_all_blocks()
