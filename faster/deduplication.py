@@ -6,7 +6,7 @@ import pandas as pd
 from .comparison import jaro_winkler_gpu
 from .search import intersect, setdiff
 
-output_count_dedup_code = r"""
+_output_count_dedup_code = r"""
 extern "C" {
 
   __global__ void output_count(long long *input_A,
@@ -51,9 +51,9 @@ extern "C" {
 }
 """
 
-output_count_dedup_kernel = cp.RawKernel(output_count_dedup_code, 'output_count')
+_output_count_dedup_kernel = cp.RawKernel(_output_count_dedup_code, 'output_count')
 
-indices_inverse_dedup_code = r"""
+_indices_inverse_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input_A,
@@ -128,9 +128,9 @@ extern "C" {
 }
 """
 
-indices_inverse_dedup_kernel = cp.RawKernel(indices_inverse_dedup_code, 'indices_inverse')
+_indices_inverse_dedup_kernel = cp.RawKernel(_indices_inverse_dedup_code, 'indices_inverse')
 
-indices_inverse_exact_dedup_code = r"""
+_indices_inverse_exact_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input,
@@ -178,9 +178,9 @@ extern "C" {
 }
 """
 
-indices_inverse_exact_dedup_kernel = cp.RawKernel(indices_inverse_exact_dedup_code, 'indices_inverse')
+_indices_inverse_exact_dedup_kernel = cp.RawKernel(_indices_inverse_exact_dedup_code, 'indices_inverse')
 
-def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1):
+def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
   """
   This function computes the Jaro-Winkler distance between all pairs of values in string.
 
@@ -193,7 +193,7 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
   :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
-  :type max_chunk_size: int, optional
+  :type max_chunk_size: float, optional
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
            Indices with Jaro-Winkler distance above upper_thr
            The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index
@@ -252,13 +252,13 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
   num_blocks = math.ceil(len(indices1_A) / num_threads)
 
   # Determine the output count for each input element
-  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), unique_counts_gpu, output1_count))
+  _output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), unique_counts_gpu, output1_count))
 
   output1_offsets = cp.cumsum(output1_count)
 
   output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.uint64)
 
-  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
+  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
 
   del indices1_A, indices1_B, output1_count, output1_offsets
   mempool.free_all_blocks()
@@ -275,13 +275,13 @@ def jaro_winkler_dedup_gpu_unique(string, lower_thr = 0.88, upper_thr = 0.94, nu
 
   num_blocks = math.ceil(len(indices2_A) / num_threads)
 
-  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), unique_counts_gpu, output2_count))
+  _output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), unique_counts_gpu, output2_count))
 
   output2_offsets = cp.cumsum(output2_count)
 
   output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.uint64)
 
-  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
+  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
 
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu
   mempool.free_all_blocks()
@@ -344,7 +344,7 @@ def exact_dedup_gpu(string, num_threads = 256):
 
   num_blocks = math.ceil(len(output_gpu) / num_threads)
 
-  indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output_gpu, output_mask, output_offsets, len(output_gpu)))
+  _indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output_gpu, output_mask, output_offsets, len(output_gpu)))
 
   del unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
   mempool.free_all_blocks()
@@ -380,7 +380,7 @@ class Deduplication():
     self.Vars_Exact = Vars_Exact
     self._Fit_flag = False
 
-  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1):
+  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
     This method compares all pairs of observations across the selected variables in the dataset.
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
@@ -393,7 +393,7 @@ class Deduplication():
     :param Num_Threads: Number of threads per block, defaults to 256
     :type Num_Threads: int, optional
     :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
-    :type Max_Chunk_Size: int, optional
+    :type Max_Chunk_Size: float, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
