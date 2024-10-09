@@ -52,7 +52,7 @@ extern "C" {
 }
 """
 
-_binary_search_kernel = cp.RawKernel(binary_search_code, 'binary_search_kernel')
+_binary_search_kernel = cp.RawKernel(_binary_search_code, 'binary_search_kernel')
 
 def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   '''
