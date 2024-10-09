@@ -533,8 +533,6 @@ class Comparison():
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_Fuzzy_A, Vars_Fuzzy_B, Vars_Exact_A = [], Vars_Exact_B = []):
     """
-    _summary_
-
     :param df_A: First dataframe to compare
     :type df_A: pd.DataFrame
     :param df_B: Second dataframe to compare
@@ -644,8 +642,6 @@ class Comparison():
   @property
   def Counts(self):
     """
-    _summary_
-
     :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     :raises Exception: The model must be fitted first.
