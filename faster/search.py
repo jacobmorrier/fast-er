@@ -2,7 +2,7 @@ import cupy as cp
 import numpy as np
 import math
 
-binary_search_code = r"""
+_binary_search_code = r"""
 extern "C" {
 
   __device__ bool binary_search(unsigned long long x,
@@ -52,7 +52,7 @@ extern "C" {
 }
 """
 
-binary_search_kernel = cp.RawKernel(binary_search_code, 'binary_search_kernel')
+_binary_search_kernel = cp.RawKernel(binary_search_code, 'binary_search_kernel')
 
 def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   '''
@@ -75,7 +75,7 @@ def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
 
   num_blocks = math.ceil(arr1.size / num_threads)
 
-  binary_search_kernel((num_blocks,), (num_threads,), (arr1, arr2, arr1.size, arr2.size, output, True))
+  _binary_search_kernel((num_blocks,), (num_threads,), (arr1, arr2, arr1.size, arr2.size, output, True))
 
   arr_output = arr1[output]
 
@@ -105,7 +105,7 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
 
   num_blocks = math.ceil(arr1.size / num_threads)
 
-  binary_search_kernel((num_blocks,), (num_threads,), (arr1, arr2, arr1.size, arr2.size, output, False))
+  _binary_search_kernel((num_blocks,), (num_threads,), (arr1, arr2, arr1.size, arr2.size, output, False))
 
   arr_output = arr1[output]
 
