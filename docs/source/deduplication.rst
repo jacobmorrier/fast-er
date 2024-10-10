@@ -19,6 +19,7 @@ In these equations, :math:`\left|s\right|` denotes the length of string :math:`s
 
 .. currentmodule:: faster.deduplication
 .. autoclass:: Deduplication
+   :members:
 
 Utility Functions
 -----------------
