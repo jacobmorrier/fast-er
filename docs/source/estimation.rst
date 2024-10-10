@@ -10,9 +10,11 @@ This class estimates the parameters of the Fellegi-Sunter model, a `Naive Bayes 
 Description of the Fellegi-Sunter Model
 ---------------------------------------
 
+For reference, here is a comprehensive description of the Fellegi-Sunter model.
+
 Suppose we want to join observations from two data sets, :math:`\mathcal{A}` and :math:`\mathcal{B}`, with sizes :math:`N_\mathcal{A}` and :math:`N_\mathcal{B}`, respectively. Both datasets have :math:`K` variables in common. We evaluate all possible pairwise comparisons of the values for these variables. Specifically, for each of the :math:`N_\mathcal{A} \times N_\mathcal{B}` pairs of values, we define an agreement vector of length :math:`K`, denoted :math:`\mathbf{\gamma}_{ij}`. The :math:`k^{\textrm{th}}` element of this vector indicates the discrete level of similarity for the :math:`k^{\textrm{th}}` variable between the :math:`i^{\textrm{th}}` observation from dataset :math:`\mathcal{A}` and the :math:`j^{\textrm{th}}` observation from dataset :math:`\mathcal{B}`.
 
-Formally, the model presumes the existence of a latent variable :math:`M_{ij}`, which captures whether the pair of observations consisting of the :math:`i^{\textrm{th}}` observation from dataset :math:`\mathcal{A}` and the :math:`j^{\textrm{th}}` observation from dataset :math:`\mathcal{B}` constitutes a match. The model follows a simple finite mixture structure:
+The model presumes the existence of a latent variable :math:`M_{ij}`, which captures whether the pair of observations consisting of the :math:`i^{\textrm{th}}` observation from dataset :math:`\mathcal{A}` and the :math:`j^{\textrm{th}}` observation from dataset :math:`\mathcal{B}` constitutes a match. The model follows a simple finite mixture structure:
 
 .. math::
 
