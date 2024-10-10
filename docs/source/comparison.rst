@@ -9,7 +9,7 @@ This class represents our main contribution, as it performs GPU-accelerated comp
 Utility Functions
 -----------------
 
-These functions are used internally by the ``Comparison`` class. Users could utilize them to create their own pipelines.
+These functions are used internally by the ``Comparison`` class. Users could use them to create their own linkage pipelines.
 
 .. currentmodule:: faster.comparison
 .. autofunction:: jaro_winkler_gpu
