@@ -208,9 +208,9 @@ def jaro_winkler_dedup_gpu(string, lower_thr = 0.88, upper_thr = 0.94, num_threa
   n_unique = len(unique)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_argsort = np.argsort(unique_inverse)
-
-  unique_inverse_gpu = cp.array(unique_inverse_argsort, dtype = np.uint64)
+  unique_inverse_ = cp.array(unique_inverse, dtype = np.uint64)
+  
+  unique_inverse_gpu = cp.argsort(unique_inverse_)
 
   # This array contains the number of observations in string associated with each unique value
   unique_counts_gpu = cp.array(unique_counts, dtype = np.uint32)
@@ -315,9 +315,9 @@ def exact_dedup_gpu(string, num_threads = 256):
   unique, unique_inverse, unique_counts = np.unique(string, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_argsort = np.argsort(unique_inverse)
-
-  unique_inverse_gpu = cp.array(unique_inverse_argsort, dtype = np.uint64)
+  unique_inverse_ = cp.array(unique_inverse, dtype = np.uint64)
+  
+  unique_inverse_gpu = cp.argsort(unique_inverse_)
 
   # This array contains the number of observations in string associated with each unique value
   unique_counts_gpu = cp.array(unique_counts, dtype = np.uint32)
