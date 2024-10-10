@@ -41,7 +41,9 @@ templates_path = ['_templates']
 
 # -- Options for HTML output
 html_theme = 'sphinx_book_theme'
-html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
+html_sidebars = {
+    "**": ["sbt-sidebar-nav.html"]
+}
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
