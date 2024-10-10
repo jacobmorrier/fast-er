@@ -3,5 +3,4 @@ sphinx-rtd-theme
 cupy-cuda12x
 numpy
 pandas
-scikit-learn
-tensorly
+sphinx-book-theme
