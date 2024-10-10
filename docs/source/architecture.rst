@@ -18,3 +18,5 @@ Probabilistic Deduplication
 ---------------------------
 
 .. image:: images/Deduplication.svg
+
+Next, we describe the probabilistic deduplication pipeline. The objective of deduplication is to identify observations in a single dataset that represent the same entity or unit of observation based on the similarity of values across some variables.
