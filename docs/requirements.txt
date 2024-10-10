@@ -4,3 +4,4 @@ cupy-cuda12x
 numpy
 pandas
 sphinx-book-theme
+matplotlib
