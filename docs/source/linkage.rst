@@ -5,3 +5,4 @@ This class integrates the outputs from the :doc:`Comparison <comparison>` and :d
 
 .. currentmodule:: faster.linkage
 .. autoclass:: Linkage
+   :members:
