@@ -1,5 +1,13 @@
 Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 ===============================================================
+
+.. toctree::
+   :maxdepth: 2
+   comparison
+   deduplication
+   estimation
+   linkage
+
 .. image:: https://readthedocs.org/projects/fast-er/badge/?version=latest
     :target: https://fast-er.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
@@ -12,11 +20,6 @@ Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
 
 .. contents:: **Table of Contents**
     :depth: 3
-
-.. toctree::
-   :maxdepth: 2
-   comparison
-   usage
 
 Introduction
 ------------
