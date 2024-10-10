@@ -8,7 +8,7 @@ The following are two figures illustrating standard probabilistic record linkage
 Probabilistic Record Linkage
 ----------------------------
 
-.. image:: Comparison.svg
+.. image:: images/Comparison.svg
 
 Let us begin by describing the probabilistic record linkage pipeline. Its objective is to identify observations in two datasets that correspond to the same unit of observation based on the similarity of values of some variables.
 
@@ -16,3 +16,5 @@ The process begins by supplying the following inputs to the :doc:`Comparison <co
 
 Probabilistic Deduplication
 ---------------------------
+
+.. image:: images/Deduplication.svg
