@@ -5,6 +5,7 @@ This class estimates the parameters of the Fellegi-Sunter model, a `Naive Bayes 
 
 .. currentmodule:: faster.estimation
 .. autoclass:: Estimation
+   :members:
 
 Description of the Fellegi-Sunter Model
 ---------------------------------------
