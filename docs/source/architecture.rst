@@ -1,5 +1,5 @@
-Description of the Package Architecture
-=======================================
+Package Architecture
+====================
 
 The package consists of classes that are meant to serve as modules in a probabilistic record linkage pipeline, adaptable to the user's needs and requirements. Each class requires user-provided inputs and produces relevant outputs, some of which must be passed to other classes for further processing.
 
