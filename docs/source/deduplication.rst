@@ -12,10 +12,7 @@ Utility Functions
 These functions are used internally by the ``Deduplication`` class. Users could use them to create their own deduplication pipelines.
 
 .. currentmodule:: faster.deduplication
-.. autofunction:: jaro_winkler_gpu
+.. autofunction:: jaro_winkler_dedup_gpu
 
 .. currentmodule:: faster.deduplication
-.. autofunction:: jaro_winkler_gpu_unique
-
-.. currentmodule:: faster.deduplication
-.. autofunction:: exact_gpu
+.. autofunction:: exact_dedup_gpu
