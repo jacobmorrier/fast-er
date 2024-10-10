@@ -1,30 +1,21 @@
 Comparison
 ==========
 
-This class contains our primary contribution, 
-as it performs the GPU-accelerated computation of the Jaro-Winkler similarity 
-to compare each pair of values between two datasets.
+This class represents our main contribution, as it performs GPU-accelerated computation of the `Jaro-Winkler similarity <https://en.wikipedia.org/wiki/Jaro–Winkler_distance>`_ for each pair of values between two datasets.
 
-.. code-block:: python
-    
-    class Comparison(df_A, df_B, vars_A, vars_B)
+.. currentmodule:: faster.comparison
+.. autoclass:: Comparison
 
-This class evaluates the similarity between the values in two datasets using the Jaro-Winkler metric.
+Utility Functions
+-----------------
 
-Functions
-=========
+These functions are used internally by the ``Comparison`` class. Users could utilize them to create their own pipelines.
 
 .. currentmodule:: faster.comparison
 .. autofunction:: jaro_winkler_gpu
 
 .. currentmodule:: faster.comparison
-.. autofunction:: jaro_winkler_gpu_unique    
+.. autofunction:: jaro_winkler_gpu_unique
 
 .. currentmodule:: faster.comparison
-.. autofunction:: merge_indices_pair      
-
-.. currentmodule:: faster.comparison
-.. autofunction:: merge_indices   
-
-.. currentmodule:: faster.comparison
-.. autofunction:: merge_indices   
+.. autofunction:: exact_gpu
