@@ -5,8 +5,8 @@ The package consists of classes designed to serve as modules in probabilistic re
 
 Below are two figures illustrating standard probabilistic record linkage and deduplication pipelines, respectively.
 
-Probabilistic Record Linkage
-----------------------------
+Record Linkage
+--------------
 
 .. image:: images/Comparison.svg
 
@@ -14,8 +14,8 @@ Let us begin by describing the probabilistic record linkage pipeline. The object
 
 The process begins by supplying the following inputs to the :doc:`Comparison <comparison>` class: (i) two datasets (``df_A`` and ``df_B``), (ii) variables to compare for fuzzy matching (``Vars_Fuzzy_A`` and ``Vars_Fuzzy_B``), and (iii) variables to compare for exact matching (``Vars_Exact_A`` and ``Vars_Exact_B``). The class then compares the values of all pairs of observations in both datasets and produces an array, stored in the ``Counts`` attribute, with the count of each pattern of discrete similarity levels across all variables. This array is the main input to the :doc:`Estimation <estimation>` class, which uses it to estimate the conditional match probability for each pattern of discrete similarity levels across all variables. In turn, along with the list of indices corresponding to each pattern from the :doc:`Comparison <comparison>` class, this information is the main input to the :doc:`Linkage <linkage>` class, which generates a dataset containing all pairs of observations with a conditional match probability above a user-specified threshold.
 
-Probabilistic Deduplication
----------------------------
+Deduplication
+-------------
 
 .. image:: images/Deduplication.svg
 
