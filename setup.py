@@ -27,5 +27,5 @@ setup(
     keywords="entity resolution, GPU, probabilistic record linkage, record linkage",
     packages=find_packages(),
     python_requires=">=3.7, <4",
-    install_requires=["cupy-cuda12x", "numpy", "pandas"],
+    install_requires=["cupy-cuda12x", "numpy", "pandas", "matplotlib"],
 )
