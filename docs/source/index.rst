@@ -1,5 +1,5 @@
-Fast-ER: GPU-Accelerated Probabilistic Record Linkage in Python
-===============================================================
+Fast-ER: GPU-Accelerated Record Linkage in Python
+=================================================
 
 .. toctree::
    :maxdepth: 2
