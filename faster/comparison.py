@@ -329,7 +329,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
 
   return [output1, output2]
 
-def jaro_winkler_gpu_unique(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
+def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
   """
   This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
 
@@ -603,7 +603,7 @@ class Comparison():
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.Vars_Fuzzy_A)):
-      indices.append(jaro_winkler_gpu_unique(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
+      indices.append(jaro_winkler_unique_gpu(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
