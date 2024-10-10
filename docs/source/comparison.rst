@@ -15,7 +15,7 @@ These functions are used internally by the ``Comparison`` class. Users could uti
 .. autofunction:: jaro_winkler_gpu
 
 .. currentmodule:: faster.comparison
-.. autofunction:: jaro_winkler_gpu_unique
+.. autofunction:: jaro_winkler_unique_gpu
 
 .. currentmodule:: faster.comparison
 .. autofunction:: exact_gpu
