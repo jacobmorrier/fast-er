@@ -1,7 +1,7 @@
 Comparison
 ==========
 
-This class represents our main contribution, as it performs GPU-accelerated computation of the `Jaro-Winkler similarity <https://en.wikipedia.org/wiki/Jaro–Winkler_distance>`_ for each pair of values between two datasets. 
+This class represents our main contribution, as it performs the GPU-accelerated computation of the `Jaro-Winkler similarity <https://en.wikipedia.org/wiki/Jaro–Winkler_distance>`_ for each pair of values between two datasets. 
 
 For reference, the Jaro-Winkler similarity is a continuous measure that ranges from 0 to 1. The similarity between two strings, :math:`s_1` and :math:`s_2`, is calculated using the following formula:
 
