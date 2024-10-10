@@ -41,7 +41,7 @@ templates_path = ['_templates']
 
 # -- Options for HTML output
 html_theme = 'sphinx_book_theme'
-# /!\ need to call: pip install sphinx-book-theme
+html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
