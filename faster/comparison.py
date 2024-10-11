@@ -370,6 +370,8 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
   unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
 
+  len_A_arrow = len(''.join(unique_A).encode())
+
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
   unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
@@ -383,8 +385,10 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
 
-  # Determines the number of chunks needed to satisfy max_chunk_size
-  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 4))
+  len_B_arrow = len(''.join(unique_B).encode())
+
+  # Approximate the number of chunks needed to satisfy max_chunk_size
+  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 4  + (len(unique_B) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_A_arrow - len_B_arrow - (len(unique_A) + 1) * 4 - (len(unique_B) + 1) * 4))
 
   # Split array of unique values accordingly
   unique_A_partitions = np.array_split(unique_A, chunks)
