@@ -494,9 +494,12 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.uint64)
+  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
 
-  unique_B_inverse_gpu = cp.argsort(unique_B_inverse_gpu)
+  unique_B_inverse_gpu = cp.argsort(unique_B_inverse_)
+
+  del unique_B_inverse_
+  mempool.free_all_blocks()
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
 
