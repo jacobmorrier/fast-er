@@ -31,6 +31,7 @@ class Linkage():
     :param Threshold: Threshold above which pairs of observations in df_A and df_B must be linked, defaults to 0.85
     :type Threshold: float, optional
     :return: Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
+    :rtype: pd.DataFrame
     """
 
     mempool = cp.get_default_memory_pool()
