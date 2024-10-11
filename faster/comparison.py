@@ -424,9 +424,9 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.uint64)
 
-  num_blocks = math.ceil(len(indices1_A) / num_threads)
+  num_blocks = math.ceil(indices1_A.size / num_threads)
 
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, len(indices1_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
 
   del indices1_A, indices1_B, output1_count, output1_offsets
   mempool.free_all_blocks()
@@ -445,9 +445,9 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.uint64)
 
-  num_blocks = math.ceil(len(indices2_A) / num_threads)
+  num_blocks = math.ceil(indices2_A.size / num_threads)
 
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, len(indices2_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
 
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
@@ -536,9 +536,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.uint64)
 
-  num_blocks = math.ceil(len(indices_A) / num_threads)
+  num_blocks = math.ceil(indices_A.size / num_threads)
 
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, len(indices_A), len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, indices_A.size, len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_gpu, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
 
   del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_gpu, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_gpu, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
