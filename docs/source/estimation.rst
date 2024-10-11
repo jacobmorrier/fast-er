@@ -25,3 +25,5 @@ The model presumes the existence of a latent variable :math:`M_{ij}`, which capt
     M_{ij} \sim \textrm{Bernoulli}(\lambda).
 
 The vector :math:`\mathbf{\pi}_{km}`, of length :math:`L`, encapsulates the probability of each discrete similarity level being observed for the :math:`k^{\textrm{th}}` variable conditional on whether the pair is a match (:math:`m=1`) or not (:math:`m=0`). The parameter :math:`\lambda` denotes the overall probability of a match across all pairwise comparisons. The model's estimands are the parameters :math:`\lambda` and :math:`\mathbf{\pi}`. Once estimated, these parameters can be used to calculate the conditional match probability for all pairs of observations.
+
+For additional information about the Fellegi-Sunter model, refer to this `paper <https://doi.org/10.1017/S0003055418000783>`_.
