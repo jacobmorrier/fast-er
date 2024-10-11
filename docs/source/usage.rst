@@ -20,12 +20,12 @@ Here is an example of a standard probabilistic record linkage pipeline, using th
     # Comparison Class
     vars = ['last_name', 'first_name', 'house_number', 'street_address']
 
-    comp = faster.Comparison(df_A, df_B, vars, vars)
+    comp = faster.Comparison(df_A, df_B, vars, vars, ['birth_year'], ['birth_year'])
 
     comp.fit()
 
     # Estimation Class
-    est = faster.Estimation(len(vars), comp.Counts)
+    est = faster.Estimation(len(vars), 1, comp.Counts)
 
     est.fit()
 
@@ -33,34 +33,3 @@ Here is an example of a standard probabilistic record linkage pipeline, using th
     link = faster.Linkage(df_A, df_B, comp.Indices, est.Ksi)
 
     df_linked = link.transform()
-
-
-Jaro-Winkler Distance Calculation Example
-------------------------------------------
-
-The following example demonstrates how to compute the Jaro-Winkler similarity between two lists of strings using CuPy:
-
-.. code-block:: python
-
-    import cupy as cp
-    from Levenshtein import jaro_winkler
-
-    # Example lists of strings
-    strings_a = ["John Doe", "Jane Doe", "Johnny Appleseed"]
-    strings_b = ["Jon Doe", "Janet Doe", "John Appleseed"]
-
-    # Convert lists to CuPy arrays
-    strings_a_cp = cp.array(strings_a)
-    strings_b_cp = cp.array(strings_b)
-
-    # Compute Jaro-Winkler similarity for all pairs of strings
-    def compute_jaro_winkler(s1, s2):
-        return jaro_winkler(s1, s2)
-
-    similarities = cp.array([
-        [compute_jaro_winkler(a, b) for b in strings_b_cp]
-        for a in strings_a_cp
-    ])
-
-    print(similarities)
-
