@@ -329,7 +329,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
 
   return [output1, output2]
 
-def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 10000000):
+def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1):
   """
   This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
 
@@ -383,9 +383,11 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
 
-  chunks_A = math.ceil(len(unique_A) * len(unique_B) / max_chunk_size)
+  # Determines the number of chunks needed to satisfy max_chunk_size
+  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 4))
 
-  unique_A_partitions = np.array_split(unique_A, chunks_A)
+  # Split array of unique values accordingly
+  unique_A_partitions = np.array_split(unique_A, chunks)
 
   unique_A_partitions_len = np.append([0], np.cumsum([len(x) for x in unique_A_partitions]))
 
