@@ -1,7 +1,7 @@
 Installation
 ============
 
-To install the package, execute the following commands:
+To install the Fast-ER package, execute the following commands:
 
 .. code-block:: python
 
