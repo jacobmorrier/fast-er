@@ -220,7 +220,7 @@ def jaro_winkler_dedup_gpu(string, lower_thr = 0.88, upper_thr = 0.94, num_threa
 
   len_arrow = len(''.join(unique).encode())
 
-  # Determines the number of chunks needed to satisfy max_chunk_size
+  # Approximate the number of chunks needed to satisfy max_chunk_size
   chunks = math.ceil((len(unique) ** 2 * 4 + len_arrow * (1 + 2 * len(unique)) + (len(unique) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 4))
 
   # Split array of unique values accordingly
