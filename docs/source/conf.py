@@ -4,6 +4,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 import faster.comparison
+import faster.deduplication
 import faster.estimation
 import faster.linkage
 
