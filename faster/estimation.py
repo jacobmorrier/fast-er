@@ -27,8 +27,11 @@ class Estimation():
     This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
 
     :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables
+    
              Each row represents a pattern of discrete levels of similarity
+             
              Each column represents a variable
+             
              The value of each element represents the discrete level of similarity for a specific variable in a particular pattern
     :rtype: np.array
     """
