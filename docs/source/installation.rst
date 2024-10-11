@@ -20,4 +20,4 @@ The technical requirements for installing the package are determined by its depe
 #. `Pandas <https://pandas.pydata.org/docs/getting_started/install.html>`_
 
 .. warning::
-    In particular, it requires an NVIDIA CUDA GPU with a Compute Capability of 3.0 or higher.
+    The package requires an NVIDIA CUDA GPU with a Compute Capability of 3.0 or higher.
