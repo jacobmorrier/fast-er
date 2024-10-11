@@ -15,6 +15,8 @@ affiliations:
 date: 10 October 2024
 ---
 
+<!---Adding references-->
+
 # Summary
 
 Record linkage, also called "entity resolution," consists of matching observations from two datasets that represent the same unit, even when consistent common identifiers are absent. This process typically involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets. The Fast-ER package accelerates these computations with graphical processing units (GPUs). It enables the estimation of the Fellegi-Sunter model, a widely used probabilistic record linkage model, and performs the necessary data processing on CUDA-enabled GPUs. Our experiments demonstrate that this approach can increase processing speed by over 60 times, reducing processing time from hours to minutes, compared to the previous leading software implementation. This significantly improves the scalability of probabilistic record linkage and deduplication for large datasets.
