@@ -582,7 +582,7 @@ class Comparison():
     self.Vars_Exact_B = Vars_Exact_B
     self._Fit_flag = False
 
-  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256):
+  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
     This method compares all pairs of observations across the selected variables in both datasets. 
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables. 
@@ -594,6 +594,8 @@ class Comparison():
     :type Upper_Thr: float, optional
     :param Num_Threads: Number of threads per block, defaults to 256
     :type Num_Threads: int, optional
+    :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
+    :type Max_Chunk_Size: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
@@ -605,7 +607,7 @@ class Comparison():
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.Vars_Fuzzy_A)):
-      indices.append(jaro_winkler_unique_gpu(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads))
+      indices.append(jaro_winkler_unique_gpu(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
