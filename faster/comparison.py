@@ -329,7 +329,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
 
   return [output1, output2]
 
-def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1):
+def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
   """
   This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
 
@@ -343,7 +343,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   :type upper_thr: float, optional
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :param max_chunk_size: Maximal number of pairs per chunk, defaults to 10000000
+  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
   :type max_chunk_size: int, optional
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
            Indices with Jaro-Winkler distance above upper_thr
