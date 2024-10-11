@@ -268,8 +268,8 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
   :type upper_thr: float, optional
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
-           Indices with Jaro-Winkler distance above upper_thr
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr \
+           Indices with Jaro-Winkler distance above upper_thr \
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
   :rtype: [cp.array, cp.array]
   """
@@ -345,8 +345,8 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   :type num_threads: int, optional
   :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
   :type max_chunk_size: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
-           Indices with Jaro-Winkler distance above upper_thr
+  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr \
+           Indices with Jaro-Winkler distance above upper_thr \
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
   :rtype: [cp.array, cp.array]
   """
@@ -468,7 +468,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   :type str_B: np.array
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :return: Indices with an exact match
+  :return: Indices with an exact match \
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
   :rtype: [cp.array]
   '''
