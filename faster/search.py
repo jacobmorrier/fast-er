@@ -56,7 +56,7 @@ _binary_search_kernel = cp.RawKernel(_binary_search_code, 'binary_search_kernel'
 
 def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   '''
-  This function returns the elements that are common between arr1 and arr2, assuming both arrays are sorted in increasing order.
+  This function returns the elements that are common to arr1 and arr2, assuming both arrays are sorted in increasing order.
   
   :param arr1: First array
   :type arr1: cp.array
@@ -64,6 +64,8 @@ def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   :type arr2: cp.array
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
+  :return: Array containing elements that are common to both arr1 and arr2
+  :rtype: cp.array
   '''
 
   if arr1.size == 0 or arr2.size == 0:
@@ -94,6 +96,8 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   :type arr2: cp.array
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
+  :return: Array with elements in arr1 but not in arr2
+  :rtype: cp.array
   '''
 
   if arr1.size == 0 or arr2.size == 0:
