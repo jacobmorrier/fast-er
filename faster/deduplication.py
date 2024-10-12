@@ -180,12 +180,14 @@ extern "C" {
 
 _indices_inverse_exact_dedup_kernel = cp.RawKernel(_indices_inverse_exact_dedup_code, 'indices_inverse')
 
-def jaro_winkler_dedup_gpu(string, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
+def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
   """
   This function computes the Jaro-Winkler distance between all pairs of values in string.
 
   :param string: Array of strings
   :type string: np.array
+  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
+  :type p: float, optional
   :param lower_thr: Lower threshold for discretizing Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
   :param upper_thr: Upper threshold for discretizing Jaro-Winkler distance, defaults to 0.94
@@ -234,7 +236,7 @@ def jaro_winkler_dedup_gpu(string, lower_thr = 0.88, upper_thr = 0.94, num_threa
   unique_partitions_len = np.append([0], np.cumsum([len(x) for x in unique_partitions]))
 
   # Compute Jaro-Winkler similarity by chunk
-  indices = [jaro_winkler_gpu(x, unique, unique_partitions_len[i] * len(unique), lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_partitions)]
+  indices = [jaro_winkler_gpu(x, unique, unique_partitions_len[i] * len(unique), p, lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_partitions)]
 
   # Concatenate indices of all chunks
   indices1 = cp.concatenate((x[0] for x in indices))
@@ -389,14 +391,16 @@ class Deduplication():
     self.Vars_Exact = Vars_Exact
     self._Fit_flag = False
 
-  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
+  def fit(self, p = 0.1,Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
     This method compares all pairs of observations across the selected variables in the dataset.
     
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
     
     The indices are calculated as i * len(df) + j, where i is the first element's index and j is the second element's index.
-    
+
+    :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
+    :type p: float, optional
     :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88
     :type Lower_Thr: float, optional
     :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
@@ -416,7 +420,7 @@ class Deduplication():
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.Vars_Fuzzy)):
-      indices.append(jaro_winkler_dedup_gpu(self.df[self.Vars_Fuzzy[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
+      indices.append(jaro_winkler_dedup_gpu(self.df[self.Vars_Fuzzy[i]].to_numpy(), p, Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
