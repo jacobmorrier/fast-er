@@ -179,7 +179,7 @@ __global__ void jaro_winkler_kernel(char *str1,
         bool *hash_str2 = buffer2 + idx * offsets2[n2] + offsets2[idy];
 
         // Compute the Jaro-Winkler similarity between str1[idx] and str2[idy]
-        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, p);
+        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, 0.1);
 
     }
 
