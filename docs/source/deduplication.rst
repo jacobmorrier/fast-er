@@ -7,7 +7,7 @@ For reference, the Jaro-Winkler similarity is a continuous measure that ranges f
 
 .. math::
 
-    \mathcal{S}(s_1, s_2) = \mathcal{J}(s_1, s_2) + \ell \times w \times \left(1 - \mathcal{J}(s_1, s_2)\right),
+    \mathcal{S}(s_1, s_2) = \mathcal{J}(s_1, s_2) + w \times \ell \times \left(1 - \mathcal{J}(s_1, s_2)\right),
 
 where:
 
