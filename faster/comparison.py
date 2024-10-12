@@ -41,7 +41,7 @@ __device__ float jaro_winkler(const char *str1,
         // We consider the characters max(len1, len2) / 2 - 1 away from each other
         int max_dist = max(len1, len2) / 2 - 1;
 
-        int match = 0;
+        float match = 0;
 
         for (int i = 0; i < len1; i++) {
 
@@ -49,8 +49,7 @@ __device__ float jaro_winkler(const char *str1,
 
                 if (str1[i] == str2[j] && hash_str2[j] == false) {
 
-                    // Two characters are matching if they appear in both strings
-                    // at most max_dist characters away from each other
+                    // Two characters are matching if they appear in both strings at most max_dist characters away from each other
                     hash_str1[i] = true;
                     hash_str2[j] = true;
                     match++;
@@ -73,9 +72,8 @@ __device__ float jaro_winkler(const char *str1,
 
             int point = 0;
 
-            // If a positive number of matching characters is found, we need to
-            // compute the number of transpositions, that is, the number of matching
-            // characters that are not in the right order divided by two
+            // If a positive number of matching characters is found, we need to compute the number of transpositions
+            // that is, the number of matching characters that are not in the right order divided by two
             for (int i = 0; i < len1; i++) {
 
                 if (hash_str1[i] == true) {
@@ -100,10 +98,8 @@ __device__ float jaro_winkler(const char *str1,
 
             t /= 2;
 
-            float dist;
-
             // The Jaro similarity between str1 and str2 is defined as follows:
-            dist = (((float)match / (float)len1) + ((float)match / (float)len2) + (((float)match - t) / (float)match)) / 3.0;
+            float dist = ((match / (float)len1) + (match / (float)len2) + ((match - t) / match)) / 3.0;
 
             // To go from the Jaro similarity to the Jaro-Winkler similarity, we need
             // to compute the length of the common prefix between both strings
@@ -123,8 +119,7 @@ __device__ float jaro_winkler(const char *str1,
 
             }
 
-            // To obtain the Jaro-Winkler similarity, we adjust the Jaro similarity
-            // for the length of the common prefix between both strings
+            // To obtain the Jaro-Winkler similarity, we adjust the Jaro similarity for the length of the common prefix between both strings
             dist += 0.1 * prefix * (1 - dist);
 
             return dist;
