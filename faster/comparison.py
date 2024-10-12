@@ -84,13 +84,11 @@ __device__ float jaro_winkler(const char *str1,
 
                     }
 
-                    if (str1[i] != str2[point]) {
+                    if (str1[i] != str2[point++]) {
 
                         t++;
 
                     }
-
-                    point++;
 
                 }
 
