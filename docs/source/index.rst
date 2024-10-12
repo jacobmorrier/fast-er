@@ -15,6 +15,7 @@ Fast-ER: GPU-Accelerated Record Linkage in Python
    deduplication
    estimation
    linkage
+   evaluation
 
 .. image:: https://readthedocs.org/projects/fast-er/badge/?version=latest
     :target: https://fast-er.readthedocs.io/en/latest/?badge=latest
