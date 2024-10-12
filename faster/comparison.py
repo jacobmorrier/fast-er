@@ -13,7 +13,8 @@ __device__ float jaro_winkler(const char *str1,
                               bool *hash_str1,
                               const char *str2,
                               const int len2,
-                              bool *hash_str2) {
+                              bool *hash_str2,
+                              float p) {
 
     // This function computes the Jaro-Winkler similarity between two strings
     // Inputs:
@@ -25,6 +26,7 @@ __device__ float jaro_winkler(const char *str1,
     // - len2: Length of str2
     // - hash_str2: Working memory to keep track of which characters in str2 are
     //              matching to corresponding characters in str1
+    // - p: Scaling factor applied to the common prefix
     // Output:
     // - dist: Jaro-Winkler similarity between str1 and str2
 
@@ -118,7 +120,7 @@ __device__ float jaro_winkler(const char *str1,
             }
 
             // To obtain the Jaro-Winkler similarity, we adjust the Jaro similarity for the length of the common prefix between both strings
-            dist += 0.1 * prefix * (1 - dist);
+            dist += p * prefix * (1 - dist);
 
             return dist;
 
@@ -136,6 +138,7 @@ __global__ void jaro_winkler_kernel(char *str1,
                                     int *offsets2,
                                     bool *buffer2,
                                     int n2,
+                                    float p,
                                     float *output) {
 
     // Inputs:
@@ -149,6 +152,7 @@ __global__ void jaro_winkler_kernel(char *str1,
     // - buffer2: Working memory to keep track of which characters in str2 are
     //            matching to corresponding characters in str1
     // - n2: Number of strings contained in str2
+    // - p: Scaling factor applied to the common prefix
     // - output: Array storing the computed Jaro-Winkler similarities
 
     const int id = threadIdx.x + blockDim.x * blockIdx.x;
@@ -175,7 +179,7 @@ __global__ void jaro_winkler_kernel(char *str1,
         bool *hash_str2 = buffer2 + idx * offsets2[n2] + offsets2[idy];
 
         // Compute the Jaro-Winkler similarity between str1[idx] and str2[idy]
-        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2);
+        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, p);
 
     }
 
@@ -304,7 +308,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per grid
 
   # Call GPU Kernel
-  _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, output_gpu))
+  _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, p, output_gpu))
 
   # Indices between lower_thr and upper_thr
   indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
@@ -397,7 +401,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   unique_A_partitions_len = np.append([0], np.cumsum([len(x) for x in unique_A_partitions]))
 
   # Compute Jaro-Winkler similarity in chunks
-  indices = [jaro_winkler_gpu(x, unique_B, unique_A_partitions_len[i] * len(unique_B), lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions)]
+  indices = [jaro_winkler_gpu(x, unique_B, unique_A_partitions_len[i] * len(unique_B), p, lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions)]
 
   # Concatenate indices of all chunks
   indices1 = cp.concatenate((x[0] for x in indices))
@@ -620,7 +624,7 @@ class Comparison():
 
     # Loop over variables and compute the Jaro-Winkler similarity between all pairs of values
     for i in range(len(self.Vars_Fuzzy_A)):
-      indices.append(jaro_winkler_unique_gpu(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
+      indices.append(jaro_winkler_unique_gpu(self.df_A[self.Vars_Fuzzy_A[i]].to_numpy(), self.df_B[self.Vars_Fuzzy_B[i]].to_numpy(), p, Lower_Thr, Upper_Thr, Num_Threads, Max_Chunk_Size))
       mempool.free_all_blocks()
 
     # Loop over variables and compare all pairs of values for exact matching
