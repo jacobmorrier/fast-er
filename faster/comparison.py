@@ -245,7 +245,7 @@ extern "C" {
 
 _indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, 'indices_inverse')
 
-def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
+def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
   This function computes the Jaro-Winkler similarity between all pairs of strings in str1 and str2.
 
@@ -255,6 +255,8 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
   :type str2: np.array
   :param offset: Value added to all output indices, defaults to 0
   :type offset: int, optional
+  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
+  :type p: float, optional
   :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
   :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
@@ -324,7 +326,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, lower_thr = 0.88, upper_thr = 0.94,
 
   return [output1, output2]
 
-def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
+def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
   """
   This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
 
@@ -332,6 +334,8 @@ def jaro_winkler_unique_gpu(str_A, str_B, lower_thr = 0.88, upper_thr = 0.94, nu
   :type str_A: np.array
   :param str_B: Second array of strings
   :type str_B: np.array
+  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
+  :type p: float, optional
   :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
   :type lower_thr: float, optional
   :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
@@ -587,7 +591,7 @@ class Comparison():
     self.Vars_Exact_B = Vars_Exact_B
     self._Fit_flag = False
 
-  def fit(self, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
+  def fit(self, p = 0.1, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
     This method compares all pairs of observations across the selected variables in both datasets.
     
@@ -595,6 +599,8 @@ class Comparison():
     
     The indices are calculated as i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
 
+    :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
+    :type p: float, optional
     :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler similarity, defaults to 0.88
     :type Lower_Thr: float, optional
     :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler similarity, defaults to 0.94
