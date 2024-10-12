@@ -179,7 +179,7 @@ __global__ void jaro_winkler_kernel(char *str1,
         bool *hash_str2 = buffer2 + idx * offsets2[n2] + offsets2[idy];
 
         // Compute the Jaro-Winkler similarity between str1[idx] and str2[idy]
-        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, 0.1);
+        output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, p);
 
     }
 
@@ -308,7 +308,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   num_blocks = math.ceil(n1 * n2 / num_threads) # Blocks per grid
 
   # Call GPU Kernel
-  _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, p, output_gpu))
+  _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, cp.float32(p), output_gpu))
 
   # Indices between lower_thr and upper_thr
   indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
