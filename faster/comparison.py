@@ -103,7 +103,7 @@ __device__ float jaro_winkler(const char *str1,
 
             // To go from the Jaro similarity to the Jaro-Winkler similarity, we need
             // to compute the length of the common prefix between both strings
-            int prefix = 0;
+            float prefix = 0;
 
             for (int i = 0; i < min(min(len1, len2), 4); i++) {
 
