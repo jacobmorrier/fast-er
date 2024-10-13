@@ -3,5 +3,5 @@ sphinx-rtd-theme
 cupy-cuda12x
 numpy
 pandas
-sphinx-book-theme
+furo
 matplotlib
