@@ -3,7 +3,7 @@ import functools
 import math
 import numpy as np
 import pandas as pd
-from .search import intersect, setdiff
+from .search import intersect, setdiff, reduce
 
 _jaro_winkler_code = r"""
 extern "C"{
@@ -643,12 +643,12 @@ class Comparison():
 
       for j in range(len(indices[0])):
 
-        output.append(functools.reduce(setdiff, self.Indices, indices[0][j]))
+        output.append(reduce(setdiff, self.Indices, indices[0][j]))
         mempool.free_all_blocks()
 
       while len(self.Indices) > 0:
 
-        output.append(functools.reduce(setdiff, indices[0], self.Indices[0]))
+        output.append(reduce(setdiff, indices[0], self.Indices[0]))
         mempool.free_all_blocks()
 
         for j in range(len(indices[0])):
