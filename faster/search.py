@@ -119,6 +119,14 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   return arr_output
 
 def reduce(function, iterable, initial = None):
+  '''
+  This function applies the input function of two arguments cumulatively to the items of iterable, from left to right, so as to reduce the iterable to a single value.
+
+  :param function: Input function
+  :param iterable:
+  :param initial:
+  '''
+  
   mempool = cp.get_default_memory_pool()
   
   it = iter(iterable)
