@@ -137,7 +137,14 @@ def reduce(function, iterable, initial = None):
     value = initial
     
   for element in it:
-    value = function(value, element)
+    valueprime = function(value, element)
+    
+    del value
+    mempool.free_all_blocks()
+    
+    value = valueprime
+    
+    del valueprime
     mempool.free_all_blocks()
     
   return value
