@@ -117,4 +117,19 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   mempool.free_all_blocks()
 
   return arr_output
+
+def reduce(function, iterable, initial = None):
+  mempool = cp.get_default_memory_pool()
   
+  it = iter(iterable)
+  
+  if initial is None:
+    value = next(it)
+  else:
+    value = initial
+    
+  for element in it:
+    value = function(value, element)
+    mempool.free_all_blocks()
+    
+  return value
