@@ -42,9 +42,6 @@ templates_path = ['_templates']
 
 # -- Options for HTML output
 html_theme = 'furo'
-html_sidebars = {
-    "**": ["sbt-sidebar-nav.html"]
-}
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
