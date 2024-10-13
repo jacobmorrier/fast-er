@@ -478,6 +478,6 @@ class Deduplication():
     try:
       return self._Counts
     except:
-      counts = [len(x) for x in self.Indices] # Number of pairs for each pattern of discrete levels of similarity
+      counts = [x.size for x in self.Indices] # Number of pairs for each pattern of discrete levels of similarity
       self._Counts = np.concatenate([[len(self.df) * (len(self.df) - 1) - np.sum(counts)], counts]) # Add count of omitted pattern
       return self._Counts
