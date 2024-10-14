@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 from .search import intersect, setdiff, reduce
+from itertools import accumulate
 
 _jaro_winkler_code = r"""
 extern "C"{
@@ -284,7 +285,8 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   str1_arrow_gpu = cp.array(str1_arrow)
 
   # Array storing where each string starts and ends: str1[i] begins at offsets[i] and ends at offsets[i + 1] - 1 (inclusively)
-  offsets1 = np.append([0], np.cumsum([len(row) for row in str1])).astype(np.int32)
+  offsets1 = np.fromiter(accumulate(len(row) for row in str1), dtype = np.int32, count = len(str1))
+  offsets1 = np.concatenate(([0], offsets1))
 
   offsets1_gpu = cp.array(offsets1)
 
@@ -294,8 +296,9 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
   str2_arrow_gpu = cp.array(str2_arrow)
 
-  offsets2 = np.append([0], np.cumsum([len(row) for row in str2])).astype(np.int32)
-
+  offsets2 = np.fromiter(accumulate(len(row) for row in str2), dtype = np.int32, count = len(str2))
+  offsets2 = np.concatenate(([0], offsets2))
+  
   offsets2_gpu = cp.array(offsets2)
 
   buffer1 = cp.zeros(offsets1[n1] * n2, dtype = bool)
