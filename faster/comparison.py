@@ -313,7 +313,10 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, cp.float32(p), output_gpu))
 
   # Indices between lower_thr and upper_thr
-  indices1_gpu = cp.argwhere(cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr))
+  indices1_gpu_ = cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr)
+  indices1_gpu = cp.argwhere(indices1_gpu_)
+  del indices1_gpu_
+  mempool.free_all_blocks()
 
   # Indices above upper_thr
   indices2_gpu = cp.argwhere(output_gpu >= upper_thr)
@@ -524,7 +527,10 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu)
 
   # The values in both unique_A and unique_B have a count of 2
-  equal_indices = cp.ravel(cp.argwhere(unique_all_counts_gpu == 2))
+  equal_indices_ = cp.argwhere(unique_all_counts_gpu == 2)
+  equal_indices = cp.ravel(equal_indices_)
+  del equal_indices_
+  mempool.free_all_blocks()
 
   indices_A = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices] - 2]
 
