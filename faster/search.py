@@ -5,9 +5,9 @@ import math
 _binary_search_code = r"""
 extern "C" {
 
-  __device__ bool binary_search(unsigned long long x,
-                                unsigned long long *arr,
-                                unsigned long long arr_size) {
+  __device__ bool binary_search(long long x,
+                                long long *arr,
+                                long long arr_size) {
 
     long long low = 0;
     long long high = arr_size - 1;
@@ -32,14 +32,14 @@ extern "C" {
 
   }
 
-  __global__ void binary_search_kernel(unsigned long long *arr1,
-                                       unsigned long long *arr2,
-                                       unsigned long long arr1_size,
-                                       unsigned long long arr2_size,
+  __global__ void binary_search_kernel(long long *arr1,
+                                       long long *arr2,
+                                       long long arr1_size,
+                                       long long arr2_size,
                                        bool *output,
                                        bool in) {
 
-      const unsigned long long id = threadIdx.x + blockDim.x * blockIdx.x;
+      const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
       if (id < arr1_size) {
 
