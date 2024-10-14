@@ -11,11 +11,11 @@ extern "C" {
   __global__ void output_count(long long *input_A,
                                long long *input_B,
                                int n_input,
-                               unsigned int *unique_count,
-                               unsigned int *output) {
+                               int *unique_count,
+                               int *output) {
 
       // Element of indices being processed
-      const int id = threadIdx.x + blockDim.x * blockIdx.x;
+      const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
       if (id < n_input) {
 
@@ -26,10 +26,10 @@ extern "C" {
         long long id_B = input_B[id];
 
         // Number of observations with id_A in df
-        unsigned int len_A = unique_count[id_A];
+        int len_A = unique_count[id_A];
 
         // Number of observations with id_B in df
-        unsigned int len_B = unique_count[id_B];
+        int len_B = unique_count[id_B];
 
         if (id_A != id_B) {
 
@@ -59,13 +59,13 @@ extern "C" {
                                   long long *input_B,
                                   int n_input,
                                   int n,
-                                  unsigned long long *unique_argwhere,
-                                  unsigned long long *unique_argwhere_offsets,
-                                  unsigned int *unique_count,
-                                  unsigned long long *output,
-                                  unsigned long long *output_offsets) {
+                                  long long *unique_argwhere,
+                                  long long *unique_argwhere_offsets,
+                                  int *unique_count,
+                                  long long *output,
+                                  long long *output_offsets) {
 
-      const int id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
+      const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
 
       if (id < n_input) {
 
@@ -73,19 +73,19 @@ extern "C" {
 
         long long id_B = input_B[id];
 
-        unsigned int len_A = unique_count[id_A]; // Number of observations with id_A in df_A
+        int len_A = unique_count[id_A]; // Number of observations with id_A in df_A
 
-        unsigned int len_B = unique_count[id_B]; // Number of observations with id_B in df_B
+        int len_B = unique_count[id_B]; // Number of observations with id_B in df_B
 
-        unsigned long long unique_A_off = (id_A == 0 ? 0 : unique_argwhere_offsets[id_A - 1]); // Where observations with id_A in df_A start in unique_A_argwhere
+        long long unique_A_off = (id_A == 0 ? 0 : unique_argwhere_offsets[id_A - 1]); // Where observations with id_A in df_A start in unique_A_argwhere
 
-        unsigned long long unique_B_off = (id_B == 0 ? 0 : unique_argwhere_offsets[id_B - 1]); // Where observations with id_B in df_B start in unique_B_argwhere
+        long long unique_B_off = (id_B == 0 ? 0 : unique_argwhere_offsets[id_B - 1]); // Where observations with id_B in df_B start in unique_B_argwhere
 
-        unsigned long long *unique_A_argwhere_off = unique_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
+        long long *unique_A_argwhere_off = unique_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
 
-        unsigned long long *unique_B_argwhere_off = unique_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
+        long long *unique_B_argwhere_off = unique_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
-        unsigned long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); // Where the output starts in output
+        long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); // Where the output starts in output
 
         if (id_A != id_B) {
 
@@ -134,39 +134,39 @@ extern "C" {
 
   __global__ void indices_inverse(long long *input,
                                   int n,
-                                  unsigned long long *unique_argwhere,
-                                  unsigned long long *unique_argwhere_offsets,
-                                  unsigned int *unique_count,
-                                  unsigned long long *output,
+                                  long long *unique_argwhere,
+                                  long long *unique_argwhere_offsets,
+                                  int *unique_count,
+                                  long long *output,
                                   long long *output_mask,
-                                  unsigned long long *output_offsets,
+                                  long long *output_offsets,
                                   int n_output) {
 
-      const int id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
+      const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
 
       if (id < n_output) {
 
         // The input element to which the processed output element refers
-        unsigned long long mask = output_mask[id];
+        long long mask = output_mask[id];
 
         // Move pointer to where the output begins in output
-        unsigned long long output_off = (mask == 0 ? 0 : output_offsets[mask - 1]); 
+        long long output_off = (mask == 0 ? 0 : output_offsets[mask - 1]); 
 
-        unsigned long long i = id - output_off;
+        long long i = id - output_off;
 
         long long in = input[mask];
 
-        unsigned int len = unique_count[in];
+        int len = unique_count[in];
 
-        unsigned long long row = i / (len - 1);
+        long long row = i / (len - 1);
 
-        unsigned long long col = i % (len - 1);
+        long long col = i % (len - 1);
 
-        unsigned long long col_adj = (row > col ? col : col + 1);
+        long long col_adj = (row > col ? col : col + 1);
 
-        unsigned long long unique_off = (in == 0 ? 0 : unique_argwhere_offsets[in - 1]);
+        long long unique_off = (in == 0 ? 0 : unique_argwhere_offsets[in - 1]);
 
-        unsigned long long *unique_argwhere_off = unique_argwhere + unique_off;
+        long long *unique_argwhere_off = unique_argwhere + unique_off;
 
         output[id] = unique_argwhere_off[row] * n + unique_argwhere_off[col_adj];
 
@@ -211,7 +211,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   n_unique = len(unique)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_ = cp.array(unique_inverse, dtype = np.uint64)
+  unique_inverse_ = cp.array(unique_inverse, dtype = np.int64)
   
   unique_inverse_gpu = cp.argsort(unique_inverse_)
 
@@ -219,7 +219,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   mempool.free_all_blocks()
 
   # This array contains the number of observations in string associated with each unique value
-  unique_counts_gpu = cp.array(unique_counts, dtype = np.uint32)
+  unique_counts_gpu = cp.array(unique_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in string
   unique_offsets_gpu = cp.cumsum(unique_counts_gpu)
@@ -227,7 +227,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   len_arrow = len(''.join(unique).encode())
 
   # Approximate the number of chunks needed to satisfy max_chunk_size
-  chunks = math.ceil((len(unique) ** 2 * 4 + len_arrow * (1 + 2 * len(unique)) + (len(unique) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 4))
+  chunks = math.ceil((len(unique) ** 2 * 4 + len_arrow * (1 + 2 * len(unique)) + (len(unique) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 8))
 
   # Split array of unique values accordingly
   unique_partitions = np.array_split(unique, chunks)
@@ -253,7 +253,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   del indices1
   mempool.free_all_blocks()
 
-  output1_count = cp.zeros(indices1_A.size, dtype = np.uint32)
+  output1_count = cp.zeros(indices1_A.size, dtype = np.int32)
 
   num_blocks = math.ceil(indices1_A.size / num_threads)
 
@@ -262,7 +262,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
   output1_offsets = cp.cumsum(output1_count)
 
-  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.uint64)
+  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
 
   _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
 
@@ -277,7 +277,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   del indices2
   mempool.free_all_blocks()
 
-  output2_count = cp.zeros(indices2_A.size, dtype = np.uint32)
+  output2_count = cp.zeros(indices2_A.size, dtype = np.int32)
 
   num_blocks = math.ceil(indices2_A.size / num_threads)
 
@@ -285,7 +285,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
   output2_offsets = cp.cumsum(output2_count)
 
-  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.uint64)
+  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
 
   _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
 
@@ -322,7 +322,7 @@ def exact_dedup_gpu(string, num_threads = 256):
   unique, unique_inverse, unique_counts = np.unique(string, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_ = cp.array(unique_inverse, dtype = np.uint64)
+  unique_inverse_ = cp.array(unique_inverse, dtype = np.int64)
   
   unique_inverse_gpu = cp.argsort(unique_inverse_)
   
@@ -330,7 +330,7 @@ def exact_dedup_gpu(string, num_threads = 256):
   mempool.free_all_blocks()
 
   # This array contains the number of observations in string associated with each unique value
-  unique_counts_gpu = cp.array(unique_counts, dtype = np.uint32)
+  unique_counts_gpu = cp.array(unique_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
   unique_offsets_gpu = cp.cumsum(unique_counts_gpu)
@@ -350,7 +350,7 @@ def exact_dedup_gpu(string, num_threads = 256):
   # This array indicates for each element of the output, the element of indices it is referring to
   output_mask = cp.repeat(cp.array(range(indices_ravel.size)), repeats = output_count.get().tolist())
 
-  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.uint64)
+  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
 
   num_blocks = math.ceil(output_gpu.size / num_threads)
 
