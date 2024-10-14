@@ -197,18 +197,18 @@ extern "C" {
                                   long long *input_B,
                                   int n_input,
                                   int n_B,
-                                  unsigned long long *unique_A_argwhere,
-                                  unsigned long long *unique_A_argwhere_offsets,
-                                  unsigned int *unique_A_count,
-                                  unsigned long long *unique_B_argwhere,
-                                  unsigned long long *unique_B_argwhere_offsets,
-                                  unsigned int *unique_B_count,
-                                  unsigned long long *output,
-                                  unsigned long long *output_offsets) {
+                                  long long *unique_A_argwhere,
+                                  long long *unique_A_argwhere_offsets,
+                                  int *unique_A_count,
+                                  long long *unique_B_argwhere,
+                                  long long *unique_B_argwhere_offsets,
+                                  int *unique_B_count,
+                                  long long *output,
+                                  long long *output_offsets) {
 
       // Description: This function maps the indices of unique pairs back to their corresponding indices in the original dataframes
 
-      const int id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
+      const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
 
       if (id < n_input) {
 
@@ -216,19 +216,19 @@ extern "C" {
 
         long long id_B = input_B[id];
 
-        unsigned int len_A = unique_A_count[id_A]; // Number of observations with id_A in df_A
+        int len_A = unique_A_count[id_A]; // Number of observations with id_A in df_A
 
-        unsigned int len_B = unique_B_count[id_B]; // Number of observations with id_B in df_B
+        int len_B = unique_B_count[id_B]; // Number of observations with id_B in df_B
 
         // Where observations with id_A in df_A start in unique_A_argwhere
-        unsigned long long unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
+        long long unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
 
-        unsigned long long *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
+        long long *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
 
         // Where observations with id_B in df_B start in unique_B_argwhere
-        unsigned long long unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
+        long long unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
 
-        unsigned long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
+        long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
         // Where the output starts in output
         int output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
@@ -364,7 +364,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.uint64)
+  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.int64)
   
   unique_A_inverse_gpu = cp.argsort(unique_A_inverse_)
 
@@ -372,7 +372,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   mempool.free_all_blocks()
   
   # This array contains the number of observations in str_A associated with each unique value
-  unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
+  unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
   unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
@@ -381,14 +381,14 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
+  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.int64)
   
   unique_B_inverse_gpu = cp.argsort(unique_B_inverse_)
 
   del unique_B_inverse_
   mempool.free_all_blocks()
 
-  unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
+  unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
 
@@ -425,7 +425,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   output1_offsets = cp.cumsum(output1_count)
 
-  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.uint64)
+  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
 
   num_blocks = math.ceil(indices1_A.size / num_threads)
 
@@ -446,7 +446,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   output2_offsets = cp.cumsum(output2_count)
 
-  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.uint64)
+  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
 
   num_blocks = math.ceil(indices2_A.size / num_threads)
 
@@ -487,7 +487,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.uint64)
+  unique_A_inverse_ = cp.array(unique_A_inverse, dtype = np.int64)
 
   unique_A_inverse_gpu = cp.argsort(unique_A_inverse_)
 
@@ -495,27 +495,27 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   mempool.free_all_blocks()
 
   # This array contains the number of observations in str_A associated with each unique value
-  unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.uint32)
+  unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
   unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.uint64)
+  unique_B_inverse_ = cp.array(unique_B_inverse, dtype = np.int64)
 
   unique_B_inverse_gpu = cp.argsort(unique_B_inverse_)
 
   del unique_B_inverse_
   mempool.free_all_blocks()
 
-  unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.uint32)
+  unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
 
   unique_all, unique_all_inverse, unique_all_counts = np.unique(np.concatenate((unique_A, unique_B)), return_inverse = True, return_counts = True)
 
-  unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.uint64)
+  unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.int64)
 
   unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu)
 
@@ -537,7 +537,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   output_offsets = cp.cumsum(output_count)
 
-  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.uint64)
+  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
 
   num_blocks = math.ceil(indices_A.size / num_threads)
 
