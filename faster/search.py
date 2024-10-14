@@ -120,11 +120,12 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
 
 def reduce(function, iterable, initial = None):
   '''
-  This function applies the input function of two arguments cumulatively to the items of iterable, from left to right, so as to reduce the iterable to a single value.
+  This function iteratively applies a two-argument function to the elements of an iterable, from left to right, reducing it to a single value. The key difference with functools.reduce is that it releases GPU memory at each step of the process.
 
-  :param function: Input function
-  :param iterable:
-  :param initial:
+  :param function: Two-argument function to be applied to the elements of the iterable
+  :param iterable: Iterable
+  :type iterable: iterable
+  :param initial: Initial value, defaults to None
   '''
   
   mempool = cp.get_default_memory_pool()
@@ -137,14 +138,14 @@ def reduce(function, iterable, initial = None):
     value = initial
     
   for element in it:
-    valueprime = function(value, element)
+    new_value = function(value, element)
     
     del value
     mempool.free_all_blocks()
     
-    value = valueprime
+    value = new_value
     
-    del valueprime
+    del new_value
     mempool.free_all_blocks()
     
   return value
