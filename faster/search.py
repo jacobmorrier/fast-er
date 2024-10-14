@@ -126,6 +126,7 @@ def reduce(function, iterable, initial = None):
   :param iterable: Iterable
   :type iterable: iterable
   :param initial: Initial value, defaults to None
+  :return: Outcome of function applied to the elements of iterable, from left to right
   '''
   
   mempool = cp.get_default_memory_pool()
