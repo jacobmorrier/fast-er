@@ -1,8 +1,5 @@
-Usage
-=====
-
-Package Usage Example
----------------------
+Usage Example
+=============
 
 To install the library from this repository, execute the following commands:
 
@@ -12,7 +9,6 @@ To install the library from this repository, execute the following commands:
 
     import faster
 
-    
 Here is an example of a standard probabilistic record linkage pipeline, using the previously described classes:
 
 .. code-block:: python
