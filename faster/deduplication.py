@@ -193,7 +193,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   :type upper_thr: float, optional
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
-  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
+  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.0
   :type max_chunk_size: float, optional
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
   
@@ -406,7 +406,7 @@ class Deduplication():
     :type Upper_Thr: float, optional
     :param Num_Threads: Number of threads per block, defaults to 256
     :type Num_Threads: int, optional
-    :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1
+    :param Max_Chunk_Size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.0
     :type Max_Chunk_Size: float, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
