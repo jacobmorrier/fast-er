@@ -131,11 +131,11 @@ __device__ float jaro_winkler(const char *str1,
 }
 
 __global__ void jaro_winkler_kernel(char *str1,
-                                    int *offsets1,
+                                    long long *offsets1,
                                     bool *buffer1,
                                     int n1,
                                     char *str2,
-                                    int *offsets2,
+                                    long long *offsets2,
                                     bool *buffer2,
                                     int n2,
                                     float p,
@@ -155,11 +155,11 @@ __global__ void jaro_winkler_kernel(char *str1,
     // - p: Scaling factor applied to the common prefix
     // - output: Array storing the computed Jaro-Winkler similarities
 
-    const int id = threadIdx.x + blockDim.x * blockIdx.x;
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
-    const int idx = id / n2; // Index of the string processed in str1
+    const long long idx = id / n2; // Index of the string processed in str1
 
-    const int idy = id % n2; // Index of the string processed in str2
+    const long long idy = id % n2; // Index of the string processed in str2
 
     if (idx < n1 && idy < n2) {
 
@@ -285,7 +285,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   str1_arrow_gpu = cp.array(str1_arrow)
 
   # Array storing where each string starts and ends: str1[i] begins at offsets[i] and ends at offsets[i + 1] - 1 (inclusively)
-  offsets1 = np.fromiter(accumulate(len(row) for row in str1), dtype = np.int32, count = len(str1))
+  offsets1 = np.fromiter(accumulate(len(row) for row in str1), dtype = np.int64, count = len(str1))
   offsets1 = np.concatenate(([0], offsets1))
 
   offsets1_gpu = cp.array(offsets1)
@@ -296,7 +296,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
   str2_arrow_gpu = cp.array(str2_arrow)
 
-  offsets2 = np.fromiter(accumulate(len(row) for row in str2), dtype = np.int32, count = len(str2))
+  offsets2 = np.fromiter(accumulate(len(row) for row in str2), dtype = np.int64, count = len(str2))
   offsets2 = np.concatenate(([0], offsets2))
   
   offsets2_gpu = cp.array(offsets2)
@@ -395,7 +395,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   len_B_arrow = len(''.join(unique_B).encode())
 
   # Approximate the number of chunks needed to satisfy max_chunk_size
-  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 4  + (len(unique_B) + 1) * 4) / (max_chunk_size * 1024 ** 3 - len_A_arrow - len_B_arrow - (len(unique_A) + 1) * 4 - (len(unique_B) + 1) * 4))
+  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 8 + (len(unique_B) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_A_arrow - len_B_arrow - (len(unique_A) + 1) * 8 - (len(unique_B) + 1) * 8))
 
   # Split array of unique values accordingly
   unique_A_partitions = np.array_split(unique_A, chunks)
