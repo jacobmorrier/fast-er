@@ -46,7 +46,7 @@ class Linkage():
     df_B['Index_B'] = range(len(df_B))
 
     # Extracting the Indices for which Ksi is above the threshold
-    Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.argwhere(self.Ksi >= Threshold).T[0]))
+    Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.ravel(np.argwhere(self.Ksi >= Threshold))))
 
     Indices_to_Link_A = Indices_to_Link % len(df_B)
 
