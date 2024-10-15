@@ -4,17 +4,16 @@ import matplotlib.pyplot as plt
 class Evaluation():
   """
   This class evaluates the accuracy and uncertainty inherent in the estimates of the Fellegi-Sunter model.
+
+  :param Lambda: Match probability
+  :type Lambda: float
+  :param Ksi: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
+  :type Ksi: np.array
+  :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
+  :type Counts: np.array
   """
 
   def __init__(self, Lambda: float, Ksi: np.array, Counts: np.array):
-    """
-    :param Lambda: Match probability
-    :type Lambda: float
-    :param Ksi: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
-    :type Ksi: np.array
-    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
-    :type Counts: np.array
-    """
 
     self.Lambda = Lambda
     self.Ksi = Ksi
