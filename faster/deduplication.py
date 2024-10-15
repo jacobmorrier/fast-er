@@ -211,11 +211,11 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   n_unique = len(unique)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_ = cp.array(unique_inverse, dtype = np.int64)
+  unique_inverse_gpu = cp.array(unique_inverse, dtype = np.int64)
   
-  unique_inverse_gpu = cp.argsort(unique_inverse_)
+  unique_inverse_sorted = cp.argsort(unique_inverse_gpu)
 
-  del unique_inverse_
+  del unique_inverse_gpu
   mempool.free_all_blocks()
 
   # This array contains the number of observations in string associated with each unique value
@@ -264,7 +264,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
   output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
 
-  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
+  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
 
   del indices1_A, indices1_B, output1_count, output1_offsets
   mempool.free_all_blocks()
@@ -287,9 +287,9 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
   output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
 
-  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
+  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
 
-  del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu
+  del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
   mempool.free_all_blocks()
 
   output1_sorted = cp.sort(output1_gpu)
@@ -322,9 +322,9 @@ def exact_dedup_gpu(string, num_threads = 256):
   unique, unique_inverse, unique_counts = np.unique(string, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_ = cp.array(unique_inverse, dtype = np.int64)
+  unique_inverse_gpu = cp.array(unique_inverse, dtype = np.int64)
   
-  unique_inverse_gpu = cp.argsort(unique_inverse_)
+  unique_inverse_sorted = cp.argsort(unique_inverse_gpu)
   
   del unique_inverse_
   mempool.free_all_blocks()
@@ -354,9 +354,9 @@ def exact_dedup_gpu(string, num_threads = 256):
 
   num_blocks = math.ceil(output_gpu.size / num_threads)
 
-  _indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_gpu, unique_offsets_gpu, unique_counts_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
+  _indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
 
-  del unique_inverse_gpu, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
+  del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
   mempool.free_all_blocks()
 
   output_sorted = cp.sort(output_gpu)
