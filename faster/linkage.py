@@ -60,8 +60,8 @@ class Linkage():
     mempool.free_all_blocks()
 
     # Extracting the records in df_A with which records in df_B must be linked
-    df_A = df_A.iloc[Indices_to_Link_A_cpu,:].reset_index()
+    df_A = df_A.iloc[Indices_to_Link_A_cpu,:]
 
     df_A['Index_B'] = Indices_to_Link_B_cpu
 
-    return df_A.merge(df_B, on = 'Index_B').reset_index()
+    return df_A.merge(df_B, on = 'Index_B')
