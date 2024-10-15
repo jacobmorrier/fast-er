@@ -312,25 +312,30 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   # Call GPU Kernel
   _jaro_winkler_kernel((num_blocks,), (num_threads,), (str1_arrow_gpu, offsets1_gpu, buffer1, n1, str2_arrow_gpu, offsets2_gpu, buffer2, n2, cp.float32(p), output_gpu))
 
+  # Clean GPU memory
+  del str1_arrow, offsets1, buffer1, str2_arrow, offsets2, buffer2, str1_arrow_gpu, offsets1_gpu, str2_arrow_gpu, offsets2_gpu
+  mempool.free_all_blocks()
+  
   # Indices between lower_thr and upper_thr
-  indices1_gpu_ = cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr)
-  indices1_gpu = cp.argwhere(indices1_gpu_)
-  del indices1_gpu_
+  indices1 = cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr)
+  argwhere1 = cp.argwhere(indices1)
+  del indices1
   mempool.free_all_blocks()
 
   # Indices above upper_thr
-  indices2_gpu = cp.argwhere(output_gpu >= upper_thr)
+  argwhere2 = cp.argwhere(output_gpu >= upper_thr)
 
   # Clean GPU memory
-  del str1_arrow, offsets1, buffer1, str2_arrow, offsets2, buffer2, str1_arrow_gpu, offsets1_gpu, str2_arrow_gpu, offsets2_gpu, output_gpu
+  del output_gpu
   mempool.free_all_blocks()
 
   # Offset indices based on offset parameter
-  output1 = cp.ravel(indices1_gpu) + offset
+  output1 = cp.ravel(argwhere1) + offset
 
-  output2 = cp.ravel(indices2_gpu) + offset
+  output2 = cp.ravel(argwhere2) + offset
 
-  del indices1_gpu, indices2_gpu
+  # Clean GPU memory
+  del argwhere1, argwhere2
   mempool.free_all_blocks()
 
   return [output1, output2]
