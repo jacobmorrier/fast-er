@@ -5,19 +5,18 @@ import pandas as pd
 class Linkage():
   """
   This class links the records in two dataframes based on previously estimated conditional match probabilities.
+
+  :param df_A: First dataframe
+  :type df_A: pd.DataFrame
+  :param df_B: Second dataframe
+  :type df_B: pd.DataFrame
+  :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables
+  :type Indices: list of cp.array
+  :param Ksi: Array containing the conditional match probabilities for all patterns of discrete levels of similarity across variables
+  :type Ksi: np.array
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
-    """
-    :param df_A: First dataframe
-    :type df_A: pd.DataFrame
-    :param df_B: Second dataframe
-    :type df_B: pd.DataFrame
-    :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables
-    :type Indices: list of cp.array
-    :param Ksi: Array containing the conditional match probabilities for all patterns of discrete levels of similarity across variables
-    :type Ksi: np.array
-    """
 
     self.df_A = df_A
     self.df_B = df_B
