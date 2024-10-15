@@ -567,27 +567,27 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 class Comparison():
   """
   This class compares the values of selected variables in two datasets.
+
+  :param df_A: First dataframe to compare
+  :type df_A: pd.DataFrame
+  :param df_B: Second dataframe to compare
+  :type df_B: pd.DataFrame
+  :param Vars_Fuzzy_A: Names of variables to compare for fuzzy matching in df_A
+  :type Vars_Fuzzy_A: list of str
+  :param Vars_Fuzzy_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
+  :type Vars_Fuzzy_B: list of str
+  :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to []
+  :type Vars_Exact_A: list of str, optional
+  :param Vars_Exact_B: Names of variables to compare for exact matching in df_B listed in the same order as in Vars_Exact_A, defaults to []
+  :type Vars_Exact_B: list of str, optional
+  :raises Exception: The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.
+  :raises Exception: The lengths of Vars_Exact_A and Vars_Exact_B must be the same.
+  :raises Exception: The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.
+  :raises Exception: The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_Fuzzy_A, Vars_Fuzzy_B, Vars_Exact_A = [], Vars_Exact_B = []):
-    """
-    :param df_A: First dataframe to compare
-    :type df_A: pd.DataFrame
-    :param df_B: Second dataframe to compare
-    :type df_B: pd.DataFrame
-    :param Vars_Fuzzy_A: Names of variables to compare for fuzzy matching in df_A
-    :type Vars_Fuzzy_A: list of str
-    :param Vars_Fuzzy_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
-    :type Vars_Fuzzy_B: list of str
-    :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to []
-    :type Vars_Exact_A: list of str, optional
-    :param Vars_Exact_B: Names of variables to compare for exact matching in df_B listed in the same order as in Vars_Exact_A, defaults to []
-    :type Vars_Exact_B: list of str, optional
-    :raises Exception: The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.
-    :raises Exception: The lengths of Vars_Exact_A and Vars_Exact_B must be the same.
-    :raises Exception: The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.
-    :raises Exception: The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.
-    """
+
     # Check Inputs
     if len(Vars_Fuzzy_A) != len(Vars_Fuzzy_B):
       raise Exception('The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.')
@@ -686,9 +686,7 @@ class Comparison():
   @property
   def Counts(self):
     """
-    :return: An array with the count of observations for each pattern of discrete levels of similarity across variables
-    :rtype: np.array
-    :raises Exception: The model must be fitted first.
+    Array with the count of observations for each pattern of discrete levels of similarity across variables
     """
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')
