@@ -231,7 +231,7 @@ extern "C" {
         long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
         // Where the output starts in output
-        int output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
+        long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
 
         for (int i = 0; i < len_A * len_B; i++) {
 
