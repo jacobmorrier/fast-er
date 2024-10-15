@@ -2,12 +2,15 @@ Fast-ER: GPU-Accelerated Record Linkage in Python
 =================================================
 
 .. toctree::
+   :hidden:
+
    installation
    architecture
    usage
 
 .. toctree::
    :caption: API Documentation
+   :hidden:
    comparison
    deduplication
    estimation
