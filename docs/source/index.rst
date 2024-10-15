@@ -3,7 +3,7 @@ Fast-ER: GPU-Accelerated Record Linkage in Python
 
 .. toctree::
    :maxdepth: 2
-   index
+   Introduction <index>
    installation
    architecture
    usage
