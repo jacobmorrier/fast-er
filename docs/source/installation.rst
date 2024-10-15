@@ -21,3 +21,6 @@ The technical requirements for installing the package are determined by its depe
 
 .. warning::
     The package requires an NVIDIA CUDA GPU with a Compute Capability of 3.0 or higher.
+
+.. tip::
+   Users can access CUDA-enabled GPUs for free through `Google Colab <https://colab.research.google.com>`_. 
