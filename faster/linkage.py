@@ -48,11 +48,11 @@ class Linkage():
     # Extracting the Indices for which Ksi is above the threshold
     Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.ravel(np.argwhere(self.Ksi >= Threshold))))
 
-    Indices_to_Link_A = Indices_to_Link % len(df_B)
+    Indices_to_Link_A = Indices_to_Link // len(df_B)
 
     Indices_to_Link_A_cpu = Indices_to_Link_A.get()
 
-    Indices_to_Link_B = Indices_to_Link // len(df_B)
+    Indices_to_Link_B = Indices_to_Link % len(df_B)
 
     Indices_to_Link_B_cpu = Indices_to_Link_B.get()
 
