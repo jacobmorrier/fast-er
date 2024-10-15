@@ -459,7 +459,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   num_blocks = math.ceil(indices2_A.size / num_threads)
 
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(str_B), unique_A_inverse_gpu, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
+  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
 
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
