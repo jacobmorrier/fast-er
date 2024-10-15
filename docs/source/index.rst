@@ -27,9 +27,6 @@ Fast-ER: GPU-Accelerated Record Linkage in Python
 - `Sulekha Kishore <https://www.linkedin.com/in/sulekha-kishore/>`_
 - `R. Michael Alvarez <https://www.rmichaelalvarez.com>`_
 
-.. contents:: **Table of Contents**
-    :depth: 3
-
 Introduction
 ------------
 
