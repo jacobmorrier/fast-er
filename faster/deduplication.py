@@ -326,7 +326,7 @@ def exact_dedup_gpu(string, num_threads = 256):
   
   unique_inverse_sorted = cp.argsort(unique_inverse_gpu)
   
-  del unique_inverse_
+  del unique_inverse_gpu
   mempool.free_all_blocks()
 
   # This array contains the number of observations in string associated with each unique value
