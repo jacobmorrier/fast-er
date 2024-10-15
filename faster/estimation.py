@@ -4,18 +4,17 @@ import numpy as np
 class Estimation():
   '''
   This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
+  
+  :param K_Fuzzy: Number of variables compared for fuzzy matching
+  :type K_Fuzzy: int
+  :param K_Exact: Number of variables compared for exact matching
+  :type K_Exact: int
+  :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
+  :type Counts: np.array
   '''
 
   def __init__(self, K_Fuzzy: int, K_Exact: int, Counts: np.array):
-    """
-    :param K_Fuzzy: Number of variables compared for fuzzy matching
-    :type K_Fuzzy: int
-    :param K_Exact: Number of variables compared for exact matching
-    :type K_Exact: int
-    :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
-    :type Counts: np.array
-    """
-    
+
     self.K_Fuzzy = K_Fuzzy
     self.K_Exact = K_Exact
     self.Counts = Counts
