@@ -2,7 +2,6 @@ Fast-ER: GPU-Accelerated Record Linkage in Python
 =================================================
 
 .. toctree::
-   Introduction <index>
    installation
    architecture
    usage
