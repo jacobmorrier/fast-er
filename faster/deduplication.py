@@ -368,18 +368,17 @@ def exact_dedup_gpu(string, num_threads = 256):
 class Deduplication():
   """
   This class compares the values of selected variables in one dataset.
+
+  :param df: Dataframe to deduplicate
+  :type df: pd.DataFrame
+  :param Vars_Fuzzy: Names of variables to compare for fuzzy matching in df
+  :type Vars_Fuzzy: list of str
+  :param Vars_Exact: Names of variables to compare for exact matching in df, defaults to []
+  :type Vars_Exact: list of str, optional
+  :raises Exception: The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.
   """
 
   def __init__(self, df: pd.DataFrame, Vars_Fuzzy, Vars_Exact = []):
-    """
-    :param df: Dataframe to deduplicate
-    :type df: pd.DataFrame
-    :param Vars_Fuzzy: Names of variables to compare for fuzzy matching in df
-    :type Vars_Fuzzy: list of str
-    :param Vars_Exact: Names of variables to compare for exact matching in df, defaults to []
-    :type Vars_Exact: list of str, optional
-    :raises Exception: The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.
-    """
 
     # Check that inputs are valid
     if any(var not in df.columns for var in Vars_Fuzzy) or any(var not in df.columns for var in Vars_Exact):
@@ -467,9 +466,7 @@ class Deduplication():
   @property
   def Counts(self):
     """
-    :return: Array with the count of observations for each pattern of discrete levels of similarity across variables
-    :rtype: np.array
-    :raises Exception: The model must be fitted first.
+    Array with the count of observations for each pattern of discrete levels of similarity across variables
     """
     if not self._Fit_flag:
       raise Exception('The model must be fitted first.')
