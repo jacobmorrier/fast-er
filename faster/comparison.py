@@ -330,7 +330,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   del output_gpu
   mempool.free_all_blocks()
 
-  # Offset indices based on offset parameter
+  # Offset indices based on parameter
   output1 = cp.ravel(argwhere1) + offset
 
   output2 = cp.ravel(argwhere2) + offset
@@ -372,7 +372,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   # Extracts unique values of str_A (with inverse and counts)
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
-  # This array contains the indices corresponding to each unique value of str_A (as an arrow)
+  # Array containing the indices corresponding to each unique value of str_A (as an arrow)
   unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int64)
   
   unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu)
@@ -380,13 +380,13 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   del unique_A_inverse_gpu
   mempool.free_all_blocks()
   
-  # This array contains the number of observations in str_A associated with each unique value
+  # Array containing the number of observations in str_A associated with each unique value
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
-  # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
-  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
+  # Array containing the offsets necessary to read the indices corresponding to each unique value in str_A
+  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int64)
 
-  len_A_arrow = len(''.join(unique_A).encode())
+  len_A_arrow = len(''.join(unique_A).encode()) # Length of arrow (for approximation of the number of chunks)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
@@ -399,7 +399,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
-  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
+  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int64)
 
   len_B_arrow = len(''.join(unique_B).encode())
 
@@ -423,18 +423,21 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   mempool.free_all_blocks()
 
   # Inverting indices1, i.e., translate into indices of original dataframes
-  indices1_A = indices1 // len(unique_B)
+  indices1_A = indices1 // len(unique_B) # Unique values in df_A
 
-  indices1_B = indices1 % len(unique_B)
+  indices1_B = indices1 % len(unique_B) # Unique values in df_B
 
   del indices1
   mempool.free_all_blocks()
 
-  output1_count = unique_A_counts_gpu[indices1_A] * unique_B_counts_gpu[indices1_B]
+  # Counts of indices from original dataframes corresponding to each index from unique values
+  output1_count = unique_A_counts_gpu[indices1_A] * unique_B_counts_gpu[indices1_B] 
 
-  output1_offsets = cp.cumsum(output1_count)
+  # Array containing where indices from original dataframes start in output for each index from unique values
+  output1_offsets = cp.cumsum(output1_count, dtype = np.int64) 
 
-  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
+  # Create output vector
+  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64) 
 
   num_blocks = math.ceil(indices1_A.size / num_threads)
 
@@ -453,7 +456,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   output2_count = unique_A_counts_gpu[indices2_A] * unique_B_counts_gpu[indices2_B]
 
-  output2_offsets = cp.cumsum(output2_count)
+  output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
 
   output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
 
@@ -464,6 +467,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
   mempool.free_all_blocks()
 
+  # Sort output vectors
   output1_sorted = cp.sort(output1_gpu)
   del output1_gpu
   mempool.free_all_blocks()
@@ -507,7 +511,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
-  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu)
+  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int64)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
@@ -520,7 +524,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
-  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu)
+  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int64)
 
   unique_all, unique_all_inverse, unique_all_counts = np.unique(np.concatenate((unique_A, unique_B)), return_inverse = True, return_counts = True)
 
@@ -528,9 +532,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu)
 
-  unique_all_counts_gpu = cp.array(unique_all_counts)
+  unique_all_counts_gpu = cp.array(unique_all_counts, dtype = np.int32)
 
-  unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu)
+  unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu, dtype = np.int64)
 
   # The values in both unique_A and unique_B have a count of 2
   equal_indices = cp.argwhere(unique_all_counts_gpu == 2)
@@ -547,7 +551,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   output_count = unique_A_counts_gpu[indices_A] * unique_B_counts_gpu[indices_B]
 
-  output_offsets = cp.cumsum(output_count)
+  output_offsets = cp.cumsum(output_count, dtype = np.int64)
 
   output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
 
