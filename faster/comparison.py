@@ -197,10 +197,10 @@ extern "C" {
                                   long long *input_B,
                                   int n_input,
                                   int n_B,
-                                  int *unique_A_argwhere,
+                                  long long *unique_A_argwhere,
                                   int *unique_A_argwhere_offsets,
                                   int *unique_A_count,
-                                  int *unique_B_argwhere,
+                                  long long *unique_B_argwhere,
                                   int *unique_B_argwhere_offsets,
                                   int *unique_B_count,
                                   long long *output,
@@ -223,12 +223,12 @@ extern "C" {
         // Where observations with id_A in df_A start in unique_A_argwhere
         int unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
 
-        int *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
+        long long *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
 
         // Where observations with id_B in df_B start in unique_B_argwhere
         int unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
 
-        int *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
+        long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
         // Where the output starts in output
         long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
@@ -375,7 +375,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   # Array containing the indices corresponding to each unique value of str_A (as an arrow)
   unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int32)
   
-  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu).astype(np.int32)
+  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu)
 
   del unique_A_inverse_gpu
   mempool.free_all_blocks()
@@ -392,7 +392,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int32)
   
-  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu).astype(np.int32)
+  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu)
 
   del unique_B_inverse_gpu
   mempool.free_all_blocks()
@@ -502,7 +502,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
   unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int32)
 
-  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu).astype(np.int32)
+  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu)
 
   del unique_A_inverse_gpu
   mempool.free_all_blocks()
@@ -517,7 +517,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int32)
 
-  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu).astype(np.int32)
+  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu)
 
   del unique_B_inverse_gpu
   mempool.free_all_blocks()
@@ -530,7 +530,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.int32)
 
-  unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu).astype(np.int32)
+  unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu)
 
   unique_all_counts_gpu = cp.array(unique_all_counts, dtype = np.int32)
 
