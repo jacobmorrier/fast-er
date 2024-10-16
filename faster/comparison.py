@@ -415,9 +415,9 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   indices = [jaro_winkler_gpu(x, unique_B, unique_A_partitions_len[i] * len(unique_B), p, lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_A_partitions)]
 
   # Concatenate indices of all chunks
-  indices1 = cp.concatenate((x[0] for x in indices))
+  indices1 = cp.concatenate((x[0] for x in indices), dtype = np.int64)
 
-  indices2 = cp.concatenate((x[1] for x in indices))
+  indices2 = cp.concatenate((x[1] for x in indices), dtype = np.int64)
 
   del indices
   mempool.free_all_blocks()
