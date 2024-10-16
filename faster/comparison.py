@@ -197,11 +197,11 @@ extern "C" {
                                   long long *input_B,
                                   int n_input,
                                   int n_B,
-                                  long long *unique_A_argwhere,
-                                  long long *unique_A_argwhere_offsets,
+                                  int *unique_A_argwhere,
+                                  int *unique_A_argwhere_offsets,
                                   int *unique_A_count,
-                                  long long *unique_B_argwhere,
-                                  long long *unique_B_argwhere_offsets,
+                                  int *unique_B_argwhere,
+                                  int *unique_B_argwhere_offsets,
                                   int *unique_B_count,
                                   long long *output,
                                   long long *output_offsets) {
@@ -221,14 +221,14 @@ extern "C" {
         int len_B = unique_B_count[id_B]; // Number of observations with id_B in df_B
 
         // Where observations with id_A in df_A start in unique_A_argwhere
-        long long unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
+        int unique_A_off = (id_A == 0 ? 0 : unique_A_argwhere_offsets[id_A - 1]); 
 
-        long long *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
+        int *unique_A_argwhere_off = unique_A_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
 
         // Where observations with id_B in df_B start in unique_B_argwhere
-        long long unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
+        int unique_B_off = (id_B == 0 ? 0 : unique_B_argwhere_offsets[id_B - 1]);
 
-        long long *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
+        int *unique_B_argwhere_off = unique_B_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
 
         // Where the output starts in output
         long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); 
@@ -373,9 +373,9 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # Array containing the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int64)
+  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int32)
   
-  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu)
+  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu, dtype = np.int32)
 
   del unique_A_inverse_gpu
   mempool.free_all_blocks()
@@ -384,22 +384,22 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
   # Array containing the offsets necessary to read the indices corresponding to each unique value in str_A
-  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int64)
+  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int32)
 
   len_A_arrow = len(''.join(unique_A).encode()) # Length of arrow (for approximation of the number of chunks)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int64)
+  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int32)
   
-  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu)
+  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu, dtype = np.int32)
 
   del unique_B_inverse_gpu
   mempool.free_all_blocks()
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
-  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int64)
+  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int32)
 
   len_B_arrow = len(''.join(unique_B).encode())
 
@@ -500,9 +500,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A, unique_A_inverse, unique_A_counts = np.unique(str_A, return_inverse = True, return_counts = True)
 
   # This array contains the indices corresponding to each unique value of str_A (as an arrow)
-  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int64)
+  unique_A_inverse_gpu = cp.array(unique_A_inverse, dtype = np.int32)
 
-  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu)
+  unique_A_inverse_sorted = cp.argsort(unique_A_inverse_gpu, dtype = np.int32)
 
   del unique_A_inverse_gpu
   mempool.free_all_blocks()
@@ -511,30 +511,30 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   unique_A_counts_gpu = cp.array(unique_A_counts, dtype = np.int32)
 
   # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
-  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int64)
+  unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int32)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
-  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int64)
+  unique_B_inverse_gpu = cp.array(unique_B_inverse, dtype = np.int32)
 
-  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu)
+  unique_B_inverse_sorted = cp.argsort(unique_B_inverse_gpu, dtype = np.int32)
 
   del unique_B_inverse_gpu
   mempool.free_all_blocks()
 
   unique_B_counts_gpu = cp.array(unique_B_counts, dtype = np.int32)
 
-  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int64)
+  unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int32)
 
   unique_all, unique_all_inverse, unique_all_counts = np.unique(np.concatenate((unique_A, unique_B)), return_inverse = True, return_counts = True)
 
-  unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.int64)
+  unique_all_inverse_gpu = cp.array(unique_all_inverse, dtype = np.int32)
 
-  unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu)
+  unique_all_inverse_argsort = cp.argsort(unique_all_inverse_gpu, dtype = np.int32)
 
   unique_all_counts_gpu = cp.array(unique_all_counts, dtype = np.int32)
 
-  unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu, dtype = np.int64)
+  unique_all_offsets_gpu = cp.cumsum(unique_all_counts_gpu, dtype = np.int32)
 
   # The values in both unique_A and unique_B have a count of 2
   equal_indices = cp.argwhere(unique_all_counts_gpu == 2)
