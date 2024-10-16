@@ -46,6 +46,9 @@ html_theme = 'furo'
 html_title = 'Fast-ER: GPU-Accelerated Record Linkage in Python'
 html_theme_options = {
     "dark_css_variables": {
+        "color-brand-visited": "#5ca5ff",
+    },
+    "light_css_variables": {
         "color-brand-visited": "#2757dd",
     },
 }
