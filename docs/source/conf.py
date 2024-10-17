@@ -12,7 +12,7 @@ import faster.evaluation
 # -- Project information
 
 project = 'Fast-ER'
-copyright = '2024, Jacob Morrier, Sulekha Kishore, and R. Michael Alvarez'
+copyright = '2024 Jacob Morrier, Sulekha Kishore, and R. Michael Alvarez'
 author = 'Jacob Morrier, Sulekha Kishore, and R. Michael Alvarez'
 
 release = '0.1'
