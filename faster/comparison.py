@@ -238,11 +238,11 @@ extern "C" {
           // Transpose indices of pairs in df_A and df_B in output
           output[output_off + i] = unique_A_argwhere_off[i / len_B] * n_B + unique_B_argwhere_off[i % len_B];
 
-        }
-
       }
 
     }
+
+  }
 
 }
 """
@@ -575,11 +575,11 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
 class Comparison():
   """
-  This class compares the values of selected variables in two datasets.
+  This class compares the values of selected variables in two data frames.
 
-  :param df_A: First dataframe to compare
+  :param df_A: First data frame to compare
   :type df_A: pd.DataFrame
-  :param df_B: Second dataframe to compare
+  :param df_B: Second data frame to compare
   :type df_B: pd.DataFrame
   :param Vars_Fuzzy_A: Names of variables to compare for fuzzy matching in df_A
   :type Vars_Fuzzy_A: list of str
@@ -620,7 +620,7 @@ class Comparison():
 
   def fit(self, p = 0.1, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
-    This method compares all pairs of observations across the selected variables in both datasets.
+    This method compares all pairs of observations across the selected variables in both data frames.
     
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
     
