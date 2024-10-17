@@ -8,13 +8,13 @@ from itertools import accumulate
 _jaro_winkler_code = r"""
 extern "C"{
 
-__device__ float jaro_winkler(const char *str1,
-                              const int len1,
-                              bool *hash_str1,
-                              const char *str2,
-                              const int len2,
-                              bool *hash_str2,
-                              float p) {
+  __device__ float jaro_winkler(const char *str1,
+                                const int len1,
+                                bool *hash_str1,
+                                const char *str2,
+                                const int len2,
+                                bool *hash_str2,
+                                float p) {
 
     // This function computes the Jaro-Winkler similarity between two strings
     // Inputs:
@@ -128,18 +128,18 @@ __device__ float jaro_winkler(const char *str1,
 
     }
 
-}
+  }
 
-__global__ void jaro_winkler_kernel(char *str1,
-                                    long long *offsets1,
-                                    bool *buffer1,
-                                    int n1,
-                                    char *str2,
-                                    long long *offsets2,
-                                    bool *buffer2,
-                                    int n2,
-                                    float p,
-                                    float *output) {
+  __global__ void jaro_winkler_kernel(char *str1,
+                                      long long *offsets1,
+                                      bool *buffer1,
+                                      int n1,
+                                      char *str2,
+                                      long long *offsets2,
+                                      bool *buffer2,
+                                      int n2,
+                                      float p,
+                                      float *output) {
 
     // Inputs:
     // - str1: First array of strings (stored as an arrow)
@@ -183,7 +183,7 @@ __global__ void jaro_winkler_kernel(char *str1,
 
     }
 
-}
+  }
 
 }
 """
@@ -319,7 +319,9 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   
   # Indices between lower_thr and upper_thr
   indices1 = cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr)
+  
   argwhere1 = cp.argwhere(indices1)
+  
   del indices1
   mempool.free_all_blocks()
 
@@ -538,7 +540,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
 
   # The values in both unique_A and unique_B have a count of 2
   equal_indices = cp.argwhere(unique_all_counts_gpu == 2)
+  
   equal_indices_raveled = cp.ravel(equal_indices)
+  
   del equal_indices
   mempool.free_all_blocks()
 
@@ -563,6 +567,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   mempool.free_all_blocks()
 
   output_sorted = cp.sort(output_gpu)
+  
   del output_gpu
   mempool.free_all_blocks()
 
