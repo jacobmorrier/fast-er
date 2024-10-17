@@ -22,7 +22,7 @@ Here is an example of a standard probabilistic record linkage pipeline, using th
 
     df_linked = link.transform()
 
-.. hint::
+.. tip::
     Fast-ER employs aggressive GPU memory management to optimize the utilization of your GPU resources, but the size of the datasets you can join or deduplicate remains constrained by your GPU's memory capacity.
 
     The default parameters are optimized for a 16 GB Tesla T4, such as the one on Google Colab. Depending on your hardware, you may need to adjust these settings for optimal performance.
