@@ -4,11 +4,11 @@ import pandas as pd
 
 class Linkage():
   """
-  This class links the records in two dataframes based on previously estimated conditional match probabilities.
+  This class links the records in two data frames based on previously estimated conditional match probabilities.
 
-  :param df_A: First dataframe
+  :param df_A: First data frame
   :type df_A: pd.DataFrame
-  :param df_B: Second dataframe
+  :param df_B: Second data frame
   :type df_B: pd.DataFrame
   :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables
   :type Indices: list of cp.array
@@ -29,7 +29,7 @@ class Linkage():
 
     :param Threshold: Threshold above which pairs of observations in df_A and df_B must be linked, defaults to 0.85
     :type Threshold: float, optional
-    :return: Dataframe in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
+    :return: Data frame in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
     :rtype: pd.DataFrame
     """
 
