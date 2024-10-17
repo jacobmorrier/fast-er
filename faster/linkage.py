@@ -36,13 +36,13 @@ class Linkage():
     mempool = cp.get_default_memory_pool()
 
     # Adding suffixes and indices to df_A and df_B
-    df_A = self.df_A.add_suffix('_A')
+    df_A = self.df_A.add_suffix("_A")
 
-    df_B = self.df_B.add_suffix('_B')
+    df_B = self.df_B.add_suffix("_B")
 
-    df_A['Index_A'] = range(len(df_A))
+    df_A["Index_A"] = range(len(df_A))
 
-    df_B['Index_B'] = range(len(df_B))
+    df_B["Index_B"] = range(len(df_B))
 
     # Extracting the Indices for which Ksi is above the threshold
     Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.ravel(np.argwhere(self.Ksi >= Threshold))))
@@ -61,6 +61,6 @@ class Linkage():
     # Extracting the records in df_A with which records in df_B must be linked
     df_A = df_A.iloc[Indices_to_Link_A_cpu,:]
 
-    df_A['Index_B'] = Indices_to_Link_B_cpu
+    df_A["Index_B"] = Indices_to_Link_B_cpu
 
-    return df_A.merge(df_B, on = 'Index_B')
+    return df_A.merge(df_B, on = "Index_B")
