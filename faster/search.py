@@ -39,23 +39,23 @@ extern "C" {
                                        bool *output,
                                        bool in) {
 
-      const long long id = threadIdx.x + blockDim.x * blockIdx.x;
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
-      if (id < arr1_size) {
+    if (id < arr1_size) {
 
-        output[id] = (in ? binary_search(arr1[id], arr2, arr2_size) : !binary_search(arr1[id], arr2, arr2_size));
+      output[id] = (in ? binary_search(arr1[id], arr2, arr2_size) : !binary_search(arr1[id], arr2, arr2_size));
 
-      }
+    }
 
   }
 
 }
 """
 
-_binary_search_kernel = cp.RawKernel(_binary_search_code, 'binary_search_kernel')
+_binary_search_kernel = cp.RawKernel(_binary_search_code, "binary_search_kernel")
 
 def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
-  '''
+  """
   This function returns the elements that are common to arr1 and arr2, assuming both arrays are sorted in increasing order.
   
   :param arr1: First array
@@ -66,7 +66,7 @@ def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   :type num_threads: int, optional
   :return: Array containing elements that are common to both arr1 and arr2
   :rtype: cp.array
-  '''
+  """
 
   if arr1.size == 0 or arr2.size == 0:
     return cp.empty(0, dtype = np.uint64)
@@ -87,7 +87,7 @@ def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   return arr_output
 
 def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
-  '''
+  """
   This function returns the elements that are present in arr1 but not in arr2, assuming both arrays are sorted in increasing order.
   
   :param arr1: First array
@@ -98,7 +98,7 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   :type num_threads: int, optional
   :return: Array with elements in arr1 but not in arr2
   :rtype: cp.array
-  '''
+  """
 
   if arr1.size == 0 or arr2.size == 0:
     return arr1
@@ -119,7 +119,7 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   return arr_output
 
 def reduce(function, iterable, initial = None):
-  '''
+  """
   This function iteratively applies a two-argument function to the elements of an iterable, from left to right, reducing it to a single value. The key difference with functools.reduce is that it releases GPU memory at each step of the process.
 
   :param function: Two-argument function to be applied to the elements of the iterable
@@ -127,7 +127,7 @@ def reduce(function, iterable, initial = None):
   :type iterable: iterable
   :param initial: Initial value, defaults to None
   :return: Outcome of function applied to the elements of iterable, from left to right
-  '''
+  """
   
   mempool = cp.get_default_memory_pool()
   
