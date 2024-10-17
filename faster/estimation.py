@@ -2,7 +2,7 @@ import itertools
 import numpy as np
 
 class Estimation():
-  '''
+  """
   This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
   
   :param K_Fuzzy: Number of variables compared for fuzzy matching
@@ -11,7 +11,7 @@ class Estimation():
   :type K_Exact: int
   :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
   :type Counts: np.array
-  '''
+  """
 
   def __init__(self, K_Fuzzy: int, K_Exact: int, Counts: np.array):
 
@@ -75,7 +75,7 @@ class Estimation():
     """
 
     if self._Fit_flag:
-      raise Exception('If the model has already been fitted, it cannot be fitted again.')
+      raise Exception("If the model has already been fitted, it cannot be fitted again.")
 
     # Parameter Initialization
     self.Lambda = np.random.uniform(low = 0, high = 1/2)
@@ -120,9 +120,9 @@ class Estimation():
     self._Fit_flag = True
 
     if convergence:
-      print('Convergence successfully achieved.')
+      print("Convergence successfully achieved.")
     else:
-      print('Reached the maximum number of iterations without achieving convergence.')
+      print("Reached the maximum number of iterations without achieving convergence.")
 
   @property
   def Ksi(self):
@@ -135,7 +135,7 @@ class Estimation():
     """
 
     if not self._Fit_flag:
-      raise Exception('The model must be fitted first.')
+      raise Exception("The model must be fitted first.")
 
     try:
       return self._Ksi
