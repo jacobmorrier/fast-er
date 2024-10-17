@@ -188,7 +188,7 @@ extern "C"{
 }
 """
 
-_jaro_winkler_kernel = cp.RawKernel(_jaro_winkler_code, 'jaro_winkler_kernel')
+_jaro_winkler_kernel = cp.RawKernel(_jaro_winkler_code, "jaro_winkler_kernel")
 
 _indices_inverse_code = r"""
 extern "C" {
@@ -247,7 +247,7 @@ extern "C" {
 }
 """
 
-_indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, 'indices_inverse')
+_indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, "indices_inverse")
 
 def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
@@ -280,7 +280,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   n1 = len(str1) # Number of strings contained in str1
 
   # Storing strings contained in str1 as an arrow, i.e., characters concatenated next to each other
-  str1_arrow = np.frombuffer(''.join(str1).encode(), dtype = np.int8)
+  str1_arrow = np.frombuffer("".join(str1).encode(), dtype = np.int8)
 
   str1_arrow_gpu = cp.array(str1_arrow, dtype = np.int8)
 
@@ -292,7 +292,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
   n2 = len(str2)
 
-  str2_arrow = np.frombuffer(''.join(str2).encode(), dtype = np.int8)
+  str2_arrow = np.frombuffer("".join(str2).encode(), dtype = np.int8)
 
   str2_arrow_gpu = cp.array(str2_arrow, dtype = np.int8)
 
@@ -388,7 +388,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   # Array containing the offsets necessary to read the indices corresponding to each unique value in str_A
   unique_A_offsets_gpu = cp.cumsum(unique_A_counts_gpu, dtype = np.int32)
 
-  len_A_arrow = len(''.join(unique_A).encode()) # Length of arrow (for approximation of the number of chunks)
+  len_A_arrow = len("".join(unique_A).encode()) # Length of arrow (for approximation of the number of chunks)
 
   unique_B, unique_B_inverse, unique_B_counts = np.unique(str_B, return_inverse = True, return_counts = True)
 
@@ -403,7 +403,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
   unique_B_offsets_gpu = cp.cumsum(unique_B_counts_gpu, dtype = np.int32)
 
-  len_B_arrow = len(''.join(unique_B).encode())
+  len_B_arrow = len("".join(unique_B).encode())
 
   # Approximate the number of chunks needed to satisfy max_chunk_size
   chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 8 + (len(unique_B) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_A_arrow - len_B_arrow - (len(unique_A) + 1) * 8 - (len(unique_B) + 1) * 8))
@@ -481,7 +481,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   return [output1_sorted, output2_sorted]
 
 def exact_gpu(str_A, str_B, num_threads = 256):
-  '''
+  """
   This function compares all pairs of values in str_A and str_B and returns the indices of pairs with the same value (i.e., exact match).
   
   :param str_A: First array of strings
@@ -494,7 +494,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   
            The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
   :rtype: [cp.array]
-  '''
+  """
 
   mempool = cp.get_default_memory_pool()
 
@@ -599,16 +599,16 @@ class Comparison():
 
     # Check Inputs
     if len(Vars_Fuzzy_A) != len(Vars_Fuzzy_B):
-      raise Exception('The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.')
+      raise Exception("The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.")
 
     if len(Vars_Exact_A) != len(Vars_Exact_B):
-      raise Exception('The lengths of Vars_Exact_A and Vars_Exact_B must be the same.')
+      raise Exception("The lengths of Vars_Exact_A and Vars_Exact_B must be the same.")
 
     if any(var not in df_A.columns for var in Vars_Fuzzy_A) or any(var not in df_B.columns for var in Vars_Fuzzy_B):
-      raise Exception('The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.')
+      raise Exception("The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.")
 
     if any(var not in df_A.columns for var in Vars_Exact_A) or any(var not in df_B.columns for var in Vars_Exact_B):
-      raise Exception('The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.')
+      raise Exception("The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.")
 
     self.df_A = df_A
     self.df_B = df_B
@@ -640,7 +640,7 @@ class Comparison():
     """
 
     if self._Fit_flag:
-      raise Exception('If the model has already been fitted, it cannot be fitted again.')
+      raise Exception("If the model has already been fitted, it cannot be fitted again.")
 
     mempool = cp.get_default_memory_pool()
     indices = []
@@ -698,7 +698,7 @@ class Comparison():
     Array with the count of observations for each pattern of discrete levels of similarity across variables
     """
     if not self._Fit_flag:
-      raise Exception('The model must be fitted first.')
+      raise Exception("The model must be fitted first.")
 
     try:
       return self._Counts
