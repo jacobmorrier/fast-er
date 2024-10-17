@@ -50,9 +50,9 @@ class Evaluation():
     This method calculates the False Discovery Rate (FDR) and the False Negative Rate (FNR) for all thresholds between 0 and 1 (in steps of 10e-3) and displays the resulting frontier.
     """
 
-    plt.plot([self.FDR(s / 1000) for s in range(1001)], [self.FNR(s / 1000) for s in range(1001)], '.-')
-    plt.xlabel('False Discovery Rate (FDR)')
-    plt.ylabel('False Negative Rate (FNR)')
+    plt.plot([self.FDR(s / 1000) for s in range(1001)], [self.FNR(s / 1000) for s in range(1001)], ".-")
+    plt.xlabel("False Discovery Rate (FDR)")
+    plt.ylabel("False Negative Rate (FNR)")
     plt.show()
 
   def Optimal_Threshold(self, Alpha: float):
