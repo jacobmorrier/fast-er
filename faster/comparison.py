@@ -583,7 +583,7 @@ class Comparison():
   :type df_B: pd.DataFrame
   :param Vars_Fuzzy_A: Names of variables to compare for fuzzy matching in df_A
   :type Vars_Fuzzy_A: list of str
-  :param Vars_Fuzzy_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_A
+  :param Vars_Fuzzy_B: Names of variables to compare for fuzzy matching in df_B listed in the same order as in Vars_Fuzzy_A
   :type Vars_Fuzzy_B: list of str
   :param Vars_Exact_A: Names of variables to compare for exact matching in df_A, defaults to []
   :type Vars_Exact_A: list of str, optional
