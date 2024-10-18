@@ -51,6 +51,14 @@ html_theme_options = {
     "light_css_variables": {
         "color-brand-visited": "#2757dd",
     },
+    "footer_icons": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/jacobmorrier/fast-er",
+            "html": "",
+            "class": "fa-brands fa-solid fa-github fa-2x",
+        },
+    ],
 }
 
 # -- Options for EPUB output
