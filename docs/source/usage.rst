@@ -53,10 +53,10 @@ Blocking consists of restricting comparisons to pairs with identical values for 
     est.fit()
 
     #Linkage Class
-    mLink = faster.Linkage(df_A.loc[df_A.Gender == 'M'].reset_index(), df_B.loc[df_A.Gender == 'M'].reset_index(), mComp.Indices, est.Ksi)
+    mLink = faster.Linkage(df_A.loc[df_A.Gender == 'M'].reset_index(), df_B.loc[df_B.Gender == 'M'].reset_index(), mComp.Indices, est.Ksi)
 
     mdf_linked = mLink.transform()
 
-    fLink = faster.Linkage(df_A.loc[df_A.Gender == 'F'].reset_index(), df_B.loc[df_A.Gender == 'F'].reset_index(), fComp.Indices, est.Ksi)
+    fLink = faster.Linkage(df_A.loc[df_A.Gender == 'F'].reset_index(), df_B.loc[df_B.Gender == 'F'].reset_index(), fComp.Indices, est.Ksi)
 
     fdf_linked = fLink.transform()
