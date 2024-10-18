@@ -32,7 +32,7 @@ Here is an example of a standard probabilistic record linkage pipeline, using th
 Blocking
 --------
 
-Blocking consists of restricting comparisons to pairs with identical values for certain variables. For example, you may want to compare only observations with the same gender. This can be achieved by executing the doc:`Comparison <comparison>` or :doc:`Deduplication <deduplication>` class on each block distinctly. The counts for each block can then be summed elementwise to estimate the parameters of the Fellegi-Sunter model.
+Blocking consists of restricting comparisons to pairs with identical values for certain variables. For example, you may want to compare only observations with the same gender. This can be achieved by executing the :doc:`Comparison <comparison>` or :doc:`Deduplication <deduplication>` class on each block distinctly. The counts for each block can then be summed elementwise to estimate the parameters of the Fellegi-Sunter model.
 
 .. code-block:: python
 
