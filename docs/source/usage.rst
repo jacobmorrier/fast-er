@@ -33,3 +33,30 @@ Blocking
 --------
 
 Blocking consists of restricting comparisons to pairs with identical values for certain variables. For example, you may want to compare only observations with the same gender. This can be achieved by executing the doc:`Comparison <comparison>` or :doc:`Deduplication <deduplication>` class on each block distinctly. The counts for each block can then be summed elementwise to estimate the parameters of the Fellegi-Sunter model.
+
+.. code-block:: python
+
+    # Comparison Class
+    vars = ['last_name', 'first_name', 'house_number', 'street_address']
+
+    mComp = faster.Comparison(df_A.loc[df_A.Gender == 'M'].reset_index(), df_B.loc[df_B.Gender == 'M'].reset_index(), vars, vars, ['birth_year'], ['birth_year'])
+
+    mComp.fit()
+
+    fComp = faster.Comparison(df_A.loc[df_A.Gender == 'F'].reset_index(), df_B.loc[df_B.Gender == 'F'].reset_index(), vars, vars, ['birth_year'], ['birth_year'])
+
+    fComp.fit()
+
+    # Estimation Class
+    est = faster.Estimation(len(vars), 1, mComp.Counts + fComp.Counts)
+
+    est.fit()
+
+    #Linkage Class
+    mLink = faster.Linkage(df_A.loc[df_A.Gender == 'M'].reset_index(), df_B.loc[df_A.Gender == 'M'].reset_index(), mComp.Indices, est.Ksi)
+
+    mdf_linked = mLink.transform()
+
+    fLink = faster.Linkage(df_A.loc[df_A.Gender == 'F'].reset_index(), df_B.loc[df_A.Gender == 'F'].reset_index(), fComp.Indices, est.Ksi)
+
+    fdf_linked = fLink.transform()
