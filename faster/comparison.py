@@ -406,7 +406,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   len_B_arrow = len("".join(unique_B).encode())
 
   # Approximate the number of chunks needed to satisfy max_chunk_size
-  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 8 + (len(unique_B) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_A_arrow - len_B_arrow - (len(unique_A) + 1) * 8 - (len(unique_B) + 1) * 8))
+  chunks = math.ceil((len(unique_A) * len(unique_B) * 4 + len_A_arrow * (1 + len(unique_B)) + len_B_arrow * (1 + len(unique_A)) + (len(unique_A) + 1) * 8 + (len(unique_B) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_B_arrow - (len(unique_B) + 1) * 8))
 
   # Split array of unique values accordingly
   unique_A_partitions = np.array_split(unique_A, chunks)
