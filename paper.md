@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically requires computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets. 
+Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets. 
 
 The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate this process dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, including the computation of string similarity metrics, on CUDA-enabled GPUs. 
 
