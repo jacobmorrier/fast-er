@@ -1,7 +1,7 @@
 Package Architecture
 ====================
 
-The package includes classes designed to function as modules in probabilistic record linkage and deduplication pipelines, adaptable to the user's needs and requirements. Each class demands user-provided inputs and produces relevant outputs, some of which must be passed to other classes for further processing.
+The package includes classes designed to be used as modules in probabilistic record linkage and deduplication pipelines, adaptable to the user's needs and requirements. Each class demands user-provided inputs and produces relevant outputs, some of which must be passed to other classes for further processing.
 
 Below are two figures illustrating standard record linkage and deduplication pipelines, respectively.
 
