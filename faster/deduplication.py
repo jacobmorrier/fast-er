@@ -2,10 +2,205 @@ import cupy as cp
 import math
 import numpy as np
 import pandas as pd
-from .comparison import jaro_winkler_gpu
 from .search import intersect, setdiff, reduce
 
-_output_count_dedup_code = r"""
+jaro_winkler_dedup_code = r"""
+extern "C"{
+
+  __device__ float jaro_winkler(const char *str1,
+                                const int len1,
+                                bool *hash_str1,
+                                const char *str2,
+                                const int len2,
+                                bool *hash_str2,
+                                float p) {
+
+    // This function computes the Jaro-Winkler similarity between two strings
+    // Inputs:
+    // - str1: First string
+    // - len1: Length of str1
+    // - hash_str1: Working memory to keep track of which characters in str1 are
+    //              matching to corresponding characters in str2
+    // - str2: Second string
+    // - len2: Length of str2
+    // - hash_str2: Working memory to keep track of which characters in str2 are
+    //              matching to corresponding characters in str1
+    // - p: Scaling factor applied to the common prefix
+    // Output:
+    // - dist: Jaro-Winkler similarity between str1 and str2
+
+
+    if (len1 == 0 || len2 == 0) {
+
+        // If either string is null, the Jaro-Winkler similarity between str1 and str2 is 0
+        return 0.0;
+
+    } else {
+
+        // We compute the number of matching characters between str1 and str2
+
+        // We consider the characters max(len1, len2) / 2 - 1 away from each other
+        int max_dist = max(len1, len2) / 2 - 1;
+
+        float match = 0;
+
+        for (int i = 0; i < len1; i++) {
+
+            for (int j = max(0, i - max_dist); j < min(len2, i + max_dist + 1); j++) {
+
+                if (str1[i] == str2[j] && hash_str2[j] == false) {
+
+                    // Two characters are matching if they appear in both strings at most max_dist characters away from each other
+                    hash_str1[i] = true;
+                    hash_str2[j] = true;
+                    match++;
+                    break;
+
+                }
+
+            }
+
+        }
+
+        if (match == 0) {
+
+            // If there is no matching characters between both strings, the Jaro-Winkler similarity between them is 0
+            return 0.0;
+
+        } else {
+
+            float t = 0;
+
+            int point = 0;
+
+            // If a positive number of matching characters is found, we need to compute the number of transpositions
+            // that is, the number of matching characters that are not in the right order divided by two
+            for (int i = 0; i < len1; i++) {
+
+                if (hash_str1[i] == true) {
+
+                    while (hash_str2[point] == false) {
+
+                        point++;
+
+                    }
+
+                    if (str1[i] != str2[point++]) {
+
+                        t++;
+
+                    }
+
+                }
+
+            }
+
+            t /= 2;
+
+            // The Jaro similarity between str1 and str2 is defined as follows:
+            float dist = ((match / (float)len1) + (match / (float)len2) + ((match - t) / match)) / 3.0;
+
+            // To go from the Jaro similarity to the Jaro-Winkler similarity, we need
+            // to compute the length of the common prefix between both strings
+            float prefix = 0;
+
+            for (int i = 0; i < min(min(len1, len2), 4); i++) {
+
+                if (str1[i] == str2[i]) {
+
+                    prefix++;
+
+                } else {
+
+                    break;
+
+                }
+
+            }
+
+            // To obtain the Jaro-Winkler similarity, we adjust the Jaro similarity for the length of the common prefix between both strings
+            dist += p * prefix * (1 - dist);
+
+            return dist;
+
+        }
+
+    }
+
+  }
+
+  __global__ void jaro_winkler_kernel(char *str,
+                                      int *length,
+                                      long long *offsets,
+                                      int n,
+                                      bool *buffer1,
+                                      long long *offsets1,
+                                      bool *buffer2,
+                                      long long *offsets2,
+                                      float p,
+                                      float *output,
+                                      int n_output,
+                                      int start_row,
+                                      int end_row) {
+
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x;
+
+    if (id < n_output) {
+
+      const int row = id / n + start_row; // Index of the string processed in str1
+
+      const int col = id % n; // Index of the string processed in str2
+
+      // Only computes Jaro-Winkler similarity if row >= col (preventing redundant comparisons)
+      if (row >= col) {
+
+        if (row != col) {
+
+          long long off_row = (row == 0 ? 0 : offsets[row - 1]);
+
+          // Move the pointer to the first character of the string we are processing
+          char *string1 = str + off_row;
+
+          // Computing the length of the string we are processing
+          int len1 = length[row];
+
+          // Move the pointer to the first element of the working memory
+          long long off1 = (row == start_row ? 0 : offsets1[row - start_row - 1]);
+
+          bool *hash_str1 = buffer1 + off1 + len1 * col;
+
+          long long off_col = (col == 0 ? 0 : offsets[col - 1]);
+
+          char *string2 = str + off_col;
+
+          int len2 = length[col];
+
+          long long off2 = (col == 0 ? 0 : offsets2[col - 1]);
+
+          bool *hash_str2 = buffer2 + off2 + len2 * (end_row - 1 - row);
+
+          // Compute the Jaro-Winkler similarity between string1 and string2
+          output[id] = jaro_winkler(string1, len1, hash_str1, string2, len2, hash_str2, p);
+
+        } else {
+
+          // A string is identical to itself, so its Jaro-Winkler similarity with itself is 1
+          output[id] = 1;
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+"""
+
+jaro_winkler_dedup_kernel = cp.RawKernel(jaro_winkler_dedup_code, 'jaro_winkler_kernel')
+
+output_count_dedup_code = r"""
 extern "C" {
 
   __global__ void output_count(long long *input_A,
@@ -14,45 +209,45 @@ extern "C" {
                                int *unique_count,
                                int *output) {
 
-      // Element of indices being processed
-      const long long id = threadIdx.x + blockDim.x * blockIdx.x;
+    // Element of indices being processed
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
-      if (id < n_input) {
+    if (id < n_input) {
 
-        // First input
-        long long id_A = input_A[id];
+      // First input
+      long long id_A = input_A[id];
 
-        // Second input
-        long long id_B = input_B[id];
+      // Second input
+      long long id_B = input_B[id];
 
-        // Number of observations with id_A in df
-        int len_A = unique_count[id_A];
+      // Number of observations with id_A in df
+      int len_A = unique_count[id_A];
 
-        // Number of observations with id_B in df
-        int len_B = unique_count[id_B];
+      // Number of observations with id_B in df
+      int len_B = unique_count[id_B];
 
-        if (id_A != id_B) {
+      if (id_A != id_B) {
 
-          // Computes the number of pairs of values with id_A and id_B
-          output[id] = len_A * len_B;
+        // Computes the number of pairs of values with id_A and id_B
+        output[id] = len_A * len_B;
 
-        } else {
+      } else {
 
-          // If id_A = id_B, we must ignore the pairs of values formed by two identical elements
-          output[id] = len_A * (len_B - 1);
-
-        }
+        // If id_A = id_B, we disregard pairs formed by identical elements and those where the row index is less than the column index
+        output[id] = len_A * (len_B - 1) / 2;
 
       }
 
     }
 
+  }
+
 }
 """
 
-_output_count_dedup_kernel = cp.RawKernel(_output_count_dedup_code, 'output_count')
+output_count_dedup_kernel = cp.RawKernel(output_count_dedup_code, 'output_count')
 
-_indices_inverse_dedup_code = r"""
+indices_inverse_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input_A,
@@ -60,61 +255,77 @@ extern "C" {
                                   int n_input,
                                   int n,
                                   long long *unique_argwhere,
-                                  long long *unique_argwhere_offsets,
+                                  int *unique_argwhere_offsets,
                                   int *unique_count,
                                   long long *output,
                                   long long *output_offsets) {
 
-      const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
+    // Element of indices being processed
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x;
 
-      if (id < n_input) {
+    if (id < n_input) {
 
-        long long id_A = input_A[id];
+      long long id_A = input_A[id];
 
-        long long id_B = input_B[id];
+      long long id_B = input_B[id];
 
-        int len_A = unique_count[id_A]; // Number of observations with id_A in df_A
+      int len_A = unique_count[id_A]; // Number of observations with id_A in df_A
 
-        int len_B = unique_count[id_B]; // Number of observations with id_B in df_B
+      int len_B = unique_count[id_B]; // Number of observations with id_B in df_B
 
-        long long unique_A_off = (id_A == 0 ? 0 : unique_argwhere_offsets[id_A - 1]); // Where observations with id_A in df_A start in unique_A_argwhere
+      // Where observations with id_A in df_A start in unique_A_argwhere
+      long long unique_A_off = (id_A == 0 ? 0 : unique_argwhere_offsets[id_A - 1]);
 
-        long long unique_B_off = (id_B == 0 ? 0 : unique_argwhere_offsets[id_B - 1]); // Where observations with id_B in df_B start in unique_B_argwhere
+      // Where observations with id_B in df_B start in unique_B_argwhere
+      long long unique_B_off = (id_B == 0 ? 0 : unique_argwhere_offsets[id_B - 1]);
 
-        long long *unique_A_argwhere_off = unique_argwhere + unique_A_off; // Offset unique_A_argwhere appropriately
+      // Offset unique_A_argwhere appropriately
+      long long *unique_A_argwhere_off = unique_argwhere + unique_A_off;
 
-        long long *unique_B_argwhere_off = unique_argwhere + unique_B_off; // Offset unique_B_argwhere appropriately
+      // Offset unique_B_argwhere appropriately
+      long long *unique_B_argwhere_off = unique_argwhere + unique_B_off;
 
-        long long output_off = (id == 0 ? 0 : output_offsets[id - 1]); // Where the output starts in output
+      // Where the output starts in output
+      long long output_off = (id == 0 ? 0 : output_offsets[id - 1]);
 
-        if (id_A != id_B) {
+      if (id_A != id_B) {
 
-          for (int i = 0; i < len_A * len_B; i++) {
+        int k = 0;
 
-            // Transpose indices of pairs in df_A and df_B in output
+        for (int i = 0; i < len_A ; i++) {
 
-            output[output_off + i] = unique_A_argwhere_off[i / len_B] * n + unique_B_argwhere_off[i % len_B];
+          for (int j = 0; j < len_B; j++) {
+
+            // Considers only pairs with the row index greater than the column index
+
+            if (unique_A_argwhere_off[i] > unique_B_argwhere_off[j]) {
+
+              // Transpose indices of pairs in df_A and df_B in output
+              output[output_off + k++] = unique_A_argwhere_off[i] * n + unique_B_argwhere_off[j];
+
+            } else {
+
+              // Transpose indices of pairs in df_A and df_B in output
+              output[output_off + k++] = unique_B_argwhere_off[j] * n + unique_A_argwhere_off[i];
+
+            }
 
           }
 
-        } else {
+        }
 
-          int j = 0;
+      } else {
 
-          for (int i = 0; i < len_A * len_B; i++) {
+        int k = 0;
+
+        for (int i = 1; i < len_A; i++) {
+
+          // Considers only pairs with the row index greater than the column index
+
+          for (int j = 0; j < i; j++) {
 
             // Transpose indices of pairs in df_A and df_B in output
-
-            int row = i / len_B;
-            int col = i % len_B;
-
-            if (row != col) {
-
-              output[output_off + j] = unique_A_argwhere_off[row] * n + unique_B_argwhere_off[col];
-
-              j++;
-
-            }
+            output[output_off + k++] = unique_A_argwhere_off[i] * n + unique_B_argwhere_off[j];
 
           }
 
@@ -124,64 +335,64 @@ extern "C" {
 
     }
 
+  }
+
 }
 """
 
-_indices_inverse_dedup_kernel = cp.RawKernel(_indices_inverse_dedup_code, 'indices_inverse')
+indices_inverse_dedup_kernel = cp.RawKernel(indices_inverse_dedup_code, 'indices_inverse')
 
-_indices_inverse_exact_dedup_code = r"""
+indices_inverse_exact_dedup_code = r"""
 extern "C" {
 
   __global__ void indices_inverse(long long *input,
                                   int n,
                                   long long *unique_argwhere,
-                                  long long *unique_argwhere_offsets,
-                                  int *unique_count,
+                                  int *unique_argwhere_offsets,
                                   long long *output,
-                                  long long *output_mask,
-                                  long long *output_offsets,
+                                  int *output_mask,
+                                  int *output_offsets,
                                   int n_output) {
 
-      const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
+    const long long id = threadIdx.x + blockDim.x * blockIdx.x; // Element of indices being processed
 
-      if (id < n_output) {
+    if (id < n_output) {
 
-        // The input element to which the processed output element refers
-        long long mask = output_mask[id];
+      // Input element to which the processed output element refers
+      long long mask = output_mask[id];
 
-        // Move pointer to where the output begins in output
-        long long output_off = (mask == 0 ? 0 : output_offsets[mask - 1]); 
+      // Move pointer to where the output begins in output
+      long long output_off = (mask == 0 ? 0 : output_offsets[mask - 1]);
 
-        long long i = id - output_off;
+      long long i = id - output_off;
 
-        long long in = input[mask];
+      long long in = input[mask];
 
-        int len = unique_count[in];
+      // Row index
+      long long row = floorf((sqrtf(8 * i + 1) - 1) / 2);
 
-        long long row = i / (len - 1);
+      // Column index: consider only those lower than row index
+      long long col = i - row * (row + 1) / 2;
 
-        long long col = i % (len - 1);
+      long long unique_off = (in == 0 ? 0 : unique_argwhere_offsets[in - 1]);
 
-        long long col_adj = (row > col ? col : col + 1);
+      long long *unique_argwhere_off = unique_argwhere + unique_off;
 
-        long long unique_off = (in == 0 ? 0 : unique_argwhere_offsets[in - 1]);
+      // Transpose indices of pairs in df_A and df_B in output
+      output[id] = unique_argwhere_off[row + 1] * n + unique_argwhere_off[col];
 
-        long long *unique_argwhere_off = unique_argwhere + unique_off;
-
-        output[id] = unique_argwhere_off[row] * n + unique_argwhere_off[col_adj];
-
-      }
+    }
 
   }
 
 }
 """
 
-_indices_inverse_exact_dedup_kernel = cp.RawKernel(_indices_inverse_exact_dedup_code, 'indices_inverse')
+indices_inverse_exact_dedup_kernel = cp.RawKernel(indices_inverse_exact_dedup_code, 'indices_inverse')
 
 def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 1.0):
   """
-  This function computes the Jaro-Winkler distance between all pairs of values in string.
+  This function computes the Jaro-Winkler distance between all unique pairs of values in a string.
 
   :param string: Array of strings
   :type string: np.array
@@ -196,83 +407,174 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 1.0
   :type max_chunk_size: float, optional
   :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
-  
+
            Indices with Jaro-Winkler distance above upper_thr
-           
+
            The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index
   :rtype: [cp.array, cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
 
-  # Extracts unique values of string (with inverse and counts)
+  # Extract unique values of string (with inverse and counts)
   unique, unique_inverse, unique_counts = np.unique(string, return_inverse = True, return_counts = True)
 
   n_unique = len(unique)
 
-  # This array contains the indices corresponding to each unique value of string (stored as an arrow)
-  unique_inverse_gpu = cp.array(unique_inverse, dtype = np.int64)
-  
+  # Array containing the indices corresponding to each unique value of string (stored as an arrow)
+  unique_inverse_gpu = cp.array(unique_inverse, dtype = np.int32)
+
   unique_inverse_sorted = cp.argsort(unique_inverse_gpu)
 
   del unique_inverse_gpu
   mempool.free_all_blocks()
 
-  # This array contains the number of observations in string associated with each unique value
+  # Array containing the number of observations in string associated with each unique value
   unique_counts_gpu = cp.array(unique_counts, dtype = np.int32)
 
-  # This array contains the offsets necessary to read the indices corresponding to each unique value in string
-  unique_offsets_gpu = cp.cumsum(unique_counts_gpu)
+  # Array containing the offsets necessary to read the indices corresponding to each unique value in string
+  unique_offsets_gpu = cp.cumsum(unique_counts_gpu, dtype = np.int32)
 
-  len_arrow = len(''.join(unique).encode())
+  unique_arrow = np.frombuffer(''.join(unique).encode(), dtype = np.int8)
 
-  # Approximate the number of chunks needed to satisfy max_chunk_size
-  chunks = math.ceil((len(unique) ** 2 * 4 + len_arrow * (1 + 2 * len(unique)) + (len(unique) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 8))
+  len_arrow = len(unique_arrow)
 
-  # Split array of unique values accordingly
-  unique_partitions = np.array_split(unique, chunks)
+  # Array containing the unique values stored as an arrow
+  unique_arrow_gpu = cp.array(unique_arrow, dtype = np.int8)
 
-  unique_partitions_len = np.append([0], np.cumsum([len(x) for x in unique_partitions]))
+  # Array containing the length of unique values
+  unique_len = np.fromiter((len(row) for row in unique), dtype = np.int32, count = len(unique))
 
-  # Compute Jaro-Winkler similarity by chunk
-  indices = [jaro_winkler_gpu(x, unique, unique_partitions_len[i] * len(unique), p, lower_thr, upper_thr, num_threads) for i, x in enumerate(unique_partitions)]
+  unique_len_gpu = cp.array(unique_len, dtype = np.int32)
 
-  # Concatenate indices of all chunks
-  indices1 = cp.concatenate((x[0] for x in indices))
+  # Array containing the offsets necessary to read the unique values in arrow
+  offsets_gpu = cp.cumsum(unique_len_gpu, dtype = np.int64)
 
-  indices2 = cp.concatenate((x[1] for x in indices))
+  # Approximate the number of chunks required to meet max_chunk_size
+  total_comp = len(unique) * (len(unique) + 1) / 2
+
+  chunks = math.ceil((len(unique) * (len(unique) + 1) * 8 + len_arrow * (1 + 2 * len(unique)) + (len(unique) + 1) * 8) / (max_chunk_size * 1024 ** 3 - len_arrow - (len(unique) + 1) * 8))
+
+  # Create partitions accordingly
+  chunk_size_row = math.ceil(len(unique) / chunks)
+
+  indices = []
+
+  # Compute the Jaro-Winkler similarity metric by chunk
+  for i in range(chunks):
+
+    start_row = i * chunk_size_row
+
+    offset = start_row * len(unique)
+
+    end_row = min((i + 1) * chunk_size_row, len(unique))
+
+    num_comp = end_row * len(unique) - offset
+
+    rows = cp.arange(start_row, end_row, dtype = np.int32)
+
+    # Create working memory for the compute kernel (only for comparisons below the diagonal)
+    buffer1_len = unique_len_gpu[rows] * (rows + 1)
+
+    buffer1_offsets = cp.cumsum(buffer1_len, dtype = np.int64)
+
+    del buffer1_len
+    mempool.free_all_blocks()
+
+    buffer1 = cp.zeros(int(buffer1_offsets[-1]), dtype = bool)
+
+    if start_row > 0:
+      buffer2_len = cp.concatenate((unique_len_gpu[:start_row] * (end_row - start_row), unique_len_gpu[rows] * (end_row - rows)))
+    else:
+      buffer2_len = unique_len_gpu[rows] * (end_row - rows)
+
+    del rows
+    mempool.free_all_blocks()
+
+    buffer2_offsets = cp.cumsum(buffer2_len, dtype = np.int64)
+
+    del buffer2_len
+    mempool.free_all_blocks()
+
+    buffer2 = cp.zeros(int(buffer2_offsets[-1]), dtype = bool)
+
+    # Create output vector
+    output_gpu = cp.zeros(int(num_comp), dtype = cp.float32)
+
+    # Call the compute kernel on GPU
+    num_blocks = math.ceil(num_comp / num_threads)
+
+    jaro_winkler_dedup_kernel((num_blocks,), (num_threads,), (unique_arrow_gpu, unique_len_gpu, offsets_gpu, len(unique), buffer1, buffer1_offsets, buffer2, buffer2_offsets, cp.float32(p), output_gpu, cp.int32(num_comp), cp.int32(start_row), cp.int32(end_row)))
+
+    del buffer1, buffer1_offsets, buffer2, buffer2_offsets
+    mempool.free_all_blocks()
+
+    # Extract the indices with Jaro-Winkler similarity between lower_thr and upper_thr
+    indices1 = cp.bitwise_and(output_gpu >= lower_thr, output_gpu < upper_thr)
+
+    argwhere1 = cp.argwhere(indices1)
+
+    del indices1
+    mempool.free_all_blocks()
+
+    # Extract the indices with Jaro-Winkler similarity above upper_thr
+    argwhere2 = cp.argwhere(output_gpu >= upper_thr)
+
+    del output_gpu
+    mempool.free_all_blocks()
+
+    # Adjust indices relative to the starting row
+    output1 = cp.ravel(argwhere1) + int(offset)
+
+    output2 = cp.ravel(argwhere2) + int(offset)
+
+    del argwhere1, argwhere2
+    mempool.free_all_blocks()
+
+    indices.append([output1, output2])
+
+    del output1, output2
+    mempool.free_all_blocks()
+
+  del unique_arrow_gpu, unique_len_gpu, offsets_gpu
+  mempool.free_all_blocks()
+
+  # Concatenate indices from all chunks
+  indices1 = cp.concatenate((x[0] for x in indices), dtype = np.int64)
+
+  indices2 = cp.concatenate((x[1] for x in indices), dtype = np.int64)
 
   del indices
   mempool.free_all_blocks()
 
-  # Inverting indices1, i.e., translate into indices of original data frame
-  indices1_A = indices1 // n_unique
+  # Invert indices1, i.e., translate into indices from the original data frame
+  indices1_A = indices1 // len(unique)
 
-  indices1_B = indices1 % n_unique
+  indices1_B = indices1 % len(unique)
 
   del indices1
   mempool.free_all_blocks()
 
+  # Calculate the output count for each input element
   output1_count = cp.zeros(indices1_A.size, dtype = np.int32)
 
   num_blocks = math.ceil(indices1_A.size / num_threads)
 
-  # Determine the output count for each input element
-  _output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, unique_counts_gpu, output1_count))
+  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, unique_counts_gpu, output1_count))
 
-  output1_offsets = cp.cumsum(output1_count)
+  output1_offsets = cp.cumsum(output1_count, dtype = np.int64)
 
   output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
 
-  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
+  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
 
   del indices1_A, indices1_B, output1_count, output1_offsets
   mempool.free_all_blocks()
 
-  # Inverting indices2
-  indices2_A = indices2 // n_unique
+  # Invert indices2
+  indices2_A = indices2 // len(unique)
 
-  indices2_B = indices2 % n_unique
+  indices2_B = indices2 % len(unique)
 
   del indices2
   mempool.free_all_blocks()
@@ -281,22 +583,28 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
   num_blocks = math.ceil(indices2_A.size / num_threads)
 
-  _output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, unique_counts_gpu, output2_count))
+  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, unique_counts_gpu, output2_count))
 
-  output2_offsets = cp.cumsum(output2_count)
+  output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
+
+  del output2_count
+  mempool.free_all_blocks()
 
   output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
 
-  _indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
+  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
 
-  del indices2_A, indices2_B, output2_count, output2_offsets, unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
+  del indices2_A, indices2_B, output2_offsets, unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
   mempool.free_all_blocks()
 
+  # Sort output vectors
   output1_sorted = cp.sort(output1_gpu)
+
   del output1_gpu
   mempool.free_all_blocks()
 
   output2_sorted = cp.sort(output2_gpu)
+
   del output2_gpu
   mempool.free_all_blocks()
 
@@ -304,62 +612,65 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
 
 def exact_dedup_gpu(string, num_threads = 256):
   """
-  This function compares all pairs of values in string and returns the indices of pairs with the same value (i.e., exact match).
+  This function compares all pairs of values in string and returns the indices of pairs that have an exact match
 
   :param string: Array of strings
   :type string: np.array
   :param num_threads: Number of threads per block, defaults to 256
   :type num_threads: int, optional
   :return: Indices with an exact match
-  
+
            The indices represent i * len(string) + j, where i is the first element's index and j is the second element's index
   :rtype: [cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
 
-  # Extracts unique values of string (with inverse and counts)
+  # Extract unique values of string (with inverse and counts)
   unique, unique_inverse, unique_counts = np.unique(string, return_inverse = True, return_counts = True)
 
-  # This array contains the indices corresponding to each unique value of string (stored as an arrow)
+  # Array containing the indices corresponding to each unique value of string (stored as an arrow)
   unique_inverse_gpu = cp.array(unique_inverse, dtype = np.int64)
-  
+
   unique_inverse_sorted = cp.argsort(unique_inverse_gpu)
-  
+
   del unique_inverse_gpu
   mempool.free_all_blocks()
 
-  # This array contains the number of observations in string associated with each unique value
+  # Array containing the number of observations in string associated with each unique value
   unique_counts_gpu = cp.array(unique_counts, dtype = np.int32)
 
-  # This array contains the offsets necessary to read the indices corresponding to each unique value in str_A
-  unique_offsets_gpu = cp.cumsum(unique_counts_gpu)
+  # Array containing the offsets necessary to read the indices corresponding to each unique value in str_A
+  unique_offsets_gpu = cp.cumsum(unique_counts_gpu, dtype = np.int32)
 
   # Extract unique values with at least two frequencies
   indices = cp.argwhere(unique_counts_gpu > 1)
+
   indices_ravel = cp.ravel(indices)
 
   del indices
   mempool.free_all_blocks()
 
-  # Inverting indices, i.e., translating into indices of original data frame
-  output_count = unique_counts_gpu[indices_ravel] * (unique_counts_gpu[indices_ravel] - 1)
+  # Invert indices, i.e., translating into indices from original data frame
+  output_count = unique_counts_gpu[indices_ravel] * (unique_counts_gpu[indices_ravel] - 1) / 2
 
-  output_offsets = cp.cumsum(output_count)
+  output_offsets = cp.cumsum(output_count, dtype = np.int32)
 
-  # This array indicates for each element of the output, the element of indices it is referring to
-  output_mask = cp.repeat(cp.array(range(indices_ravel.size)), repeats = output_count.get().tolist())
+  # Array indicating for the element of indices to which each element of the output is referring to
+  output_mask = cp.repeat(cp.arange(0, indices_ravel.size, dtype = np.int32), repeats = output_count.astype(int).get().tolist())
 
   output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
 
   num_blocks = math.ceil(output_gpu.size / num_threads)
 
-  _indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
+  indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_sorted, unique_offsets_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
 
   del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
   mempool.free_all_blocks()
 
+  # Sort the output vector
   output_sorted = cp.sort(output_gpu)
+
   del output_gpu
   mempool.free_all_blocks()
 
@@ -392,9 +703,9 @@ class Deduplication():
   def fit(self, p = 0.1,Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 1.0):
     """
     This method compares all pairs of observations across the selected variables in the dataset.
-    
+
     It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
-    
+
     The indices are calculated as i * len(df) + j, where i is the first element's index and j is the second element's index.
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
@@ -457,7 +768,7 @@ class Deduplication():
 
       del indices[0], output
       mempool.free_all_blocks()
-      
+
     self._Fit_flag = True
 
     del indices
@@ -475,5 +786,5 @@ class Deduplication():
       return self._Counts
     except:
       counts = [x.size for x in self.Indices] # Number of pairs for each pattern of discrete levels of similarity
-      self._Counts = np.concatenate([[len(self.df) * (len(self.df) - 1) - np.sum(counts)], counts]) # Add count of omitted pattern
+      self._Counts = np.concatenate([[int(len(self.df) * (len(self.df) + 1) / 2) - np.sum(counts)], counts]) # Add count of omitted pattern
       return self._Counts
