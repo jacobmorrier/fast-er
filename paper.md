@@ -20,11 +20,11 @@ bibliography: paper.bib
 
 # Summary
 
-Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets. 
+Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets.
 
-The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate this process dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, including the computation of string similarity metrics, on CUDA-enabled GPUs. 
+The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate this process dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, especially the calculation of string similarity metrics, on CUDA-enabled GPUs.
 
-`Fast-ER` executes over 60 times faster than the previous leading software implementation, reducing processing time from hours to minutes. This significantly enhances the scalability of record linkage and deduplication for large datasets.
+`Fast-ER` executes over 35 times faster than the previous leading software implementation, reducing processing time from hours to minutes. This significantly enhances the scalability of record linkage and deduplication for large datasets.
 
 # Statement of Need
 
@@ -38,6 +38,6 @@ The primary challenge in calculating the Jaro-Winkler similarity metric, and mor
 
 <!---Add figures--->
 
-To illustrate the benefits of GPU-accelerated record linkage, we compare the performance of our library with that of the previous leading software implementation, `fastLink` [@fastLink; @ENAMORADO_FIFIELD_IMAI_2019]. We join two excerpts of North Carolina voter registration rolls of varying sizes (from 1,000 to 100,000 observations), comparing first names, last names, house numbers, and street names for fuzzy matching and birth years for exact matching. Datasets have 50% overlapping records. We injected noise into 5% of the records through various transformations: character addition, character deletion, random shuffling of values, replacing a character with another, and swapping two adjacent characters. The results confirm that our GPU-accelerated implementation is consistently faster than `fastLink`, delivering speed improvements exceeding 60 times.
+To illustrate the benefits of GPU-accelerated record linkage, we compare the performance of our library with that of the previously leading software implementation, `fastLink` [@fastLink; @ENAMORADO_FIFIELD_IMAI_2019]. We join two excerpts of North Carolina voter registration rolls of varying sizes (from 1,000 to 100,000 observations), comparing first names, last names, house numbers, and street names for fuzzy matching and birth years for exact matching. The datasets have 50% overlapping records. We injected noise into 5% of the records through various transformations: character addition, character deletion, random shuffling of values, replacing a character with another, and swapping two adjacent characters. The results confirm that our GPU-accelerated implementation is consistently faster than `fastLink`, delivering speed improvements exceeding 35 times.
 
 # References
