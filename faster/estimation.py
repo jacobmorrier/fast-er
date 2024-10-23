@@ -78,7 +78,7 @@ class Estimation():
       raise Exception("If the model has already been fitted, it cannot be fitted again.")
 
     # Parameter Initialization
-    self.Lambda = np.random.uniform(low = 0, high = 1/2)
+    self.Lambda = 0.1
 
     L_by_Variable = np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])
 
