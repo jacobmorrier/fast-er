@@ -1,5 +1,5 @@
-Fast-ER: GPU-Accelerated Record Linkage in Python
-=================================================
+Fast-ER: GPU-Accelerated Record Linkage and Deduplication in Python
+===================================================================
 
 .. toctree::
    :hidden:
