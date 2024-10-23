@@ -45,7 +45,12 @@ class Linkage():
     df_B["Index_B"] = range(len(df_B))
 
     # Extracting the Indices for which Ksi is above the threshold
-    Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in np.ravel(np.argwhere(self.Ksi >= Threshold))))
+    Patterns_Above_Threshold = np.ravel(np.argwhere(self.Ksi >= Threshold))
+    
+    if np.sum([self.Indices[i - 1].size for i in Patterns_Above_Threshold]) == 0:
+      raise Exception('No pair of observations has a conditional match probability exceeding the threshold.')
+    
+    Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in Patterns_Above_Threshold))
 
     Indices_to_Link_A = Indices_to_Link // len(df_B)
 
