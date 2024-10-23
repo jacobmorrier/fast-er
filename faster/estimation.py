@@ -69,7 +69,7 @@ class Estimation():
     
     :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4
     :type Tolerance: float, optional
-    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 500
+    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 5000
     :type Max_Iter: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
