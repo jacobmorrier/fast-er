@@ -82,9 +82,9 @@ class Estimation():
 
     L_by_Variable = np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])
 
-    pi_0 = [-np.sort(-np.random.dirichlet(np.arange(0, i * 50, 50))) for i in L_by_Variable]
+    pi_0 = [-np.sort(-np.random.dirichlet(np.arange(1, i * 50 + 1, 50))) for i in L_by_Variable]
 
-    pi_1 = [np.sort(np.random.dirichlet(np.arange(0, i * 50, 50))) for i in L_by_Variable]
+    pi_1 = [np.sort(np.random.dirichlet(np.arange(1, i * 50 + 1, 50))) for i in L_by_Variable]
 
     self.Pi = [pi_0, pi_1]
 
