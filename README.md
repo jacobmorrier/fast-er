@@ -1,4 +1,4 @@
-# Fast-ER: GPU-Accelerated Record Linkage in Python
+# Fast-ER: GPU-Accelerated Record Linkage and Deduplication in Python
 
 [![Documentation Status](https://readthedocs.org/projects/fast-er/badge/?version=latest)](https://fast-er.readthedocs.io/en/latest/?badge=latest)
 
