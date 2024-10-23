@@ -31,6 +31,7 @@ class Linkage():
     :type Threshold: float, optional
     :return: Data frame in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
     :rtype: pd.DataFrame
+    :raises Exception: No pair of observations has a conditional match probability exceeding the threshold.
     """
 
     mempool = cp.get_default_memory_pool()
@@ -48,7 +49,7 @@ class Linkage():
     Patterns_Above_Threshold = np.ravel(np.argwhere(self.Ksi >= Threshold))
     
     if np.sum([self.Indices[i - 1].size for i in Patterns_Above_Threshold]) == 0:
-      raise Exception('No pair of observations has a conditional match probability exceeding the threshold.')
+      raise Exception("No pair of observations has a conditional match probability exceeding the threshold.")
     
     Indices_to_Link = cp.concatenate((self.Indices[i - 1] for i in Patterns_Above_Threshold))
 
