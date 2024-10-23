@@ -43,7 +43,7 @@ templates_path = ['_templates']
 
 # -- Options for HTML output
 html_theme = 'furo'
-html_title = 'Fast-ER: GPU-Accelerated Record Linkage in Python'
+html_title = 'Fast-ER: GPU-Accelerated Record Linkage and Deduplication in Python'
 html_theme_options = {
     "dark_css_variables": {
         "color-brand-visited": "#5ca5ff",
