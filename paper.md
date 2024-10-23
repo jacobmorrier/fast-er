@@ -1,5 +1,5 @@
 ---
-title: 'Fast-ER: GPU-Accelerated Record Linkage in Python'
+title: 'Fast-ER: GPU-Accelerated Record Linkage and Deduplication in Python'
 authors:
 - name: Jacob Morrier
   orcid: 0000-0002-1815-7431
