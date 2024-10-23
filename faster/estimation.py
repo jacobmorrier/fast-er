@@ -63,7 +63,7 @@ class Estimation():
 
     return result
 
-  def fit(self, Tolerance = 1e-4, Max_Iter = 500):
+  def fit(self, Tolerance = 1e-4, Max_Iter = 5000):
     """
     This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
     
