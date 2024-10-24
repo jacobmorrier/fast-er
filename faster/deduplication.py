@@ -693,20 +693,31 @@ class Deduplication():
 
     # Check that inputs are valid
     if any(var not in df.columns for var in Vars_Fuzzy) or any(var not in df.columns for var in Vars_Exact):
-      raise Exception('The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.')
+      raise Exception("The variable names in Vars_Fuzzy and Vars_Exact must match variable names in df.")
 
     self.df = df
     self.Vars_Fuzzy = Vars_Fuzzy
     self.Vars_Exact = Vars_Exact
+    self.Indices = None
+    """
+    This attribute holds a list of indices corresponding to pairs of records that belong to each pattern of discrete levels of similarity across variables.
+    
+    :return: Indices for each pattern of discrete levels of similarity across variables
+
+             The indices are calculated as i * len(df) + j, where i is the first element's index and j is the second element's index
+
+             Only pairs for which j is less than i are considered
+
+             Patterns are defined iteratively over variables for fuzzy and exact matching, following the order provided by the user, with the discrete levels of the latter variables moving more quickly
+
+             The pattern with no similiarity is omitted
+    :rtype: list of cp.array
+    """
     self._Fit_flag = False
 
   def fit(self, p = 0.1,Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 2.0):
     """
-    This method compares all pairs of observations across the selected variables in the dataset.
-
-    It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
-
-    The indices are calculated as i * len(df) + j, where i is the first element's index and j is the second element's index.
+    This method compares all pairs of observations across the selected variables in the dataset. The result is stored in the Indices attribute.
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
     :type p: float, optional
@@ -722,7 +733,7 @@ class Deduplication():
     """
 
     if self._Fit_flag:
-      raise Exception('If the model has already been fitted, it cannot be fitted again.')
+      raise Exception("If the model has already been fitted, it cannot be fitted again.")
 
     mempool = cp.get_default_memory_pool()
     indices = []
@@ -777,10 +788,13 @@ class Deduplication():
   @property
   def Counts(self):
     """
-    Array with the count of observations for each pattern of discrete levels of similarity across variables
+    This property holds the count of observations for each pattern of discrete levels of similarity across variables.
+    
+    :return: Array with the count of observations for each pattern of discrete levels of similarity across variables
+    :rtype: np.array
     """
     if not self._Fit_flag:
-      raise Exception('The model must be fitted first.')
+      raise Exception("The model must be fitted first.")
 
     try:
       return self._Counts
