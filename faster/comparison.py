@@ -708,7 +708,7 @@ class Comparison():
     """
     This property holds the count of observations for each pattern of discrete levels of similarity across variables.
     
-    :return: Count of observations for each pattern of discrete levels of similarity across variables
+    :return: Array with the count of observations for each pattern of discrete levels of similarity across variables
     :rtype: np.array
     """
     if not self._Fit_flag:
