@@ -19,6 +19,18 @@ class Estimation():
     self.K_Exact = K_Exact
     self.Counts = Counts
     self.Gamma = self._Gamma()
+    """
+    This property holds the patterns of discrete similarity levels across variables corresponding to each element in Counts.
+
+    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables
+    
+             Each row represents a pattern of discrete levels of similarity
+             
+             Each column represents a variable
+             
+             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern
+    :rtype: np.array
+    """
     self._Fit_flag = False
 
   def _Gamma(self):
@@ -79,6 +91,12 @@ class Estimation():
 
     # Parameter Initialization
     self.Lambda = 0.1
+    """
+    This property represents the overall probability that any two observations are matching.
+
+    :return: Unconditional match probability
+    :rtype: float
+    """
 
     L_by_Variable = np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])
 
@@ -87,6 +105,18 @@ class Estimation():
     pi_1 = [np.sort(np.random.dirichlet(np.arange(1, i * 50 + 1, 50))) for i in L_by_Variable]
 
     self.Pi = [pi_0, pi_1]
+    """
+    This property represents the probability of observing each discrete level of similarity for each variable conditional on the latent match status.
+
+    :return: Tensor containg the probability of observing each discrete level of similarity for each variable conditional on the latent match status
+    
+    The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match
+
+    The second index denotes the variable
+
+    The third index denotes the discrete level of similarity, with higher values indicating greater similarity
+    :rtype: list of lists of np.array
+    """
 
     # Loop until convergence or the maximum number of iterations is reached
     convergence = False
