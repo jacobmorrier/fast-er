@@ -616,6 +616,17 @@ class Comparison():
     self.Vars_Fuzzy_B = Vars_Fuzzy_B
     self.Vars_Exact_A = Vars_Exact_A
     self.Vars_Exact_B = Vars_Exact_B
+    self.Indices = None
+    """
+    This attribute contains the indices of pairs corresponding to each pattern of discrete similarity levels across variables.
+    
+    :returns: Indices for each pattern of discrete levels of similarity across variables
+
+              The patterns are defined iteratively over variables for fuzzy and exact matching, following the order provided by the user, with the discrete levels of the latter variables progressing more quickly
+
+              The pattern with no similiarity is omitted
+    :rtype: list of cp.array
+    """
     self._Fit_flag = False
 
   def fit(self, p = 0.1, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 2.0):
@@ -695,7 +706,10 @@ class Comparison():
   @property
   def Counts(self):
     """
-    Array with the count of observations for each pattern of discrete levels of similarity across variables
+    This property holds the count of observations for each pattern of discrete levels of similarity across variables.
+    
+    :return: Count of observations for each pattern of discrete levels of similarity across variables
+    :rtype: np.array
     """
     if not self._Fit_flag:
       raise Exception("The model must be fitted first.")
