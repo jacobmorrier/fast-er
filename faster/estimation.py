@@ -33,22 +33,22 @@ class Estimation():
     """
     self.Lambda = None
     """
-    This attribute represents the overall probability that any two observations are matching.
+    This attribute holds the (estimated) overall probability that any two observations are matching.
 
     :return: Unconditional match probability
     :rtype: float
     """
     self.Pi = None
     """
-    This attribute represents the probability of observing each discrete level of similarity for each variable conditional on the latent match status.
+    This attribute holds the (estimated) probability of observing each discrete level of similarity for each variable conditional on the latent match status.
 
     :return: Tensor containing the probability of observing each discrete level of similarity for each variable conditional on the latent match status
     
-    The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match
+             The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match
 
-    The second index denotes the variable
+             The second index denotes the variable
 
-    The third index denotes the discrete level of similarity, with higher values indicating greater similarity
+             The third index denotes the discrete level of similarity, with higher values indicating greater similarity
     :rtype: list of lists of np.array
     """
     self._Fit_flag = False
