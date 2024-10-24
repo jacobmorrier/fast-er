@@ -16,19 +16,17 @@ date: 24 October 2024
 bibliography: paper.bib
 ---
 
-<!---Adding references--->
-
 # Summary
 
-Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically involves computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets.
+Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. On the other hand, deduplication consists of identifying duplicate entries within a dataset when consistent common identifiers are missing. These processes typically involve computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets.
 
-The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate this process dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, especially the calculation of string similarity metrics, on CUDA-enabled GPUs.
+The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate these processes dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, especially the calculation of string similarity metrics, on CUDA-enabled GPUs.
 
 `Fast-ER` executes over 35 times faster than the previously leading software implementation, reducing processing time from hours to minutes. This significantly enhances the scalability of record linkage and deduplication for large datasets.
 
 # Statement of Need
 
-Record linkage typically involves calculating string similarity metrics, such as the Jaro-Winkler metric [@Winkler_1990], for all pairs of values between two datasets. Although these calculations are simple, the number of comparisons grows exponentially with the number of observations. For instance, when linking observations from two datasets, each with 1,000,000 observations, adding just one more observation to either dataset results in an additional 1,000,000 comparisons. This makes record linkage prohibitively expensive to perform, even for datasets of moderate size.
+Record linkage and deduplication typically involve calculating string similarity metrics, such as the Jaro-Winkler metric [@Winkler_1990], for all pairs of values between two datasets. Although these calculations are simple, the number of comparisons grows exponentially with the number of observations. For instance, when linking observations from two datasets, each with 1,000,000 observations, adding just one more observation to either dataset results in an additional 1,000,000 comparisons. This makes record linkage and deduplication prohibitively expensive to perform, even for datasets of moderate size.
 
 GPUs were first developed in the 1970s to accelerate digital image processing. Unlike central processing units (CPUs), designed for the sequential execution of a single thread of instructions with minimal latency, GPUs are optimized for performing hundreds of operations simultaneously [@kirk_hwu_2017]. Early applications focused on geometric transformations, such as rotating and translating vertices between coordinate systems, and texture mapping. GPUs can also be used for non-graphical computations. They are especially well-suited for high-throughput computations that can be broken down into identical, independent calculations, such as those exhibiting data parallelism, where the same instructions are applied individually to many data points. This stems from the GPUs’ Single Instruction, Multiple Data (SIMD) architecture. Concretely, the shader pipelines of modern GPUs can execute "compute kernels," analogous to instructions in a "for loop." However, rather than running sequentially, these operations are executed simultaneously across inputs. As a result, GPUs can often deliver performance orders of magnitude faster than traditional CPUs.
 
