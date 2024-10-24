@@ -633,7 +633,7 @@ class Comparison():
 
   def fit(self, p = 0.1, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 2.0):
     """
-    This method compares all pairs of observations across the selected variables in both data frames.    
+    This method compares all pairs of observations across the selected variables in both data frames. The result is stored in the Indices attribute.
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
     :type p: float, optional
