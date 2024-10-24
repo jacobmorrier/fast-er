@@ -618,24 +618,22 @@ class Comparison():
     self.Vars_Exact_B = Vars_Exact_B
     self.Indices = None
     """
-    This attribute contains the indices of pairs corresponding to each pattern of discrete similarity levels across variables.
+    This attribute holds a list of indices corresponding to pairs of records in df_A and df_B that belong to each pattern of discrete levels of similarity across variables.
     
-    :returns: Indices for each pattern of discrete levels of similarity across variables
+    :return: Indices for each pattern of discrete levels of similarity across variables
 
-              The patterns are defined iteratively over variables for fuzzy and exact matching, following the order provided by the user, with the discrete levels of the latter variables progressing more quickly
+             The indices are calculated as i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B
 
-              The pattern with no similiarity is omitted
+             Patterns are defined iteratively over variables for fuzzy and exact matching, following the order provided by the user, with the discrete levels of the latter variables moving more quickly
+
+             The pattern with no similiarity is omitted
     :rtype: list of cp.array
     """
     self._Fit_flag = False
 
   def fit(self, p = 0.1, Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 2.0):
     """
-    This method compares all pairs of observations across the selected variables in both data frames.
-    
-    It generates a list containing the indices of pairs of records in df_A and df_B that correspond to each pattern of discrete levels of similarity across variables.
-    
-    The indices are calculated as i * len(df_B) + j, where i is the element's index in df_A and j is the element's index in df_B.
+    This method compares all pairs of observations across the selected variables in both data frames.    
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
     :type p: float, optional
