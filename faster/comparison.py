@@ -345,7 +345,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
 def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 2.0):
   """
-  This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B.
+  This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B. To speed up processing, this function restricts comparisons to unique values in both input strings.
 
   :param str_A: First array of strings
   :type str_A: np.array
