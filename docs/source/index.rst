@@ -34,7 +34,7 @@ Key Features
 ------------
 
 - Harnesses the power of **CUDA-enabled GPUs** to dramatically accelerate standard record linkage and deduplication pipelines
-- Runs over 35 times **faster** than the previous leading CPU-powered software implementation
+- Runs over 35 times **faster** than the leading CPU-powered software implementation
 - Enhances the **scalability** of record linkage and deduplication for large datasets
 
 What are Record Linkage and Deduplication?
