@@ -7,8 +7,10 @@
 - [Sulekha Kishore](https://www.linkedin.com/in/sulekha-kishore/)
 - [R. Michael Alvarez](https://www.rmichaelalvarez.com)
 
-Record linkage, also called "entity resolution," consists of identifying matching observations across different datasets, even when consistent common identifiers are missing. This process typically requires computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets. 
+`Fast-ER` is a package for GPU-accelerated record linkage and deduplication in Python.
 
-The Fast-ER package harnesses the computational power of graphical processing units (GPUs) to accelerate this process dramatically. It estimates the parameters of the widely used Fellegi-Sunter model and performs the necessary data preprocessing, including the computation of string similarity metrics, on CUDA-enabled GPUs. 
+Record linkage, also called "entity resolution," consists of identifying matching records across different datasets, even when no consistent common identifiers are available. Deduplication, on the other hand, consists of identifying duplicate entries within a dataset when consistent unique identifiers are inconsistent or missing. Both tasks typically involve computing string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between the datasets.
 
-Fast-ER executes over 35 times faster than the previous leading software implementation, reducing processing time from hours to minutes. This significantly enhances the scalability of record linkage and deduplication for large datasets.
+The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to dramatically accelerate these processes. It estimates the widely used Fellegi-Sunter model and performs the computationally intensive preprocessing steps, including the calculation of string similarity metrics, on CUDA-enabled GPUs.
+
+`Fast-ER` runs over 35 times faster than the leading CPU-powered software implementation, reducing processing time from hours to minutes. This significantly enhances the scalability of record linkage and deduplication for large datasets.
