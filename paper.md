@@ -12,13 +12,13 @@ authors:
 affiliations:
 - name: Division of the Humanities and Social Sciences, California Institute of Technology, USA
   index: 1
-date: 24 October 2024
+date: 26 October 2024
 bibliography: paper.bib
 ---
 
 # Summary
 
-Record linkage, or "entity resolution," consists of identifying matching records across multiple datasets that lack common unique identifiers. Deduplication, on the other hand, involves recognizing duplicate entries within a dataset in which unique identifiers are either inconsistent or missing. These methods are essential tools for research in fields like social and health sciences, among others [e.g., @Jutte_Roos_Brownell_2011; @Ruggles_Fitch_Roberts_2018; @Kim_Schneider_Alvarez_2020; @Yoder_2020; @Kwiek_Roszka_2021].
+Record linkage, or "entity resolution," consists of identifying matching records across multiple datasets that lack common unique identifiers. Deduplication, on the other hand, involves recognizing duplicate entries within a dataset in which unique identifiers are either inconsistent or missing. These methods are fundamental tools for research in social and health sciences, among other fields [e.g., @Jutte_Roos_Brownell_2011; @Ruggles_Fitch_Roberts_2018; @Kim_Schneider_Alvarez_2020; @Yoder_2020; @Kwiek_Roszka_2021].
 
 Both tasks often require calculating string similarity metrics, such as the Jaro-Winkler metric, for all pairs of values between datasets. The `Fast-ER` package harnesses the computational power of graphical processing units (GPUs) to accelerate this dramatically. It estimates the widely used Fellegi-Sunter probabilistic model and performs the computationally intensive preprocessing steps, including calculating string similarity metrics, on CUDA-enabled GPUs.
 
