@@ -1,14 +1,18 @@
 Installation
 ============
 
-To install the Fast-ER package, execute the following commands:
+You can install the Fast-ER package directly from `pip`:
 
 .. code-block:: python
 
-   !pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
-    
-   import faster
+   pip install fast-er-link
 
+Alternatively, you can install it from the `GitHub repository <https://github.com/jacobmorrier/fast-er>`_:
+
+.. code-block:: python
+
+   pip install git+https://github.com/jacobmorrier/fast-er.git#egg=fast-er
+    
 Technical Requirements
 ----------------------
 
