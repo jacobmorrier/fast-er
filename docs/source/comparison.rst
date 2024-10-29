@@ -24,7 +24,7 @@ In these equations, :math:`\left|s\right|` denotes the length of the string :mat
 Utility Functions
 -----------------
 
-These functions are used internally by the ``Comparison`` class. You can leverage them to build your own record linkage pipelines.
+These functions are used internally by the ``Comparison`` class. You can use them to build your own record linkage pipelines.
 
 .. currentmodule:: faster.comparison
 .. autofunction:: jaro_winkler_gpu
