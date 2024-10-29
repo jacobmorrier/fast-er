@@ -42,4 +42,6 @@ To illustrate the performance of GPU-accelerated record linkage, we compare the 
 
 Analogously, we compare the performance of our library for deduplication with that of the leading CPU-powered software implementation. Deduplication was executed on one of the datasets described above. The results in \autoref{deduplication} confirm that our GPU-accelerated implementation runs over 60 times faster than `fastLink`.
 
+`Splink` is another popular CPU-powered implementation in Python [@Linacre_Lindsay_Manassis_Slade_Hepworth_2022]. Remarkably, it is compatible with standard Big Data environments like AWS Athena and PySpark. However, its performance on a typical single-machine setup is limited, so we have not included it in our benchmark.
+
 # References
