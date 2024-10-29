@@ -12,7 +12,7 @@ authors:
 affiliations:
 - name: Division of the Humanities and Social Sciences, California Institute of Technology, USA
   index: 1
-date: 26 October 2024
+date: 28 October 2024
 bibliography: paper.bib
 ---
 
