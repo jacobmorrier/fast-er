@@ -7,6 +7,7 @@ setup(
     name="fast-er",
     version="0.1.0",
     description="GPU-Accelerated Probabilistic Record Linkage in Python",
+    long_description="Fast-ER is a Python package for GPU-accelerated record linkage and deduplication.",
     url="https://github.com/jacobmorrier/fast-er",
     author="Jacob Morrier, Sulekha Kishore, R. Michael Alvarez",
     author_email="jmorrier@caltech.edu, sulekha@caltech.edu, rma@hss.caltech.edu",
