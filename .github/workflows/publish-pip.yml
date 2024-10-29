@@ -1,10 +1,6 @@
 name: Publish Python Package
 
-on:
-  push:
-    branches:
-      - main
-      - release/*  # Optional: Trigger on release branches
+on: push
 
 jobs:
   build:
