@@ -1,7 +1,7 @@
 Installation
 ============
 
-You can install the Fast-ER package directly from `pip`:
+You can install the Fast-ER package directly from ``pip``:
 
 .. code-block:: python
 
