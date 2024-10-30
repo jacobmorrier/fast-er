@@ -14,7 +14,7 @@ We begin by describing the record linkage pipeline. Record linkage consists of i
 
 The process begins by supplying the following inputs to the :doc:`Comparison <comparison>` class: (i) two datasets (``df_A`` and ``df_B``), (ii) variables to compare for fuzzy matching (``Vars_Fuzzy_A`` and ``Vars_Fuzzy_B``), and (iii) variables to compare for exact matching (``Vars_Exact_A`` and ``Vars_Exact_B``). The class then compares the values of all pairs of observations in both datasets, producing an array with the count of each pattern of discrete similarity levels across all variables stored in the ``Counts`` attribute. This array is the main input to the :doc:`Estimation <estimation>` class, which uses it to estimate the conditional match probability for each pattern of discrete similarity levels across all variables. In turn, along with the list of indices corresponding to each pattern from the :doc:`Comparison <comparison>` class, this information is the main input to the :doc:`Linkage <linkage>` class, which generates a dataset containing all pairs of observations with a conditional match probability above a user-specified threshold.
 
-.. note:: A pattern of similarity levels encodes the level of similarity between the two observations in a pair across all variables being compared. It can be conceptualized as a vector in which each element corresponds to the pair’s discrete level of similarity over a given variable.
+.. note:: A pattern of similarity levels encodes the level of similarity between the two observations in a pair across all variables being compared. It can be conceptualized as a vector in which each element reflects the pair’s discrete level of similarity over a given variable.
 
 Deduplication
 -------------
