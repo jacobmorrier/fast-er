@@ -11,7 +11,7 @@ The model presumes the existence of a latent variable :math:`M_{ij}`, which capt
 
 .. math::
 
-    \gamma_{ij}(k) \sim \textrm{Discrete}(\mathbf{\pi}_{km})
+    \gamma_{ij}(k) | M_{ij} = m \sim \textrm{Discrete}(\mathbf{\pi}_{km})
 
 .. math::
 
