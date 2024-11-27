@@ -424,59 +424,74 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   del indices
   mempool.free_all_blocks()
 
-  # Inverting indices1, i.e., translate into indices of original dataframes
-  indices1_A = indices1 // len(unique_B) # Unique values in df_A
+  if indices1.size > 0:
+  
+    # Inverting indices1, i.e., translate into indices of original dataframes
+    indices1_A = indices1 // len(unique_B) # Unique values in df_A
+  
+    indices1_B = indices1 % len(unique_B) # Unique values in df_B
+  
+    del indices1
+    mempool.free_all_blocks()
+  
+    # Counts of indices from original dataframes corresponding to each index from unique values
+    output1_count = unique_A_counts_gpu[indices1_A] * unique_B_counts_gpu[indices1_B] 
+  
+    # Array containing where indices from original dataframes start in output for each index from unique values
+    output1_offsets = cp.cumsum(output1_count, dtype = np.int64) 
+  
+    # Create output vector
+    output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64) 
+  
+    num_blocks = math.ceil(indices1_A.size / num_threads)
+  
+    _indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
+  
+    del indices1_A, indices1_B, output1_count, output1_offsets
+    mempool.free_all_blocks()
 
-  indices1_B = indices1 % len(unique_B) # Unique values in df_B
+    # Sort output vectors
+    output1_sorted = cp.sort(output1_gpu)
+    del output1_gpu
+    mempool.free_all_blocks()
 
-  del indices1
-  mempool.free_all_blocks()
+  else:
 
-  # Counts of indices from original dataframes corresponding to each index from unique values
-  output1_count = unique_A_counts_gpu[indices1_A] * unique_B_counts_gpu[indices1_B] 
+    output1_sorted = cp.zeros(0, dtype = np.int64)
 
-  # Array containing where indices from original dataframes start in output for each index from unique values
-  output1_offsets = cp.cumsum(output1_count, dtype = np.int64) 
+  if indices2.size > 0:
+    
+    # Inverting indices2
+    indices2_A = indices2 // len(unique_B)
+  
+    indices2_B = indices2 % len(unique_B)
+  
+    del indices2
+    mempool.free_all_blocks()
+  
+    output2_count = unique_A_counts_gpu[indices2_A] * unique_B_counts_gpu[indices2_B]
+  
+    output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
+  
+    output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
+  
+    num_blocks = math.ceil(indices2_A.size / num_threads)
+  
+    _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
+  
+    del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
+    mempool.free_all_blocks()
+  
+    output2_sorted = cp.sort(output2_gpu)
+    del output2_gpu
+    mempool.free_all_blocks()
 
-  # Create output vector
-  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64) 
+  else:
 
-  num_blocks = math.ceil(indices1_A.size / num_threads)
+    output2_sorted = cp.zeros(0, dtype = np.int64)
 
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output1_gpu, output1_offsets))
-
-  del indices1_A, indices1_B, output1_count, output1_offsets
-  mempool.free_all_blocks()
-
-  # Inverting indices2
-  indices2_A = indices2 // len(unique_B)
-
-  indices2_B = indices2 % len(unique_B)
-
-  del indices2
-  mempool.free_all_blocks()
-
-  output2_count = unique_A_counts_gpu[indices2_A] * unique_B_counts_gpu[indices2_B]
-
-  output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
-
-  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
-
-  num_blocks = math.ceil(indices2_A.size / num_threads)
-
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output2_gpu, output2_offsets))
-
-  del indices2_A, indices2_B, output2_count, output2_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
-  mempool.free_all_blocks()
-
-  # Sort output vectors
-  output1_sorted = cp.sort(output1_gpu)
-  del output1_gpu
-  mempool.free_all_blocks()
-
-  output2_sorted = cp.sort(output2_gpu)
-  del output2_gpu
-  mempool.free_all_blocks()
+    del unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
+    mempool.free_all_blocks()
 
   return [output1_sorted, output2_sorted]
 
@@ -546,30 +561,39 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   del equal_indices
   mempool.free_all_blocks()
 
-  indices_A = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices_raveled] - 2]
+  if equal_indices_raveled.size > 0:
 
-  indices_B = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices_raveled] - 1] - len(unique_A)
-
-  del unique_all_inverse_gpu, unique_all_inverse_argsort, unique_all_counts_gpu, unique_all_offsets_gpu, equal_indices_raveled
-  mempool.free_all_blocks()
-
-  output_count = unique_A_counts_gpu[indices_A] * unique_B_counts_gpu[indices_B]
-
-  output_offsets = cp.cumsum(output_count, dtype = np.int64)
-
-  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
-
-  num_blocks = math.ceil(indices_A.size / num_threads)
-
-  _indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, indices_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
-
-  del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
-  mempool.free_all_blocks()
-
-  output_sorted = cp.sort(output_gpu)
+    indices_A = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices_raveled] - 2]
   
-  del output_gpu
-  mempool.free_all_blocks()
+    indices_B = unique_all_inverse_argsort[unique_all_offsets_gpu[equal_indices_raveled] - 1] - len(unique_A)
+  
+    del unique_all_inverse_gpu, unique_all_inverse_argsort, unique_all_counts_gpu, unique_all_offsets_gpu, equal_indices_raveled
+    mempool.free_all_blocks()
+  
+    output_count = unique_A_counts_gpu[indices_A] * unique_B_counts_gpu[indices_B]
+  
+    output_offsets = cp.cumsum(output_count, dtype = np.int64)
+  
+    output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
+  
+    num_blocks = math.ceil(indices_A.size / num_threads)
+  
+    _indices_inverse_kernel((num_blocks,), (num_threads,), (indices_A, indices_B, indices_A.size, len(str_B), unique_A_inverse_sorted, unique_A_offsets_gpu, unique_A_counts_gpu, unique_B_inverse_sorted, unique_B_offsets_gpu, unique_B_counts_gpu, output_gpu, output_offsets))
+  
+    del indices_A, indices_B, output_count, output_offsets, unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
+    mempool.free_all_blocks()
+  
+    output_sorted = cp.sort(output_gpu)
+    
+    del output_gpu
+    mempool.free_all_blocks()
+
+  else:
+
+    output_sorted = cp.zeros(0, dtype = np.int64)
+
+    del unique_A_inverse_sorted, unique_A_counts_gpu, unique_A_offsets_gpu, unique_B_inverse_sorted, unique_B_counts_gpu, unique_B_offsets_gpu
+    mempool.free_all_blocks()
 
   return [output_sorted]
 
