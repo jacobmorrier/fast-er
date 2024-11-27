@@ -547,66 +547,81 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   del indices
   mempool.free_all_blocks()
 
-  # Invert indices1, i.e., translate into indices from the original data frame
-  indices1_A = indices1 // len(unique)
+  if indices1.size > 0:
+  
+    # Invert indices1, i.e., translate into indices from the original data frame
+    indices1_A = indices1 // len(unique)
+  
+    indices1_B = indices1 % len(unique)
+  
+    del indices1
+    mempool.free_all_blocks()
+  
+    # Calculate the output count for each input element
+    output1_count = cp.zeros(indices1_A.size, dtype = np.int32)
+  
+    num_blocks = math.ceil(indices1_A.size / num_threads)
+  
+    output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, unique_counts_gpu, output1_count))
+  
+    output1_offsets = cp.cumsum(output1_count, dtype = np.int64)
+  
+    output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
+  
+    indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
+  
+    del indices1_A, indices1_B, output1_count, output1_offsets
+    mempool.free_all_blocks()
 
-  indices1_B = indices1 % len(unique)
+    # Sort output vectors
+    output1_sorted = cp.sort(output1_gpu)
+  
+    del output1_gpu
+    mempool.free_all_blocks()
 
-  del indices1
-  mempool.free_all_blocks()
+  else:
 
-  # Calculate the output count for each input element
-  output1_count = cp.zeros(indices1_A.size, dtype = np.int32)
+    output1_sorted = cp.zeros(0, dtype = np.int64)
 
-  num_blocks = math.ceil(indices1_A.size / num_threads)
+  if indices2.size > 0:
 
-  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, unique_counts_gpu, output1_count))
+    # Invert indices2
+    indices2_A = indices2 // len(unique)
+  
+    indices2_B = indices2 % len(unique)
+  
+    del indices2
+    mempool.free_all_blocks()
+  
+    output2_count = cp.zeros(indices2_A.size, dtype = np.int32)
+  
+    num_blocks = math.ceil(indices2_A.size / num_threads)
+  
+    output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, unique_counts_gpu, output2_count))
+  
+    output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
+  
+    del output2_count
+    mempool.free_all_blocks()
+  
+    output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
+  
+    indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
+  
+    del indices2_A, indices2_B, output2_offsets, unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
+    mempool.free_all_blocks()
+  
+    output2_sorted = cp.sort(output2_gpu)
+  
+    del output2_gpu
+    mempool.free_all_blocks()
 
-  output1_offsets = cp.cumsum(output1_count, dtype = np.int64)
+  else:
 
-  output1_gpu = cp.zeros(int(output1_offsets[-1]), dtype = np.int64)
+    output2_sorted = cp.zeros(0, dtype = np.int64)
 
-  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices1_A, indices1_B, indices1_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output1_gpu, output1_offsets))
-
-  del indices1_A, indices1_B, output1_count, output1_offsets
-  mempool.free_all_blocks()
-
-  # Invert indices2
-  indices2_A = indices2 // len(unique)
-
-  indices2_B = indices2 % len(unique)
-
-  del indices2
-  mempool.free_all_blocks()
-
-  output2_count = cp.zeros(indices2_A.size, dtype = np.int32)
-
-  num_blocks = math.ceil(indices2_A.size / num_threads)
-
-  output_count_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, unique_counts_gpu, output2_count))
-
-  output2_offsets = cp.cumsum(output2_count, dtype = np.int64)
-
-  del output2_count
-  mempool.free_all_blocks()
-
-  output2_gpu = cp.zeros(int(output2_offsets[-1]), dtype = np.int64)
-
-  indices_inverse_dedup_kernel((num_blocks,), (num_threads,), (indices2_A, indices2_B, indices2_A.size, len(string), unique_inverse_sorted, unique_offsets_gpu, unique_counts_gpu, output2_gpu, output2_offsets))
-
-  del indices2_A, indices2_B, output2_offsets, unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
-  mempool.free_all_blocks()
-
-  # Sort output vectors
-  output1_sorted = cp.sort(output1_gpu)
-
-  del output1_gpu
-  mempool.free_all_blocks()
-
-  output2_sorted = cp.sort(output2_gpu)
-
-  del output2_gpu
-  mempool.free_all_blocks()
+    del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu
+    mempool.free_all_blocks()
 
   return [output1_sorted, output2_sorted]
 
@@ -651,28 +666,37 @@ def exact_dedup_gpu(string, num_threads = 256):
   del indices
   mempool.free_all_blocks()
 
-  # Invert indices, i.e., translating into indices from original data frame
-  output_count = unique_counts_gpu[indices_ravel] * (unique_counts_gpu[indices_ravel] - 1) / 2
+  if indices_ravel.size > 0:
+  
+    # Invert indices, i.e., translating into indices from original data frame
+    output_count = unique_counts_gpu[indices_ravel] * (unique_counts_gpu[indices_ravel] - 1) / 2
+  
+    output_offsets = cp.cumsum(output_count, dtype = np.int32)
+  
+    # Array indicating for the element of indices to which each element of the output is referring to
+    output_mask = cp.repeat(cp.arange(0, indices_ravel.size, dtype = np.int32), repeats = output_count.astype(int).get().tolist())
+  
+    output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
+  
+    num_blocks = math.ceil(output_gpu.size / num_threads)
+  
+    indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_sorted, unique_offsets_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
+  
+    del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
+    mempool.free_all_blocks()
+  
+    # Sort the output vector
+    output_sorted = cp.sort(output_gpu)
+  
+    del output_gpu
+    mempool.free_all_blocks()
 
-  output_offsets = cp.cumsum(output_count, dtype = np.int32)
+  else:
 
-  # Array indicating for the element of indices to which each element of the output is referring to
-  output_mask = cp.repeat(cp.arange(0, indices_ravel.size, dtype = np.int32), repeats = output_count.astype(int).get().tolist())
+    output_sorted = cp.zeros(0, dtype = np.int64)
 
-  output_gpu = cp.zeros(int(output_offsets[-1]), dtype = np.int64)
-
-  num_blocks = math.ceil(output_gpu.size / num_threads)
-
-  indices_inverse_exact_dedup_kernel((num_blocks,), (num_threads,), (indices_ravel, len(string), unique_inverse_sorted, unique_offsets_gpu, output_gpu, output_mask, output_offsets, output_gpu.size))
-
-  del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu, indices_ravel, output_count, output_mask, output_offsets
-  mempool.free_all_blocks()
-
-  # Sort the output vector
-  output_sorted = cp.sort(output_gpu)
-
-  del output_gpu
-  mempool.free_all_blocks()
+    del unique_inverse_sorted, unique_counts_gpu, unique_offsets_gpu, indices_ravel
+    mempool.free_all_blocks()
 
   return [output_sorted]
 
