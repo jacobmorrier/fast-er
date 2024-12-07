@@ -34,7 +34,13 @@ Fast-ER is a Python package for GPU-accelerated record linkage and deduplication
    :color: primary
    :expand:
 
-   Visit Our GitHub Repository
+   Visit our GitHub Repository
+
+.. button-link:: https://www.youtube.com/watch?v=wsv__0a_KDY&t=746s
+   :color: primary-line
+   :expand:
+   
+   See our Presentation to the Data Analytics Colloquium
 
 Key Features
 ------------
