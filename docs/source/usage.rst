@@ -1,5 +1,5 @@
-Usage Example
-=============
+Example
+=======
 
 Below is an example of a standard probabilistic record linkage pipeline using the package's classes:
 
@@ -21,6 +21,8 @@ Below is an example of a standard probabilistic record linkage pipeline using th
     link = faster.Linkage(df_A, df_B, comp.Indices, est.Ksi)
 
     df_linked = link.transform()
+
+You can find a notebook with a concrete example executable on Google Colab by visiting this `link <https://github.com/jacobmorrier/fast-er/blob/15cdb7c89137d71d5e32422d1adbbfdf3fb73ba1/example/Example.ipynb>`.
 
 .. tip::
     Fast-ER implements aggressive memory management to optimize the utilization of your GPU resources. Nevertheless, the size of the datasets you can join or deduplicate simultaneously remains constrained by the available GPU memory.
