@@ -251,9 +251,7 @@ _indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, "indices_inverse")
 
 def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
-  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays.
-  
-  This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
+  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays and returns the indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
 
   :param str1: First array of strings.
   :type str1: numpy.ndarray
@@ -347,9 +345,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
 def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 2.0):
   """
-  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays.
-  
-  This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
+  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays and returns the indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
   
   To speed up processing, this function restricts comparisons to unique values in both input strings.
 
@@ -514,7 +510,7 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   
   :returns: An array of indices corresponding to pairs with an exact match.
   
-            Indices are computed as ``i * len(str_B) + j``, where ``i`` is the index in ``str_A`` and ``j`` is the index in ``str_B``.
+            Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
   :rtype: list[cupy.ndarray]
   """
 
@@ -623,26 +619,26 @@ class Comparison():
   :param Vars_Exact_B: List of variable names in ``df_B`` corresponding to ``Vars_Exact_A``, in the same order. Defaults to an empty list.
   :type Vars_Exact_B: list[str], optional
   
-  :raises ValueError: If the lengths of ``Vars_Fuzzy_A`` and ``Vars_Fuzzy_B`` differ.
-  :raises ValueError: If the lengths of ``Vars_Exact_A`` and ``Vars_Exact_B`` differ.
-  :raises KeyError: If any name in ``Vars_Fuzzy_A`` or ``Vars_Fuzzy_B`` is not found in ``df_A`` or ``df_B`` respectively.
-  :raises KeyError: If any name in ``Vars_Exact_A`` or ``Vars_Exact_B`` is not found in ``df_A`` or ``df_B`` respectively.
+  :raises Exception: If the lengths of ``Vars_Fuzzy_A`` and ``Vars_Fuzzy_B`` differ.
+  :raises Exception: If the lengths of ``Vars_Exact_A`` and ``Vars_Exact_B`` differ.
+  :raises Exception: If any name in ``Vars_Fuzzy_A`` or ``Vars_Fuzzy_B`` is not found in ``df_A`` or ``df_B`` respectively.
+  :raises Exception: If any name in ``Vars_Exact_A`` or ``Vars_Exact_B`` is not found in ``df_A`` or ``df_B`` respectively.
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Vars_Fuzzy_A, Vars_Fuzzy_B, Vars_Exact_A = [], Vars_Exact_B = []):
 
     # Check Inputs
     if len(Vars_Fuzzy_A) != len(Vars_Fuzzy_B):
-      raise Exception("The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B must be the same.")
+      raise Exception("The lengths of Vars_Fuzzy_A and Vars_Fuzzy_B differ.")
 
     if len(Vars_Exact_A) != len(Vars_Exact_B):
-      raise Exception("The lengths of Vars_Exact_A and Vars_Exact_B must be the same.")
+      raise Exception("The lengths of Vars_Exact_A and Vars_Exact_B differ.")
 
     if any(var not in df_A.columns for var in Vars_Fuzzy_A) or any(var not in df_B.columns for var in Vars_Fuzzy_B):
-      raise Exception("The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B.")
+      raise Exception("The names in Vars_Fuzzy_A and Vars_Fuzzy_B must match variables names in df_A and df_B, respectively.")
 
     if any(var not in df_A.columns for var in Vars_Exact_A) or any(var not in df_B.columns for var in Vars_Exact_B):
-      raise Exception("The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B.")
+      raise Exception("The names in Vars_Exact_A and Vars_Exact_B must match variables names in df_A and df_B, respectively.")
 
     self.df_A = df_A
     self.df_B = df_B
@@ -656,7 +652,7 @@ class Comparison():
     
     :return: A list of arrays, where each array contains indices of record pairs associated with a specific pattern of discrete similarity levels.
 
-             Indices are computed as ``i * len(str_B) + j``, where ``i`` is the index in ``str_A`` and ``j`` is the index in ``str_B``.
+             Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
 
              Similarity patterns are defined iteratively across variables (both fuzzy and exact), following the order specified by the user. Variables listed later in the sequence define faster-changing discrete levels of similarity.
 
@@ -741,7 +737,7 @@ class Comparison():
     """
     This property stores the count of record pairs corresponding to each pattern of discrete similarity levels across all compared variables.
     
-    :return: A one-dimensional array containing the number of record pairs for each pattern of discrete similarity levels across variables.
+    :return: An array containing the number of pairs for each pattern of discrete similarity levels across variables.
     :rtype: numpy.ndarray
     """
     if not self._Fit_flag:
