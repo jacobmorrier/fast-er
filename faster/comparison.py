@@ -251,7 +251,7 @@ _indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, "indices_inverse")
 
 def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
-  Compute the Jaro-Winkler similarity between all pairs of strings in two arrays.
+  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays.
   
   This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
 
@@ -270,8 +270,8 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
   :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
   :return: A list containing two arrays of indices:
-           1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
-           2. Indices with Jaro-Winkler distance above `upper_thr`.
+             1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
+             2. Indices with Jaro-Winkler distance above `upper_thr`.
                    
            Indices represent `i * len(str_B) + j`, where `i` is the element's index in `str_A` and `j` is the element's index in `str_B`.
   :rtype: list[cp.array]
@@ -347,7 +347,7 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
 def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 2.0):
   """
-  Compute the Jaro-Winkler similarity between all pairs of strings in two arrays.
+  Computes the Jaro-Winkler similarity between all pairs of strings in two arrays.
   
   This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
   
@@ -368,8 +368,8 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
   :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
   :return: A list containing two arrays of indices:
-           1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
-           2. Indices with Jaro-Winkler distance above `upper_thr`.
+             1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
+             2. Indices with Jaro-Winkler distance above `upper_thr`.
                    
            Indices represent `i * len(str_B) + j`, where `i` is the element's index in `str_A` and `j` is the element's index in `str_B`.
   :rtype: list[cp.array]
@@ -503,7 +503,7 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
 def exact_gpu(str_A, str_B, num_threads = 256):
   """
-  Compare all pairs of strings in in two arrays and return the indices of exact matches.
+  Compares all pairs of strings in two arrays and returns the indices of exact matches.
 
   :param str_A: First array of strings.
   :type str_A: np.array
