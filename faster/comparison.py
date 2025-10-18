@@ -251,28 +251,30 @@ _indices_inverse_kernel = cp.RawKernel(_indices_inverse_code, "indices_inverse")
 
 def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256):
   """
-  This function computes the Jaro-Winkler similarity between all pairs of strings in str1 and str2.
-
-  :param str1: First array of strings
-  :type str1: np.array
-  :param str2: Second array of strings
-  :type str2: np.array
-  :param offset: Value added to all output indices, defaults to 0
-  :type offset: int, optional
-  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
-  :type p: float, optional
-  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
-  :type lower_thr: float, optional
-  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
-  :type upper_thr: float, optional
-  :param num_threads: Number of threads per block, defaults to 256
-  :type num_threads: int, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
+  Compute the Jaro-Winkler similarity between all pairs of strings in two arrays.
   
-           Indices with Jaro-Winkler distance above upper_thr
-           
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
-  :rtype: [cp.array, cp.array]
+  This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
+
+  :param str1: First array of strings.
+  :type str1: np.array
+  :param str2: Second array of strings.
+  :type str2: np.array
+  :param offset: Value added to all output indices. Defaults to 0.
+  :type offset: int, optional
+  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity. Defaults to 0.1.
+  :type p: float, optional
+  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance. Defaults to 0.88.
+  :type lower_thr: float, optional
+  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance. Defaults to 0.94.
+  :type upper_thr: float, optional
+  :param num_threads: Number of threads per block. Defaults to 256.
+  :type num_threads: int, optional
+  :return: A list containing two arrays of indices:
+           1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
+           2. Indices with Jaro-Winkler distance above `upper_thr`.
+                   
+           Indices represent `i * len(str_B) + j`, where `i` is the element's index in `str_A` and `j` is the element's index in `str_B`.
+  :rtype: list[cp.array]
   """
   
   mempool = cp.get_default_memory_pool()
@@ -345,28 +347,32 @@ def jaro_winkler_gpu(str1, str2, offset = 0, p = 0.1, lower_thr = 0.88, upper_th
 
 def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, num_threads = 256, max_chunk_size = 2.0):
   """
-  This function computes in chunks the Jaro-Winkler similarity between all pairs of strings in str_A and str_B. To speed up processing, this function restricts comparisons to unique values in both input strings.
-
-  :param str_A: First array of strings
-  :type str_A: np.array
-  :param str_B: Second array of strings
-  :type str_B: np.array
-  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity, defaults to 0.1
-  :type p: float, optional
-  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance, defaults to 0.88
-  :type lower_thr: float, optional
-  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance, defaults to 0.94
-  :type upper_thr: float, optional
-  :param num_threads: Number of threads per block, defaults to 256
-  :type num_threads: int, optional
-  :param max_chunk_size: Maximum memory size per chunk in gigabytes (GB), defaults to 2.0
-  :type max_chunk_size: float, optional
-  :return: Indices with Jaro-Winkler distance between lower_thr and upper_thr
+  Compute the Jaro-Winkler similarity between all pairs of strings in two arrays.
   
-           Indices with Jaro-Winkler distance above upper_thr
-           
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
-  :rtype: [cp.array, cp.array]
+  This function returns indices corresponding to pairs of strings whose Jaro-Winkler similarity falls within specified thresholds.
+  
+  To speed up processing, this function restricts comparisons to unique values in both input strings.
+
+  :param str1: First array of strings.
+  :type str1: np.array
+  :param str2: Second array of strings.
+  :type str2: np.array
+  :param offset: Value added to all output indices. Defaults to 0.
+  :type offset: int, optional
+  :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity. Defaults to 0.1.
+  :type p: float, optional
+  :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance. Defaults to 0.88.
+  :type lower_thr: float, optional
+  :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance. Defaults to 0.94.
+  :type upper_thr: float, optional
+  :param num_threads: Number of threads per block. Defaults to 256.
+  :type num_threads: int, optional
+  :return: A list containing two arrays of indices:
+           1. Indices with Jaro-Winkler distance between `lower_thr` and `upper_thr`.
+           2. Indices with Jaro-Winkler distance above `upper_thr`.
+                   
+           Indices represent `i * len(str_B) + j`, where `i` is the element's index in `str_A` and `j` is the element's index in `str_B`.
+  :rtype: list[cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
@@ -497,18 +503,19 @@ def jaro_winkler_unique_gpu(str_A, str_B, p = 0.1, lower_thr = 0.88, upper_thr =
 
 def exact_gpu(str_A, str_B, num_threads = 256):
   """
-  This function compares all pairs of values in str_A and str_B and returns the indices of pairs with the same value (i.e., exact match).
-  
-  :param str_A: First array of strings
+  Compare all pairs of strings in in two arrays and return the indices of exact matches.
+
+  :param str_A: First array of strings.
   :type str_A: np.array
-  :param str_B: Second array of strings
+  :param str_B: Second array of strings.
   :type str_B: np.array
-  :param num_threads: Number of threads per block, defaults to 256
+  :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
-  :return: Indices with an exact match
   
-           The indices represent i * len(str_B) + j, where i is the element's index in str_A and j is the element's index in str_B
-  :rtype: [cp.array]
+  :returns: An array of indices corresponding to pairs with an exact match.
+  
+            Indices are computed as `i * len(str_B) + j`, where `i` is the index in `str_A` and `j` is the index in `str_B`.
+  :rtype: list[cp.array]
   """
 
   mempool = cp.get_default_memory_pool()
