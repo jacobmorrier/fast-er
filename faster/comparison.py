@@ -667,12 +667,12 @@ class Comparison():
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity. Defaults to 0.1.
     :type p: float, optional
-    :param lower_thr: Lower threshold for discretizing the Jaro-Winkler distance. Defaults to 0.88.
-    :type lower_thr: float, optional
-    :param upper_thr: Upper threshold for discretizing the Jaro-Winkler distance. Defaults to 0.94.
-    :type upper_thr: float, optional
-    :param num_threads: Number of threads per block. Defaults to 256.
-    :type num_threads: int, optional
+    :param Lower_Thr: Lower threshold for discretizing the Jaro-Winkler distance. Defaults to 0.88.
+    :type Lower_Thr: float, optional
+    :param Upper_Thr: Upper threshold for discretizing the Jaro-Winkler distance. Defaults to 0.94.
+    :type Upper_Thr: float, optional
+    :param Num_Threads: Number of threads per block. Defaults to 256.
+    :type Num_Threads: int, optional
     :param Max_Chunk_Size: Maximum memory allocation per processing chunk, in gigabytes (GB). Defaults to 2.0.
     :type Max_Chunk_Size: float, optional
     
