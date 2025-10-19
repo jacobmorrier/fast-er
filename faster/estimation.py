@@ -3,14 +3,15 @@ import numpy as np
 
 class Estimation():
   """
-  This class estimates the parameters of the Fellegi-Sunter model given the observed patterns of discrete levels of similarity across variables.
+  Estimates the parameters of the Fellegi–Sunter model based on observed patterns of discrete similarity levels across multiple variables.
   
-  :param K_Fuzzy: Number of variables compared for fuzzy matching
+  :param K_Fuzzy: Number of variables compared for fuzzy matching.
   :type K_Fuzzy: int
-  :param K_Exact: Number of variables compared for exact matching
+  :param K_Exact: Number of variables compared for exact matching.
   :type K_Exact: int
-  :param Counts: Array containing the count of observations for each pattern of discrete levels of similarity across variables
-  :type Counts: np.array
+  :param Counts: Array containing the observed counts for each pattern of discrete similarity levels across the compared variables.
+                 Each element represents the frequency of a particular similarity combination.
+  :type Counts: numpy.ndarray
   """
 
   def __init__(self, K_Fuzzy: int, K_Exact: int, Counts: np.array):
@@ -20,61 +21,61 @@ class Estimation():
     self.Counts = Counts
     self.Gamma = self._Gamma()
     """
-    This attribute holds the patterns of discrete similarity levels across variables corresponding to each element in Counts.
+    Holds the matrix of observed patterns of discrete similarity levels across variables.
 
-    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables
+    :return: A matrix encoding all observed patterns of discrete similarity levels across variables.
     
-             Each row represents a pattern of discrete levels of similarity
+             - Each row represents a pattern of discrete similarity levels.
              
-             Each column represents a variable
+             - Each column represents a variable.  
              
-             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern
-    :rtype: np.array
+             - Each element represents the discrete similarity level for a specific variable in the given pattern.
+    :rtype: numpy.ndarray
     """
     self.Lambda = None
     """
-    This attribute holds the (estimated) overall probability that any two observations are matching.
+    Holds the (estimated) overall probability that any two observations are matching.
 
     :return: Unconditional match probability
     :rtype: float
     """
     self.Pi = None
     """
-    This attribute holds the (estimated) probability of observing each discrete level of similarity for each variable conditional on the latent match status.
+    Holds the estimated probability of observing each discrete level of similarity for each variable, conditional on the latent match status.
 
-    :return: Tensor containing the probability of observing each discrete level of similarity for each variable conditional on the latent match status
+    :return: A three-dimensional tensor containing the estimated probabilities of observing each discrete level of similarity for each variable, conditional on latent match status.
     
-             The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match
+             - The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match.
 
-             The second index denotes the variable
+             - The second index denotes the variable.
 
-             The third index denotes the discrete level of similarity, with higher values indicating greater similarity
-    :rtype: list of lists of np.array
+             - The third index denotes the discrete level of similarity, with higher values reflecting greater similarity.
+    :rtype: list[list[numpy.ndarray]]
     """
     self._Fit_flag = False
 
   def _Gamma(self):
     """
-    This internal method generates the representations of all patterns of discrete levels of similarity across variables in the format suitable for Gamma.
+    Generates all possible patterns of discrete similarity levels across variables in a format suitable for use with the ``Gamma`` tensor.
 
-    :return: Matrix encoding all the observed patterns of discrete levels of similarity across variables
+    :return: A matrix encoding all observed patterns of discrete similarity levels across variables.
     
-             Each row represents a pattern of discrete levels of similarity
+             - Each row represents a pattern of discrete levels of similarity.
              
-             Each column represents a variable
+             - Each column represents a variable.
              
-             The value of each element represents the discrete level of similarity for a specific variable in a particular pattern
-    :rtype: np.array
+             - Each element represents the discrete level of similarity for that variable in the given pattern.
+    :rtype: numpy.ndarray
     """
 
     return np.array(list(itertools.product(*(range(i) for i in np.repeat([3,2], [self.K_Fuzzy, self.K_Exact])))))
 
   def _match_probability(self):
     """
-    This internal method computes the conditional match probability for each pattern in Gamma given the current value of the parameters.
+    Computes the conditional match probability for each pattern in ``Gamma`` given the current parameter values.
 
-    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
-    :rtype: np.array
+    :return: An array containing the conditional match probabilities for each pattern of discrete similarity levels across variables.
+    :rtype: numpy.ndarray
     """
 
     cond_prob = np.zeros((2, len(self.Gamma)), dtype = np.float32)
@@ -97,11 +98,11 @@ class Estimation():
 
   def fit(self, Tolerance = 1e-4, Max_Iter = 5000):
     """
-    This method estimates the parameters of the Fellegi-Sunter model using the Expectation-Maximization (EM) algorithm.
+    Estimates the parameters of the Fellegi–Sunter model using the Expectation–Maximization (EM) algorithm.
     
-    :param Tolerance: Convergence is achieved when the largest change in Pi is smaller than the value of this parameter, defaults to 1e-4
+    :param Tolerance: Convergence threshold. The algorithm stops when the largest change in ``Pi`` is smaller than this value. Defaults to 1e-4.
     :type Tolerance: float, optional
-    :param Max_Iter: Maximal number of iterations of the EM algorithm, defaults to 5000
+    :param Max_Iter: Maximum number of EM iterations to perform. Defaults to 5000.
     :type Max_Iter: int, optional
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
@@ -160,10 +161,10 @@ class Estimation():
   @property
   def Ksi(self):
     """
-    This property represents the conditional match probabilities for each pattern of discrete levels of similarity across variables given the estimated parameters of the Fellegi-Sunter model.
+    Holds the conditional match probabilities for each pattern of discrete levels of similarity across variables, given the estimated parameters of the Fellegi-Sunter model.
 
-    :return: Array containing the conditional match probabilities for each pattern of discrete levels of similarity across variables
-    :rtype: np.array
+    :return: An array containing the conditional match probabilities for each pattern of discrete similarity levels across variables.
+    :rtype: numpy.ndarray
     :raises Exception: The model must be fitted first.
     """
 
