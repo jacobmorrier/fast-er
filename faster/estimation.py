@@ -34,9 +34,9 @@ class Estimation():
     """
     self.Lambda = None
     """
-    Holds the (estimated) overall probability that any two observations are matching.
+    Holds the estimated overall probability that any two observations are matching.
 
-    :return: Unconditional match probability
+    :return: Unconditional match probability.
     :rtype: float
     """
     self.Pi = None
