@@ -4,16 +4,16 @@ import pandas as pd
 
 class Linkage():
   """
-  This class links the records in two data frames based on previously estimated conditional match probabilities.
-
-  :param df_A: First data frame
-  :type df_A: pd.DataFrame
-  :param df_B: Second data frame
-  :type df_B: pd.DataFrame
-  :param Indices: List containing the indices of pairs of records in df_A and df_B corresponding to each pattern of discrete levels of similarity across variables
-  :type Indices: list of cp.array
-  :param Ksi: Array containing the conditional match probabilities for all patterns of discrete levels of similarity across variables
-  :type Ksi: np.array
+  A class for linking records between two Pandas DataFrames based on previously estimated conditional match probabilities.
+  
+  :param df_A: The first DataFrame containing records to be linked.
+  :type df_A: pandas.DataFrame
+  :param df_B: The second DataFrame containing records to be linked.
+  :type df_B: pandas.DataFrame
+  :param Indices: List of arrays, where each array contains the indices of record pairs from ``df_A`` and ``df_B`` corresponding to a specific pattern of discrete similarity levels across variables.
+  :type Indices: list[cupy.ndarray]
+  :param Ksi: Array of conditional match probabilities for all patterns of discrete similarity levels across variables.
+  :type Ksi: numpy.array
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
@@ -25,13 +25,13 @@ class Linkage():
 
   def transform(self, Threshold = 0.85):
     """
-    This method returns a dataframe in which all pairs of observations with conditional match probabilities above some threshold are linked.
+    Returns a DataFrame containing all pairs of records from ``df_A`` and ``df_B`` whose conditional match probabilities exceed a specified threshold.
 
-    :param Threshold: Threshold above which pairs of observations in df_A and df_B must be linked, defaults to 0.85
+    :param Threshold: Threshold value above which pairs of records from ``df_A`` and ``df_B`` are considered matches. Defaults to 0.85.
     :type Threshold: float, optional
-    :return: Data frame in which all pairs of records in df_A and df_B with a conditional match probability above the threshold are linked
-    :rtype: pd.DataFrame
-    :raises Exception: No pair of observations has a conditional match probability exceeding the threshold.
+    :return: A DataFrame linking all pairs of records from ``df_A`` and ``df_B`` with conditional match probabilities greater than the specified threshold.
+    :rtype: pandas.DataFrame
+    :raises Exception: If no pairs of records have conditional match probabilities exceeding the threshold.
     """
 
     mempool = cp.get_default_memory_pool()
