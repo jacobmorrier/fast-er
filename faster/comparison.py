@@ -507,10 +507,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   :type str_B: np.ndarray
   :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
+  :return: An array of indices corresponding to pairs with an exact match.
   
-  :returns: An array of indices corresponding to pairs with an exact match.
-  
-            Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
+           Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
   :rtype: list[cupy.ndarray]
   """
 
@@ -618,7 +617,6 @@ class Comparison():
   :type Vars_Exact_A: list[str], optional
   :param Vars_Exact_B: List of variable names in ``df_B`` corresponding to ``Vars_Exact_A``, in the same order. Defaults to an empty list.
   :type Vars_Exact_B: list[str], optional
-  
   :raises Exception: If the lengths of ``Vars_Fuzzy_A`` and ``Vars_Fuzzy_B`` differ.
   :raises Exception: If the lengths of ``Vars_Exact_A`` and ``Vars_Exact_B`` differ.
   :raises Exception: If any name in ``Vars_Fuzzy_A`` or ``Vars_Fuzzy_B`` is not found in ``df_A`` or ``df_B`` respectively.
@@ -675,7 +673,6 @@ class Comparison():
     :type Num_Threads: int, optional
     :param Max_Chunk_Size: Maximum memory allocation per processing chunk, in gigabytes (GB). Defaults to 2.0.
     :type Max_Chunk_Size: float, optional
-    
     :raises Exception: If the model has already been fitted, it cannot be fitted again.
     """
 
