@@ -74,5 +74,6 @@ How to Contribute
 -----------------
 
 We welcome contributions! You can help by:
+
 - Submitting `pull requests <https://github.com/jacobmorrier/fast-er/pulls>`_.
 - Opening `issues <https://github.com/jacobmorrier/fast-er/issues>`_ for feature suggestions, bug reports, or support requests.
