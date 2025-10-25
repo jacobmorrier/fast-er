@@ -3,14 +3,13 @@ import numpy as np
 
 class Estimation():
   """
-  Estimates the parameters of the Fellegi–Sunter model based on observed patterns of discrete similarity levels across multiple variables.
+  A class for estimating the parameters of the Fellegi–Sunter model based on observed patterns of discrete similarity levels across multiple variables.
   
   :param K_Fuzzy: Number of variables compared for fuzzy matching.
   :type K_Fuzzy: int
   :param K_Exact: Number of variables compared for exact matching.
   :type K_Exact: int
   :param Counts: Array containing the observed counts for each pattern of discrete similarity levels across the compared variables.
-                 Each element represents the frequency of a particular similarity combination.
   :type Counts: numpy.ndarray
   """
 
