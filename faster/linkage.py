@@ -13,7 +13,7 @@ class Linkage():
   :param Indices: List of arrays, where each array contains the indices of record pairs from ``df_A`` and ``df_B`` corresponding to a specific pattern of discrete similarity levels across variables.
   :type Indices: list[cupy.ndarray]
   :param Ksi: Array of conditional match probabilities for all patterns of discrete similarity levels across variables.
-  :type Ksi: numpy.array
+  :type Ksi: numpy.ndarray
   """
 
   def __init__(self, df_A: pd.DataFrame, df_B: pd.DataFrame, Indices, Ksi: np.array):
