@@ -502,9 +502,9 @@ def exact_gpu(str_A, str_B, num_threads = 256):
   Compares all pairs of strings in two arrays and returns the indices of exact matches.
 
   :param str_A: First array of strings.
-  :type str_A: np.ndarray
+  :type str_A: numpy.ndarray
   :param str_B: Second array of strings.
-  :type str_B: np.ndarray
+  :type str_B: numpy.ndarray
   :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
   :return: An array of indices corresponding to pairs with an exact match.
