@@ -56,16 +56,16 @@ _binary_search_kernel = cp.RawKernel(_binary_search_code, "binary_search_kernel"
 
 def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
   """
-  This function returns the elements that are common to arr1 and arr2, assuming both arrays are sorted in increasing order.
+  Returns the elements common to ``arr1`` and ``arr2``, assuming both input arrays are sorted in increasing order.
   
-  :param arr1: First array
-  :type arr1: cp.array
-  :param arr2: Second array
-  :type arr2: cp.array
-  :param num_threads: Number of threads per block, defaults to 256
+  :param arr1: First input array.
+  :type arr1: cupy.ndarray
+  :param arr2: Second input array.
+  :type arr2: cupy.ndarray
+  :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
-  :return: Array containing elements that are common to both arr1 and arr2
-  :rtype: cp.array
+  :return: Array containing the elements that are common to both ``arr1`` and ``arr2``.
+  :rtype: cupy.ndarray
   """
 
   if arr1.size == 0 or arr2.size == 0:
@@ -88,16 +88,16 @@ def intersect(arr1: cp.array, arr2: cp.array, num_threads = 256):
 
 def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
   """
-  This function returns the elements that are present in arr1 but not in arr2, assuming both arrays are sorted in increasing order.
+  Returns the elements that are present in ``arr1`` but not in ``arr2``, assuming both input arrays are sorted in increasing order.
   
-  :param arr1: First array
-  :type arr1: cp.array
-  :param arr2: Second array
-  :type arr2: cp.array
-  :param num_threads: Number of threads per block, defaults to 256
+  :param arr1: First input array.
+  :type arr1: cupy.ndarray
+  :param arr2: Second input array.
+  :type arr2: cupy.ndarray
+  :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
-  :return: Array with elements in arr1 but not in arr2
-  :rtype: cp.array
+  :return: Array containing the elements that are present in ``arr1`` but not in ``arr2``.
+  :rtype: cupy.ndarray
   """
 
   if arr1.size == 0 or arr2.size == 0:
@@ -120,13 +120,18 @@ def setdiff(arr1: cp.array, arr2: cp.array, num_threads = 256):
 
 def reduce(function, iterable, initial = None):
   """
-  This function iteratively applies a two-argument function to the elements of an iterable, from left to right, reducing it to a single value. The key difference with functools.reduce is that it releases GPU memory at each step of the process.
+  Iteratively applies a two-argument function to the elements of an iterable, from left to right, reducing them to a single value. 
 
-  :param function: Two-argument function to be applied to the elements of the iterable
-  :param iterable: Iterable
+  Unlike ``functools.reduce``, this implementation releases GPU memory at each step of the process.
+
+  :param function: A two-argument callable applied cumulatively to the elements of the iterable.
+  :type function: callable
+  :param iterable: The input iterable whose elements are reduced.
   :type iterable: iterable
-  :param initial: Initial value, defaults to None
-  :return: Outcome of function applied to the elements of iterable, from left to right
+  :param initial: Optional initial value to start the reduction. Defaults to None.
+  :type initial: any, optional  
+  :return: Final outcome obtained after applying ``function`` cumulatively to all elements of the iterable.
+  :rtype: any
   """
   
   mempool = cp.get_default_memory_pool()
