@@ -6,13 +6,13 @@ class Linkage():
   """
   A class for linking records between two Pandas DataFrames based on previously estimated conditional match probabilities.
   
-  :param df_A: The first DataFrame containing records to be linked.
+  :param df_A: First DataFrame to be linked.
   :type df_A: pandas.DataFrame
-  :param df_B: The second DataFrame containing records to be linked.
+  :param df_B: Second DataFrame to be linked.
   :type df_B: pandas.DataFrame
   :param Indices: List of arrays, where each array contains the indices of record pairs from ``df_A`` and ``df_B`` corresponding to a specific pattern of discrete similarity levels across variables.
   :type Indices: list[cupy.ndarray]
-  :param Ksi: Array of conditional match probabilities for all patterns of discrete similarity levels across variables.
+  :param Ksi: Array of conditional match probabilities for all combinations of discrete similarity levels across variables.
   :type Ksi: numpy.ndarray
   """
 
@@ -29,7 +29,7 @@ class Linkage():
 
     :param Threshold: Threshold value above which pairs of records from ``df_A`` and ``df_B`` are considered matches. Defaults to 0.85.
     :type Threshold: float, optional
-    :return: A DataFrame linking all pairs of records from ``df_A`` and ``df_B`` with conditional match probabilities greater than the specified threshold.
+    :return: DataFrame linking all pairs of records from ``df_A`` and ``df_B`` with conditional match probabilities greater than the specified threshold.
     :rtype: pandas.DataFrame
     :raises Exception: If no pairs of records have conditional match probabilities exceeding the threshold.
     """
