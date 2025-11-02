@@ -5,7 +5,7 @@ here = pathlib.Path(__file__).parent.resolve()
 
 setup(
     name="fast-er-link",
-    version="0.3.0",
+    version="0.3.1",
     description="GPU-Accelerated Record Linkage and Deduplication in Python",
     long_description="Fast-ER is a Python package for GPU-accelerated record linkage and deduplication.",
     url="https://github.com/jacobmorrier/fast-er",
