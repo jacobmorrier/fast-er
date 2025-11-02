@@ -22,9 +22,9 @@ class Estimation():
     """
     Holds the matrix of observed patterns of discrete similarity levels across variables.
 
-    :return: A matrix encoding all observed patterns of discrete similarity levels across variables.
+    :return: Matrix encoding all observed combinations of discrete similarity levels across variables.
     
-             - Each row represents a pattern of discrete similarity levels.
+             - Each row represents a combination of discrete similarity levels.
              
              - Each column represents a variable.  
              
@@ -42,7 +42,7 @@ class Estimation():
     """
     Holds the estimated probability of observing each discrete level of similarity for each variable, conditional on the latent match status.
 
-    :return: A three-dimensional tensor containing the estimated probabilities of observing each discrete level of similarity for each variable, conditional on latent match status.
+    :return: Three-dimensional tensor containing the estimated probabilities of observing each discrete level of similarity for each variable, conditional on latent match status.
     
              - The first index denotes the latent match status, where 0 represents a non-match and 1 represents a match.
 
@@ -55,11 +55,11 @@ class Estimation():
 
   def _Gamma(self):
     """
-    Generates all possible patterns of discrete similarity levels across variables in a format suitable for use with the ``Gamma`` tensor.
+    Generates all possible combinations of discrete similarity levels across variables in a format suitable for use with the ``Gamma`` tensor.
 
-    :return: A matrix encoding all observed patterns of discrete similarity levels across variables.
+    :return: Matrix encoding all observed combinations of discrete similarity levels across variables.
     
-             - Each row represents a pattern of discrete levels of similarity.
+             - Each row represents a combination of discrete levels of similarity.
              
              - Each column represents a variable.
              
@@ -73,7 +73,7 @@ class Estimation():
     """
     Computes the conditional match probability for each pattern in ``Gamma`` given the current parameter values.
 
-    :return: An array containing the conditional match probabilities for each pattern of discrete similarity levels across variables.
+    :return: Array containing the conditional match probabilities for each combination of discrete similarity levels across variables.
     :rtype: numpy.ndarray
     """
 
@@ -99,7 +99,7 @@ class Estimation():
     """
     Estimates the parameters of the Fellegi–Sunter model using the Expectation–Maximization (EM) algorithm.
     
-    :param Tolerance: Convergence threshold. The algorithm stops when the largest change in ``Pi`` is smaller than this value. Defaults to 1e-4.
+    :param Tolerance: Convergence threshold: the algorithm stops when the largest change in ``Pi`` is smaller than this value. Defaults to 1e-4.
     :type Tolerance: float, optional
     :param Max_Iter: Maximum number of EM iterations to perform. Defaults to 5000.
     :type Max_Iter: int, optional
@@ -160,9 +160,9 @@ class Estimation():
   @property
   def Ksi(self):
     """
-    Holds the conditional match probabilities for each pattern of discrete levels of similarity across variables, given the estimated parameters of the Fellegi-Sunter model.
+    Holds the conditional match probabilities for each combination of discrete levels of similarity across variables, given the estimated parameters of the Fellegi-Sunter model.
 
-    :return: An array containing the conditional match probabilities for each pattern of discrete similarity levels across variables.
+    :return: Array containing the conditional match probabilities for each pattern of discrete similarity levels across variables.
     :rtype: numpy.ndarray
     :raises Exception: The model must be fitted first.
     """
