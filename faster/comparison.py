@@ -605,9 +605,9 @@ class Comparison():
   
   This class supports both fuzzy and exact comparisons. Variables to be compared must be specified in corresponding lists for each DataFrame.
   
-  :param df_A: The first DataFrame to compare.
+  :param df_A: First DataFrame to compare.
   :type df_A: pandas.DataFrame
-  :param df_B: The second DataFrame to compare.
+  :param df_B: Second DataFrame to compare.
   :type df_B: pandas.DataFrame
   :param Vars_Fuzzy_A: List of variable names in ``df_A`` to be compared using fuzzy matching.
   :type Vars_Fuzzy_A: list[str]
