@@ -1,4 +1,4 @@
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 from .comparison import Comparison
 from .deduplication import Deduplication
