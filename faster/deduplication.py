@@ -406,7 +406,7 @@ def jaro_winkler_dedup_gpu(string, p = 0.1, lower_thr = 0.88, upper_thr = 0.94, 
   :type num_threads: int, optional
   :param max_chunk_size: Maximum memory allocation per processing chunk, in gigabytes (GB). Defaults to 2.0.
   :type max_chunk_size: float, optional
-  :return: A list containing two arrays of indices:
+  :return: List containing two arrays of indices:
              1. Indices with Jaro-Winkler distance between ``lower_thr`` and ``upper_thr``.
              2. Indices with Jaro-Winkler distance above ``upper_thr``.
                    
@@ -633,7 +633,7 @@ def exact_dedup_gpu(string, num_threads = 256):
   :type string: numpy.ndarray
   :param num_threads: Number of threads per block. Defaults to 256.
   :type num_threads: int, optional
-  :return: An array of indices corresponding to pairs with an exact match.
+  :return: Array of indices corresponding to pairs with an exact match.
   
            Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
   :rtype: list[cupy.ndarray]
@@ -724,9 +724,9 @@ class Deduplication():
     self.Vars_Exact = Vars_Exact
     self.Indices = None
     """
-    This attribute stores a list of index arrays representing pairs of records from ``df_A`` and ``df_B`` that correspond to each pattern of discrete similarity levels across all compared variables.
+    This attribute stores a list of index arrays representing pairs of records from ``df_A`` and ``df_B`` that correspond to each combination of discrete similarity levels across all compared variables.
     
-    :return: A list of arrays, where each array contains indices of record pairs associated with a specific pattern of discrete similarity levels.
+    :return: List of arrays, where each array contains indices of record pairs associated with a specific combination of discrete similarity levels.
 
              Indices represent ``i * len(str_B) + j``, where ``i`` is the element's index in ``str_A`` and ``j`` is the element's index in ``str_B``.
 
@@ -739,7 +739,7 @@ class Deduplication():
 
   def fit(self, p = 0.1,Lower_Thr = 0.88, Upper_Thr = 0.94, Num_Threads = 256, Max_Chunk_Size = 2.0):
     """
-    This method compares all pairs of observations across the selected variables in the dataframe. The result is stored in the Indices attribute.
+    Compares all pairs of observations across the selected variables in the dataframe. The result is stored in the Indices attribute.
 
     :param p: Scaling factor applied to the common prefix in the Jaro-Winkler similarity. Defaults to 0.1.
     :type p: float, optional
@@ -810,9 +810,9 @@ class Deduplication():
   @property
   def Counts(self):
     """
-    This property stores the count of record pairs corresponding to each pattern of discrete similarity levels across all compared variables.
+    This property stores the count of record pairs corresponding to each combination of discrete similarity levels across all compared variables.
     
-    :return: An array containing the number of pairs for each pattern of discrete similarity levels across variables.
+    :return: Array containing the number of pairs for each pattern of discrete similarity levels across variables.
     :rtype: numpy.ndarray
     """
     if not self._Fit_flag:
